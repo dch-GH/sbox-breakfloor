@@ -1,0 +1,21 @@
+{
+  "Title": "dellio",
+  "Type": "game",
+  "Org": "local",
+  "Ident": "dellio",
+  "Schema": 1,
+  "HasAssets": true,
+  "AssetsPath": "",
+  "ResourcePaths": null,
+  "HasCode": true,
+  "CodePath": "/code/",
+  "RootNamespace": "Sandbox",
+  "Metadata": {
+    "MapList": [
+      "null.breakfloor_tsar"
+    ],
+    "MapSelect": 2,
+    "MinPlayers": 2,
+    "MaxPlayers": 16
+  }
+}

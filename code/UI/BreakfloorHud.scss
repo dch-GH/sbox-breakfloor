@@ -1,0 +1,19 @@
+﻿rootpanel {
+    background-color: rgba( #333, 0 );
+    transition: background-color 0.2s ease-in;
+
+    &.devcamera {
+        display: none;
+    }
+}
+
+BasicTextPanel {
+    background-color: black;
+    border-radius: 24px;
+
+}
+
+
+RoundTimer {
+    background-color: black;
+}

@@ -1,0 +1,19 @@
+.health {
+    // background-color: rgba(255, 255, 255, 0.082);
+    background-color: rgba(0, 0, 0, 0.37);
+    backdrop-filter: blur(20px);
+    color: white;
+
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 2%;
+    bottom: 2%;
+    border-radius: 15px;
+    width: 140px;
+    height: 80px;
+
+    font-family: Poppins;
+    font-weight: 200;
+    font-size: 65px;
+}
