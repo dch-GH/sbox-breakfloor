@@ -6,7 +6,6 @@ using static Breakfloor.BreakfloorGame;
 
 partial class BreakfloorPlayer : Player
 {
-	TimeSince timeSinceDropped;
 	DamageInfo LastDamage;
 	public bool SupressPickupNotices { get; private set; }
 

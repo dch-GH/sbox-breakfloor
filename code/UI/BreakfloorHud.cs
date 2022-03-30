@@ -19,6 +19,7 @@ namespace Breakfloor.UI
 			RootPanel.AddChild<KillFeed>();
 			RootPanel.AddChild<Scoreboard<ScoreboardEntry>>();
 			RootPanel.AddChild<Health>();
+			RootPanel.AddChild<Ammo>();
 			RootPanel.AddChild<RoundTimer>();
 		}
 	}
