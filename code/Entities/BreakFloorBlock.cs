@@ -26,7 +26,7 @@ namespace Breakfloor
 		}
 
 		public override void TakeDamage( DamageInfo info )
-		{	
+		{
 			base.TakeDamage( info );
 		}
 
@@ -40,15 +40,9 @@ namespace Breakfloor
 
 		public void Reset()
 		{
-			Health = BreakfloorGame.BlockHealth;
+			Health = BreakfloorGame.BlockHealthCvar;
 			EnableAllCollisions = true;
 			EnableDrawing = true;
 		}
-
-		//[Event.Frame]
-		//public void Frame()
-		//{
-		//	DebugOverlay.Box( this, Color.Yellow );
-		//}
 	}
 }

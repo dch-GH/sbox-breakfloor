@@ -71,12 +71,25 @@ namespace Breakfloor
 		[Event.Tick.Server]
 		public void ServerTick()
 		{
+			//This is probably naive but I don't care lol.
 			if ( roundTimerStarted && roundTimerLastSecond >= 1 )
 			{
 				RoundTimer = RoundTimer.Subtract( TimeSpan.FromSeconds( 1 ) );
 				if ( RoundTimer.TotalSeconds <= 0 )
 				{
 					//handle restart round restart the timer etc.
+
+					foreach ( var block in Entity.All.OfType<BreakFloorBlock>() )
+					{
+						block.Reset();
+					}
+
+					foreach ( var c in Client.All )
+					{
+						(c.Pawn as BreakfloorPlayer).Respawn();
+					}
+
+					RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar );
 				}
 
 				roundTimerLastSecond = 0;

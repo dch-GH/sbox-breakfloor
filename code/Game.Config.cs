@@ -12,12 +12,12 @@ namespace Breakfloor
 		public const string GamePrefix = "bf_";
 
 		[ConVar.Replicated( GamePrefix + "block_hp" )]
-		public static float BlockHealth { get; set; } = 20f;
+		public static float BlockHealthCvar { get; set; } = 20f;
 
 		/// <summary>
 		/// Round time in minutes.
 		/// </summary>
 		[ConVar.Replicated( GamePrefix + "round_time" )]
-		public static int RoundTimeCvar { get; set; } = 7;
+		public static int RoundTimeCvar { get; set; } = 5;
 	}
 }

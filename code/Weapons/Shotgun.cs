@@ -1,25 +1,23 @@
 ﻿using Sandbox;
 
-
-[Library( "dm_shotgun", Title = "Shotgun" )]
-[Hammer.EditorModel( "weapons/rust_pumpshotgun/rust_pumpshotgun.vmdl" )]
-partial class Shotgun : BaseDmWeapon
+[Library( "weapon_shotgun", Title = "Shotgun", Spawnable = true )]
+partial class Shotgun : Weapon
 {
 	public override string ViewModelPath => "weapons/rust_pumpshotgun/v_rust_pumpshotgun.vmdl";
 	public override float PrimaryRate => 1;
 	public override float SecondaryRate => 1;
-	public override AmmoType AmmoType => AmmoType.Buckshot;
-	public override int ClipSize => 8;
 	public override float ReloadTime => 0.5f;
-	public override int Bucket => 2;
 
 	public override void Spawn()
 	{
 		base.Spawn();
 
 		SetModel( "weapons/rust_pumpshotgun/rust_pumpshotgun.vmdl" );
+	}
 
-		AmmoClip = 6;
+	public override void Reload()
+	{
+		return;
 	}
 
 	public override void AttackPrimary()
@@ -27,13 +25,7 @@ partial class Shotgun : BaseDmWeapon
 		TimeSincePrimaryAttack = 0;
 		TimeSinceSecondaryAttack = 0;
 
-		if ( !TakeAmmo( 1 ) )
-		{
-			DryFire();
-			return;
-		}
-
-		(Owner as AnimEntity).SetAnimParameter( "b_attack", true );
+		(Owner as AnimEntity)?.SetAnimParameter( "b_attack", true );
 
 		//
 		// Tell the clients to play the shoot effects
@@ -44,7 +36,7 @@ partial class Shotgun : BaseDmWeapon
 		//
 		// Shoot the bullets
 		//
-		ShootBullet( 0.15f, 0.3f, 9.0f, 3.0f, 10 );
+		ShootBullets( 10, 0.1f, 10.0f, 9.0f, 3.0f );
 	}
 
 	public override void AttackSecondary()
@@ -52,13 +44,7 @@ partial class Shotgun : BaseDmWeapon
 		TimeSincePrimaryAttack = -0.5f;
 		TimeSinceSecondaryAttack = -0.5f;
 
-		if ( !TakeAmmo( 2 ) )
-		{
-			DryFire();
-			return;
-		}
-
-		(Owner as AnimEntity).SetAnimParameter( "b_attack", true );
+		(Owner as AnimEntity)?.SetAnimParameter( "b_attack", true );
 
 		//
 		// Tell the clients to play the shoot effects
@@ -69,7 +55,7 @@ partial class Shotgun : BaseDmWeapon
 		//
 		// Shoot the bullets
 		//
-		ShootBullet( 0.4f, 0.3f, 8.0f, 3.0f, 20 );
+		ShootBullets( 20, 0.4f, 20.0f, 8.0f, 3.0f );
 	}
 
 	[ClientRpc]
@@ -113,26 +99,7 @@ partial class Shotgun : BaseDmWeapon
 		TimeSincePrimaryAttack = 0;
 		TimeSinceSecondaryAttack = 0;
 
-		if ( AmmoClip >= ClipSize )
-			return;
-
-		if ( Owner is BreakfloorPlayer player )
-		{
-			var ammo = player.TakeAmmo( AmmoType, 1 );
-			if ( ammo == 0 )
-				return;
-
-			AmmoClip += ammo;
-
-			if ( AmmoClip < ClipSize )
-			{
-				Reload();
-			}
-			else
-			{
-				FinishReload();
-			}
-		}
+		FinishReload();
 	}
 
 	[ClientRpc]
@@ -143,7 +110,7 @@ partial class Shotgun : BaseDmWeapon
 
 	public override void SimulateAnimator( PawnAnimator anim )
 	{
-		anim.SetAnimParameter( "holdtype", 2 ); // TODO this is shit
+		anim.SetAnimParameter( "holdtype", 3 ); // TODO this is shit
 		anim.SetAnimParameter( "aim_body_weight", 1.0f );
 	}
 }

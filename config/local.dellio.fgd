@@ -14,9 +14,9 @@
 ]
 
 //
-// Crossbow
+// Fists
 //
-@PointClass base(BaseProperties_local_dellio) editormodel( "weapons/rust_crossbow/rust_crossbow.vmdl" ) = dm_crossbow : ""
+@PointClass base(BaseProperties_local_dellio) = weapon_fists : ""
 [
 	enable_shadows(boolean) { group = "Rendering" } : "Shadow Casting" : 1 : "Whether this entity should cast shadows or not"
 
@@ -26,7 +26,7 @@
 //
 // Pistol
 //
-@PointClass base(BaseProperties_local_dellio) editormodel( "weapons/rust_pistol/rust_pistol.vmdl" ) = dm_pistol : ""
+@PointClass base(BaseProperties_local_dellio) = weapon_pistol : ""
 [
 	enable_shadows(boolean) { group = "Rendering" } : "Shadow Casting" : 1 : "Whether this entity should cast shadows or not"
 
@@ -36,7 +36,7 @@
 //
 // Shotgun
 //
-@PointClass base(BaseProperties_local_dellio) editormodel( "weapons/rust_pumpshotgun/rust_pumpshotgun.vmdl" ) = dm_shotgun : ""
+@PointClass base(BaseProperties_local_dellio) = weapon_shotgun : ""
 [
 	enable_shadows(boolean) { group = "Rendering" } : "Shadow Casting" : 1 : "Whether this entity should cast shadows or not"
 
@@ -46,7 +46,7 @@
 //
 // SMG
 //
-@PointClass base(BaseProperties_local_dellio) editormodel( "weapons/rust_smg/rust_smg.vmdl" ) = dm_smg : ""
+@PointClass base(BaseProperties_local_dellio) = weapon_smg : ""
 [
 	enable_shadows(boolean) { group = "Rendering" } : "Shadow Casting" : 1 : "Whether this entity should cast shadows or not"
 
@@ -62,13 +62,6 @@
 	enable_shadows(boolean) { group = "Rendering" } : "Shadow Casting" : 1 : "Whether this entity should cast shadows or not"
 
 	input SetColor(string) : "Sets the color of this entity. Format is '255 255 255 255'."
-]
-
-//
-// Breakfloor.HammerEnts.BlockGenStart
-//
-@SolidClass base(BaseProperties_local_dellio) drawangles() = bf_block_gen_info : ""
-[
 ]
 
 //

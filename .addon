@@ -1,15 +1,15 @@
 {
-  "Title": "dellio",
+  "Title": "Breakfloor",
   "Type": "game",
   "Org": "local",
-  "Ident": "dellio",
+  "Ident": "breakfloor",
   "Schema": 1,
   "HasAssets": true,
   "AssetsPath": "",
   "ResourcePaths": null,
   "HasCode": true,
   "CodePath": "/code/",
-  "RootNamespace": "Sandbox",
+  "RootNamespace": "Breakfloor",
   "Metadata": {
     "MapList": [
       "null.breakfloor_tsar"

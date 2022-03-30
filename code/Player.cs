@@ -12,7 +12,7 @@ partial class BreakfloorPlayer : Player
 
 	public BreakfloorPlayer()
 	{
-		Inventory = new DmInventory( this );
+		Inventory = new Inventory( this );
 	}
 
 	public override void Spawn()
@@ -35,23 +35,16 @@ partial class BreakfloorPlayer : Player
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
 
-		ClearAmmo();
 		Clothing.DressEntity( this );
 
 		SupressPickupNotices = true;
 
+		//Inventory.Add( new Fists() );
 		Inventory.Add( new Pistol(), true );
-		Inventory.Add( new Shotgun() );
 		Inventory.Add( new SMG() );
-		Inventory.Add( new Crossbow() );
-
-		GiveAmmo( AmmoType.Pistol, 100 );
-		GiveAmmo( AmmoType.Buckshot, 8 );
-		GiveAmmo( AmmoType.Crossbow, 4 );
 
 		SupressPickupNotices = false;
 		Health = 100;
-
 
 		LifeState = LifeState.Alive;
 		Health = 100;
@@ -60,14 +53,14 @@ partial class BreakfloorPlayer : Player
 
 		CreateHull();
 
-		var teamIndex = GetMyTeam( Client );
-		Log.Info( $"Player:{Client} has teamIndex: {teamIndex}." );
+		var teamIndex = GetMyTeam( Client );	
 		var spawn = Entity.All.OfType<BreakfloorSpawnPoint>()
 			.Where(x => x.Index == teamIndex)
 			.OrderBy(x => Guid.NewGuid())
 			.FirstOrDefault();
 
-		Log.Info($"Spawning player {Client} at {spawn} because it has index {spawn.Index}");
+		//Log.Info( $"Player:{Client} has teamIndex: {teamIndex}." );
+		//Log.Info($"Spawning player {Client} at {spawn} because it has index {spawn.Index}");
 
 		Transform = spawn.Transform;
 		
@@ -114,38 +107,14 @@ partial class BreakfloorPlayer : Player
 
 		TickPlayerUse();
 
-		if ( Input.Pressed( InputButton.Drop ) )
-		{
-			var dropped = Inventory.DropActive();
-			if ( dropped != null )
-			{
-				if ( dropped.PhysicsGroup != null )
-				{
-					dropped.PhysicsGroup.Velocity = Velocity + (EyeRotation.Forward + EyeRotation.Up) * 300;
-				}
-
-				timeSinceDropped = 0;
-				SwitchToBestWeapon();
-			}
-		}
-
 		SimulateActiveChild( cl, ActiveChild );
 
-		//
-		// If the current weapon is out of ammo and we last fired it over half a second ago
-		// lets try to switch to a better wepaon
-		//
-		if ( ActiveChild is BaseDmWeapon weapon && !weapon.IsUsable() && weapon.TimeSincePrimaryAttack > 0.5f && weapon.TimeSinceSecondaryAttack > 0.5f )
-		{
-			SwitchToBestWeapon();
-		}
 	}
 
 	public void SwitchToBestWeapon()
 	{
-		var best = Children.Select( x => x as BaseDmWeapon )
-			.Where( x => x.IsValid() && x.IsUsable() )
-			.OrderByDescending( x => x.BucketWeight )
+		var best = Children.Select( x => x as Weapon )
+			.Where( x => x.IsValid())
 			.FirstOrDefault();
 
 		if ( best == null ) return;
@@ -165,7 +134,6 @@ partial class BreakfloorPlayer : Player
 		if ( input.Pressed( InputButton.Slot8 ) ) SetActiveSlot( input, Inventory, 7 );
 		if ( input.Pressed( InputButton.Slot9 ) ) SetActiveSlot( input, Inventory, 8 );
 
-		//if ( input.MouseWheel != 0 ) SwitchActiveSlot( input, inventory, -input.MouseWheel );
 	}
 
 	private static void SetActiveSlot( InputBuilder input, IBaseInventory inventory, int i )
@@ -183,13 +151,6 @@ partial class BreakfloorPlayer : Player
 			return;
 
 		input.ActiveChild = ent;
-	}
-
-	public override void StartTouch( Entity other )
-	{
-		if ( timeSinceDropped < 1 ) return;
-
-		base.StartTouch( other );
 	}
 
 	public override void TakeDamage( DamageInfo info )

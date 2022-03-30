@@ -2,56 +2,52 @@
 using System;
 using System.Linq;
 
-partial class DmInventory : BaseInventory
+partial class Inventory : BaseInventory
 {
-
-
-	public DmInventory( Player player ) : base( player )
+	public Inventory( Player player ) : base( player )
 	{
-
 	}
 
-	public override bool Add( Entity ent, bool makeActive = false )
+	public override bool CanAdd( Entity entity )
 	{
-		var player = Owner as BreakfloorPlayer;
-		var weapon = ent as BaseDmWeapon;
-		var notices = !player.SupressPickupNotices;
-		//
-		// We don't want to pick up the same weapon twice
-		// But we'll take the ammo from it Winky Face
-		//
-		if ( weapon != null && IsCarryingType( ent.GetType() ) )
-		{
-			var ammo = weapon.AmmoClip;
-			var ammoType = weapon.AmmoType;
-
-			if ( ammo > 0 )
-			{
-				player.GiveAmmo( ammoType, ammo );
-
-				if ( notices )
-				{
-					Sound.FromWorld( "dm.pickup_ammo", ent.Position );
-					//PickupFeed.OnPickup( To.Single( player ), $"+{ammo} {ammoType}" );
-				}
-			}
-
-			// Despawn it
-			ent.Delete();
+		if ( !entity.IsValid() )
 			return false;
-		}
 
-		if ( weapon != null && notices )
-		{
-			Sound.FromWorld( "dm.pickup_weapon", ent.Position );
-			//PickupFeed.OnPickup( To.Single( player ), $"{ent.ClassInfo.Title}" ); 
-		}
+		if ( !base.CanAdd( entity ) )
+			return false;
 
-		return base.Add( ent, makeActive );
+		return !IsCarryingType( entity.GetType() );
+	}
+
+	public override bool Add( Entity entity, bool makeActive = false )
+	{
+		if ( !entity.IsValid() )
+			return false;
+
+		if ( IsCarryingType( entity.GetType() ) )
+			return false;
+
+		return base.Add( entity, makeActive );
 	}
 
 	public bool IsCarryingType( Type t )
 	{
-		return List.Any( x => x.GetType() == t );
+		return List.Any( x => x?.GetType() == t );
+	}
+
+	public override bool Drop( Entity ent )
+	{
+		if ( !Host.IsServer )
+			return false;
+
+		if ( !Contains( ent ) )
+			return false;
+
+		if ( ent is BaseCarriable bc )
+		{
+			bc.OnCarryDrop( Owner );
+		}
+
+		return ent.Parent == null;
 	}
 }
