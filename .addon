@@ -1,7 +1,7 @@
 {
   "Title": "Breakfloor",
   "Type": "game",
-  "Org": "null",
+  "Org": "local",
   "Ident": "breakfloor",
   "Schema": 1,
   "HasAssets": true,

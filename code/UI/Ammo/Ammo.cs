@@ -9,10 +9,10 @@ namespace Breakfloor.UI
 		Image icon { get; set; }
 		public Ammo()
 		{
-			var texture = Texture.Load( FileSystem.Mounted, "/textures/ui_ammo.png", true );
-			icon.Texture = texture;
-			icon.Style.Width = texture.Width / 8;
-			icon.Style.Height = texture.Height / 8;
+			//var texture = Texture.Load( FileSystem.Mounted, "/textures/ui_ammo.png", true );
+			//icon.Texture = texture;
+			//icon.Style.Width = texture.Width / 8;
+			//icon.Style.Height = texture.Height / 8;
 			AddClass( "ammo" );
 		}
 
