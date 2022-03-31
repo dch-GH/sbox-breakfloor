@@ -44,11 +44,11 @@ namespace Breakfloor
 			var teamDifference = TeamA.Count - TeamB.Count;
 			if ( teamDifference < 0 )
 			{
-				JoinTeam( cl, Team.A );
+				JoinTeam( cl, TeamIndexA );
 			}
 			else if ( teamDifference > 0 )
 			{
-				JoinTeam( cl, Team.B );
+				JoinTeam( cl, TeamIndexB );
 			}
 			else
 			{
@@ -64,6 +64,7 @@ namespace Breakfloor
 			//team is set.
 			if ( !roundTimerStarted && TeamA.Count >= 1 && TeamB.Count >= 1 )
 			{
+				RestartRound();
 				RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar );
 				roundTimerStarted = true;
 			}
@@ -79,22 +80,27 @@ namespace Breakfloor
 				if ( RoundTimer.TotalSeconds <= 0 )
 				{
 					//handle restart round restart the timer etc.
+					RestartRound();
 
-					foreach ( var block in Entity.All.OfType<BreakFloorBlock>() )
-					{
-						block.Reset();
-					}
-
-					foreach ( var c in Client.All )
-					{
-						(c.Pawn as BreakfloorPlayer).Respawn();
-					}
-
-					RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar );
 				}
 
 				roundTimerLastSecond = 0;
 			}
+		}
+
+		public void RestartRound()
+		{
+			foreach ( var block in Entity.All.OfType<BreakFloorBlock>() )
+			{
+				block.Reset();
+			}
+
+			foreach ( var c in Client.All )
+			{
+				(c.Pawn as BreakfloorPlayer).Respawn();
+			}
+
+			RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar );
 		}
 	}
 }
