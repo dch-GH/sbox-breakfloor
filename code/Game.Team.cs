@@ -70,7 +70,6 @@ namespace Breakfloor
 			int aValue = a.GetValue<int>( "team" );
 			int bValue = b.GetValue<int>( "team" );
 			return aValue == bValue;
-			//return (TeamA.Contains( a ) && TeamA.Contains( b )) || (TeamB.Contains( a ) && TeamB.Contains( b ));
 		}
 	}
 }

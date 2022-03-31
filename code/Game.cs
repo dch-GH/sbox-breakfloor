@@ -70,6 +70,13 @@ namespace Breakfloor
 			}
 		}
 
+		public override void ClientDisconnect( Client cl, NetworkDisconnectionReason reason )
+		{
+			if ( TeamA.Contains( cl ) ) TeamA.Remove( cl );
+			if ( TeamB.Contains( cl ) ) TeamB.Remove( cl );
+			base.ClientDisconnect( cl, reason );
+		}
+
 		[Event.Tick.Server]
 		public void ServerTick()
 		{
