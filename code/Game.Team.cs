@@ -67,6 +67,8 @@ namespace Breakfloor
 
 		public static bool SameTeam(Client a, Client b)
 		{
+			if ( a == null || b == null ) return false;
+
 			int aValue = a.GetValue<int>( "team" );
 			int bValue = b.GetValue<int>( "team" );
 			return aValue == bValue;
