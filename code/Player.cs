@@ -9,6 +9,8 @@ namespace Breakfloor
 	{
 		DamageInfo LastDamage;
 		public bool SupressPickupNotices { get; private set; }
+		
+		[Net] public BreakFloorBlock LastBlockStoodOn { get; private set; }
 
 		public BreakfloorPlayer()
 		{
@@ -65,6 +67,8 @@ namespace Breakfloor
 			Transform = spawn.Transform;
 
 			ResetInterpolation();
+
+			LastBlockStoodOn = null;
 		}
 
 		public override void OnKilled()
@@ -89,7 +93,6 @@ namespace Breakfloor
 			}
 		}
 
-
 		public override void Simulate( Client cl )
 		{
 			base.Simulate( cl );
@@ -102,8 +105,18 @@ namespace Breakfloor
 				ActiveChild = Input.ActiveChild;
 			}
 
+			if(Input.Released(InputButton.Flashlight))
+			{
+				Log.Info( LastBlockStoodOn );
+			}
+
 			if ( LifeState != LifeState.Alive )
 				return;
+
+			if(GroundEntity != null && GroundEntity.GetType() == typeof(BreakFloorBlock))
+			{
+				LastBlockStoodOn = (BreakFloorBlock)GroundEntity;
+			}
 
 			TickPlayerUse();
 

@@ -14,6 +14,8 @@ namespace Breakfloor
 		[Property( "WorldModel" )]
 		public string WorldModel { get; set; }
 
+		public bool Broken => LifeState == LifeState.Dead;
+
 		public override void Spawn()
 		{
 			base.Spawn();
@@ -35,11 +37,12 @@ namespace Breakfloor
 			Sound.FromWorld( "bf_block_glassbreak", Position );
 			EnableAllCollisions = false;
 			EnableDrawing = false;
-
+			LifeState = LifeState.Dead;
 		}
 
 		public void Reset()
 		{
+			LifeState = LifeState.Alive;
 			Health = BreakfloorGame.BlockHealthCvar;
 			EnableAllCollisions = true;
 			EnableDrawing = true;

@@ -42,7 +42,7 @@ namespace Breakfloor
 		{
 			var isAdmin = Devs.Contains( cl.PlayerId );
 			Log.Info( $"\"{cl.Name}\" has joined the game" );
-			BFChatbox.AddInformation( To.Everyone, $"{cl.Name} has joined", $"avatar:{cl.PlayerId}", isAdmin);
+			BFChatbox.AddInformation( To.Everyone, $"{cl.Name} has joined", $"avatar:{cl.PlayerId}", isAdmin );
 
 			//Decide which team the client will be on.
 			var teamDifference = TeamA.Count - TeamB.Count;
@@ -116,37 +116,81 @@ namespace Breakfloor
 			RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar );
 		}
 
-		public override void OnKilled( Client client, Entity pawn )
+		public override void OnKilled( Client victimClient, Entity victimPawn )
 		{
-			//manually overwriting the base.onkilled and tweaking it instead of calling it. its does some dumb shit.
+			//override the base.onkilled and tweaking it instead of calling it. its does some dumb shit.
 			Host.AssertServer();
 
-			Log.Info( $"{client.Name} was killed" );
+			Log.Info( $"{victimClient.Name} was killed" );
 
-			if ( pawn.LastAttacker != null )
+			if ( victimPawn.LastAttacker != null )
 			{
-				if ( pawn.LastAttacker.Client != null )
+				//If we died from the kill floor at the bottom
+				//Count the kill for the player who destroyed the block we last stood on
+				if ( victimPawn.LastAttacker.GetType() == typeof( TriggerHurt )
+					&& victimPawn is BreakfloorPlayer ply )
 				{
-					var killedByText = (pawn.LastAttackerWeapon as Weapon).GetKilledByText();
+					var block = ply.LastBlockStoodOn;	
+					if ( block != null && block.Broken )
+					{
+						if ( block.LastAttacker == victimPawn ) 
+						{
+							//the player broke their own block and died
+							var suicideText = new string[3] { "suicided", "played themself", "dug straight down" };
+							OnKilledMessage( To.Everyone, victimClient.PlayerId,
+							victimClient.Name,
+							-1,
+							String.Empty,
+							Rand.FromArray<string>( suicideText ) );
+						}
+						else
+						{
+							//someone else resulted in them getting killed
+							OnKilledMessage( To.Everyone, block.LastAttacker.Client.PlayerId,
+								block.LastAttacker.Client.Name,
+								victimClient.PlayerId,
+								victimClient.Name,
+								"BREAKFLOORED" );
+
+							//actually give the block breaker the kill
+							block.LastAttacker.Client.AddInt( "kills" );
+						}
+			
+					}
+					else
+					{
+						OnKilledMessage( To.Everyone, victimClient.PlayerId,
+						victimClient.Name,
+						-1,
+						String.Empty,
+						"died");
+					}
+
+					return;
+				}
+
+				if ( victimPawn.LastAttacker.Client != null )
+				{
+					var killedByText = (victimPawn.LastAttackerWeapon as Weapon).GetKilledByText();
 
 					if ( string.IsNullOrEmpty( killedByText ) )
 					{
-						killedByText = pawn.LastAttackerWeapon?.ClassInfo?.Title;
+						killedByText = victimPawn.LastAttackerWeapon?.ClassInfo?.Title;
 					}
 
-					OnKilledMessage( pawn.LastAttacker.Client.PlayerId, pawn.LastAttacker.Client.Name,
-						client.PlayerId,
-						client.Name,
+					OnKilledMessage( victimPawn.LastAttacker.Client.PlayerId, victimPawn.LastAttacker.Client.Name,
+						victimClient.PlayerId,
+						victimClient.Name,
 						killedByText );
 				}
 				else
 				{
-					OnKilledMessage( pawn.LastAttacker.NetworkIdent, pawn.LastAttacker.ToString(), client.PlayerId, client.Name, "killed" );
+					OnKilledMessage( victimPawn.LastAttacker.NetworkIdent, victimPawn.LastAttacker.ToString(), victimClient.PlayerId, victimClient.Name, "killed" );
 				}
 			}
 			else
 			{
-				OnKilledMessage( 0, "", client.PlayerId, client.Name, "died" );
+				OnKilledMessage( 0, "", victimClient.PlayerId, victimClient.Name, "died" );
 			}
 
 			//Log.Info( $"{client.Name} was killed by {killer.Client.NetworkIdent} with {weapon}" );
