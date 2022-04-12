@@ -11,7 +11,7 @@ partial class SMG : Weapon
 
 	public override string GetKilledByText()
 	{
-		var options = new string[4] { "sprayed", "dusted", "swiss cheese'd", "shot up" };
+		var options = new string[5] { "sprayed", "dusted", "swiss cheese'd", "shot up", "gunned down" };
 		return Rand.FromArray<string>( options );
 	}
 
@@ -41,10 +41,9 @@ partial class SMG : Weapon
 		PlaySound( "rust_smg.shoot" );
 
 		// Shoot the bullets
-		var spread = (Owner as Breakfloor.BreakfloorPlayer).Controller.HasTag( "ducked" ) 
-			? 0.09f 
+		var spread = (Owner as Breakfloor.BreakfloorPlayer).Controller.HasTag( "ducked" )
+			? 0.09f
 			: 0.12f; //yikes lol
-		Log.Info( spread );
 		ShootBullet( spread, 1.5f, 9.0f, 3.0f );
 	}
 
