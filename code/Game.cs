@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Breakfloor.UI;
 
 namespace Breakfloor
 {
@@ -25,7 +26,8 @@ namespace Breakfloor
 			//
 			if ( IsServer )
 			{
-				_ = new Breakfloor.UI.BreakfloorHud();
+				Devs = new List<long>() { 76561197998255119 };
+				_ = new BreakfloorHud();
 				RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar ); //so the timer can be frozen at the roundtimecvar.
 			}
 
@@ -38,7 +40,9 @@ namespace Breakfloor
 
 		public override void ClientJoined( Client cl )
 		{
-			base.ClientJoined( cl );
+			var isAdmin = Devs.Contains( cl.PlayerId );
+			Log.Info( $"\"{cl.Name}\" has joined the game" );
+			BFChatbox.AddInformation( To.Everyone, $"{cl.Name} has joined", $"avatar:{cl.PlayerId}", isAdmin);
 
 			//Decide which team the client will be on.
 			var teamDifference = TeamA.Count - TeamB.Count;
@@ -105,9 +109,47 @@ namespace Breakfloor
 			foreach ( var c in Client.All )
 			{
 				(c.Pawn as BreakfloorPlayer).Respawn();
+				c.SetInt( "kills", 0 );
+				c.SetInt( "deaths", 0 );
 			}
 
 			RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar );
+		}
+
+		public override void OnKilled( Client client, Entity pawn )
+		{
+			//manually overwriting the base.onkilled and tweaking it instead of calling it. its does some dumb shit.
+			Host.AssertServer();
+
+			Log.Info( $"{client.Name} was killed" );
+
+			if ( pawn.LastAttacker != null )
+			{
+				if ( pawn.LastAttacker.Client != null )
+				{
+					var killedByText = (pawn.LastAttackerWeapon as Weapon).GetKilledByText();
+
+					if ( string.IsNullOrEmpty( killedByText ) )
+					{
+						killedByText = pawn.LastAttackerWeapon?.ClassInfo?.Title;
+					}
+
+					OnKilledMessage( pawn.LastAttacker.Client.PlayerId, pawn.LastAttacker.Client.Name,
+						client.PlayerId,
+						client.Name,
+						killedByText );
+				}
+				else
+				{
+					OnKilledMessage( pawn.LastAttacker.NetworkIdent, pawn.LastAttacker.ToString(), client.PlayerId, client.Name, "killed" );
+				}
+			}
+			else
+			{
+				OnKilledMessage( 0, "", client.PlayerId, client.Name, "died" );
+			}
+
+			//Log.Info( $"{client.Name} was killed by {killer.Client.NetworkIdent} with {weapon}" );
 		}
 	}
 }
