@@ -13,14 +13,14 @@ namespace Breakfloor.UI
 			RootPanel.StyleSheet.Load( "/UI/BreakfloorHud.scss" );
 
 			RootPanel.AddChild<NameTags>();
-			RootPanel.AddChild<CrosshairCanvas>();
-			RootPanel.AddChild<ChatBox>();
+			RootPanel.AddChild<BFChatbox>();
 			RootPanel.AddChild<VoiceList>();
 			RootPanel.AddChild<KillFeed>();
 			RootPanel.AddChild<Scoreboard<ScoreboardEntry>>();
 			RootPanel.AddChild<Health>();
 			RootPanel.AddChild<Ammo>();
 			RootPanel.AddChild<RoundTimer>();
+			RootPanel.AddChild<Crosshair>();
 		}
 	}
 }
