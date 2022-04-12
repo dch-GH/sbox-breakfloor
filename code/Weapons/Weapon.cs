@@ -113,6 +113,7 @@ public partial class Weapon : BaseWeapon, IUse
 		};
 
 		ViewModelEntity.SetModel( ViewModelPath );
+		ViewModelEntity.SetAnimParameter( "deploy", true );
 	}
 
 	public bool OnUse( Entity user )
