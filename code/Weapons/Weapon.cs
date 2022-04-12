@@ -18,16 +18,15 @@ public partial class Weapon : BaseWeapon, IUse
 	/// <summary>
 	/// this is all for a weird bug where weapons just spawn at the world origin when a player/bot joins the first time. thefuck?
 	/// </summary>
-	private TimeSince timeSinceSpawnedWorld;
+	private int tickAtSpawn;
 
 	public virtual string GetKilledByText() { return string.Empty; }
 
 	[Event.Tick.Server]
 	public void TickServer()
 	{
-		if(timeSinceSpawnedWorld >= 0.8f && Owner == null)
+		if ( Time.Tick - tickAtSpawn >= 1 && Owner == null )
 		{
-			Log.Info( "Deleting null owned weapon.");
 			Delete();
 		}
 
@@ -46,7 +45,7 @@ public partial class Weapon : BaseWeapon, IUse
 		};
 
 		PickupTrigger.PhysicsBody.AutoSleep = false;
-		timeSinceSpawnedWorld = 0;
+		tickAtSpawn = Time.Tick;
 	}
 
 	public override void ActiveStart( Entity ent )
