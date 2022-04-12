@@ -5,9 +5,15 @@ partial class SMG : Weapon
 {
 	public override string ViewModelPath => "weapons/rust_smg/v_rust_smg.vmdl";
 
-	public override float PrimaryRate => 15.0f;
+	public override float PrimaryRate => 9.0f;
 	public override float SecondaryRate => 1.0f;
 	public override float ReloadTime => 5.0f;
+
+	public override string GetKilledByText()
+	{
+		var options = new string[4] { "sprayed", "dusted", "swiss cheese'd", "shot up" };
+		return Rand.FromArray<string>( options );
+	}
 
 	public override void Spawn()
 	{
@@ -34,10 +40,12 @@ partial class SMG : Weapon
 		ShootEffects();
 		PlaySound( "rust_smg.shoot" );
 
-		//
 		// Shoot the bullets
-		//
-		ShootBullet( 0.1f, 1.5f, 5.0f, 3.0f );
+		var spread = (Owner as Breakfloor.BreakfloorPlayer).Controller.HasTag( "ducked" ) 
+			? 0.09f 
+			: 0.12f; //yikes lol
+		Log.Info( spread );
+		ShootBullet( spread, 1.5f, 9.0f, 3.0f );
 	}
 
 	public override void AttackSecondary()

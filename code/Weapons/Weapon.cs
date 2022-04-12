@@ -20,6 +20,8 @@ public partial class Weapon : BaseWeapon, IUse
 	/// </summary>
 	private TimeSince timeSinceSpawnedWorld;
 
+	public virtual string GetKilledByText() { return string.Empty; }
+
 	[Event.Tick.Server]
 	public void TickServer()
 	{

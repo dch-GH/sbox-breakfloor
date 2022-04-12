@@ -10,6 +10,12 @@ partial class Pistol : Weapon
 
 	public TimeSince TimeSinceDischarge { get; set; }
 
+	public override string GetKilledByText()
+	{
+		var options = new string[5] { "smoked", "popped", "poked a hole in", "iced", "spun the block on" };
+		return Rand.FromArray<string>( options );
+	}
+
 	public override void Spawn()
 	{
 		base.Spawn();
