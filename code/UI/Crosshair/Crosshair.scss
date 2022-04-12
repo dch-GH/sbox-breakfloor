@@ -1,0 +1,18 @@
+crosshair {
+    position: absolute;
+
+    width: 10px;
+    height:10px;
+    left: 50%;
+    top: 50%;
+
+    margin-top: -5px;
+    margin-left: -5px;
+
+    border-width: 1px;
+    border-color: white;
+    border-radius: 2px;
+
+    backdrop-filter: invert(60%);
+
+}
