@@ -13,18 +13,41 @@ namespace Breakfloor
 
 		public override void DoPlayerDevCam( Client client )
 		{
+			Host.AssertServer();
+
 			if ( !Devs.Contains( client.PlayerId ) )
 				return;
 
-			base.DoPlayerDevCam( client );
+			var camera = client.Components.Get<DevCamera>( true );
+
+			if ( camera == null )
+			{
+				camera = new DevCamera();
+				client.Components.Add( camera );
+				return;
+			}
+
+			camera.Enabled = !camera.Enabled;
 		}
 
 		public override void DoPlayerNoclip( Client client )
 		{
+			Host.AssertServer();
+
 			if ( !Devs.Contains( client.PlayerId ) )
 				return;
 
-			base.DoPlayerNoclip( client );
+			if ( client.Pawn is Player basePlayer )
+			{
+				if ( basePlayer.DevController is NoclipController )
+				{
+					basePlayer.DevController = null;
+				}
+				else
+				{
+					basePlayer.DevController = new NoclipController();
+				}
+			}
 		}
 
 		[ServerCmd( "bf_status" )]
