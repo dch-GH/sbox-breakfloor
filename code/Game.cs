@@ -105,9 +105,16 @@ namespace Breakfloor
 
 		public void RestartRound()
 		{
+			//gotta love foreachs :D
+
 			foreach ( var block in Entity.All.OfType<BreakFloorBlock>() )
 			{
 				block.Reset();
+			}
+			
+			foreach ( var e in WorldEntity.All )
+			{
+				e.RemoveAllDecals();
 			}
 
 			foreach ( var c in Client.All )
