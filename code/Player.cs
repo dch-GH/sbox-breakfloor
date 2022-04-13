@@ -2,6 +2,7 @@
 using Sandbox;
 using System;
 using System.Linq;
+using Breakfloor.Weapons;
 
 namespace Breakfloor
 {
@@ -41,7 +42,6 @@ namespace Breakfloor
 
 			SupressPickupNotices = true;
 
-			//Inventory.Add( new Fists() );
 			Inventory.Add( new Pistol(), true );
 			Inventory.Add( new SMG() );
 
@@ -75,7 +75,6 @@ namespace Breakfloor
 		{
 			base.OnKilled();
 
-			Inventory.DropActive();
 			Inventory.DeleteContents();
 
 			BecomeRagdollOnClient( LastDamage.Force, GetHitboxBone( LastDamage.HitboxIndex ) );
@@ -126,7 +125,7 @@ namespace Breakfloor
 
 		public void SwitchToBestWeapon()
 		{
-			var best = Children.Select( x => x as Weapon )
+			var best = Children.Select( x => x as BreakfloorWeapon )
 				.Where( x => x.IsValid() )
 				.FirstOrDefault();
 
@@ -156,8 +155,11 @@ namespace Breakfloor
 			if ( player == null )
 				return;
 
+			var activeChild = player.ActiveChild;
+			if ( activeChild is BreakfloorWeapon weapon && weapon.IsReloading ) return; //No weapon switch while reloading
+
 			var ent = inventory.GetSlot( i );
-			if ( player.ActiveChild == ent )
+			if ( activeChild == ent )
 				return;
 
 			if ( ent == null )

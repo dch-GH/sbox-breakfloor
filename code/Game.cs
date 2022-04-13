@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Breakfloor.UI;
+using Breakfloor.Weapons;
 
 namespace Breakfloor
 {
@@ -63,6 +64,9 @@ namespace Breakfloor
 			cl.Pawn = player;
 			player.UpdateClothes( cl );
 			player.Respawn();
+
+			BFChatbox.AddInformation( To.Single(cl), 
+				$"Welcome to Breakfloor! You can toggle auto reloading on by typing \"bf_auto_reload true\" in the console." );
 
 			//Update the status of the round timer AFTER the joining client's
 			//team is set.
@@ -136,7 +140,7 @@ namespace Breakfloor
 						if ( block.LastAttacker == victimPawn ) 
 						{
 							//the player broke their own block and died
-							var suicideText = new string[3] { "suicided", "played themself", "dug straight down" };
+							var suicideText = new string[3] { "got themself killed", "played themself", "dug straight down" };
 							OnKilledMessage( To.Everyone, victimClient.PlayerId,
 							victimClient.Name,
 							-1,
@@ -171,26 +175,26 @@ namespace Breakfloor
 
 				if ( victimPawn.LastAttacker.Client != null )
 				{
-					var killedByText = (victimPawn.LastAttackerWeapon as Weapon).GetKilledByText();
+					var killedByText = (victimPawn.LastAttackerWeapon as BreakfloorWeapon).GetKilledByText();
 
 					if ( string.IsNullOrEmpty( killedByText ) )
 					{
 						killedByText = victimPawn.LastAttackerWeapon?.ClassInfo?.Title;
 					}
 
-					OnKilledMessage( victimPawn.LastAttacker.Client.PlayerId, victimPawn.LastAttacker.Client.Name,
+					OnKilledMessage( To.Everyone, victimPawn.LastAttacker.Client.PlayerId, victimPawn.LastAttacker.Client.Name,
 						victimClient.PlayerId,
 						victimClient.Name,
 						killedByText );
 				}
 				else
 				{
-					OnKilledMessage( victimPawn.LastAttacker.NetworkIdent, victimPawn.LastAttacker.ToString(), victimClient.PlayerId, victimClient.Name, "killed" );
+					OnKilledMessage( To.Everyone, victimPawn.LastAttacker.NetworkIdent, victimPawn.LastAttacker.ToString(), victimClient.PlayerId, victimClient.Name, "killed" );
 				}
 			}
 			else
 			{
-				OnKilledMessage( 0, "", victimClient.PlayerId, victimClient.Name, "died" );
+				OnKilledMessage( To.Everyone, 0, "", victimClient.PlayerId, victimClient.Name, "died" );
 			}
 
 			//Log.Info( $"{client.Name} was killed by {killer.Client.NetworkIdent} with {weapon}" );
