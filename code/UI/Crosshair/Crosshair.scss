@@ -15,3 +15,28 @@ crosshair {
 
     backdrop-filter: invert(100%);
 }
+
+reload {
+    color: rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 2px;
+    position: absolute;
+    width: 64px;
+    height: 22px;
+    font-family: Poppins;
+    font-weight: bold;
+    left: 200%;
+    top: 100%;
+    justify-content: center;
+
+    transition: background-color 0.3s ease-in-out;
+    transition: color 0.2s ease-in-out;
+
+    &.active {
+        transition: all 0.4s ease-in-out;
+        color: rgb(255, 255, 255);
+        text-shadow: 1px 2px black;
+        background-color: rgba(218, 60, 21, 0.541);
+        backdrop-filter: blur(20px);
+    }
+}
