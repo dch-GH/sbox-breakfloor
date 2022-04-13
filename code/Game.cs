@@ -9,6 +9,7 @@ namespace Breakfloor
 {
 	partial class BreakfloorGame : Game
 	{
+		public static readonly string VERSION = "1.0.0";
 		public static readonly Vector3 BlockDimensions = new Vector3( 64, 64, 64 );
 
 		public static BreakfloorGame Instance => Current as BreakfloorGame;
@@ -30,6 +31,7 @@ namespace Breakfloor
 				Devs = new List<long>() { 76561197998255119 };
 				_ = new BreakfloorHud();
 				RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar ); //so the timer can be frozen at the roundtimecvar.
+				Log.Info( $"Breakfloor server running version: {VERSION}" );
 			}
 
 		}
@@ -61,7 +63,7 @@ namespace Breakfloor
 			player.Respawn();
 
 			BFChatbox.AddInformation( To.Single(cl), 
-				$"Welcome to Breakfloor! You can toggle auto reloading on by typing \"bf_auto_reload true\" in the console." );
+				$"Welcome to Breakfloor! Toggle auto reloading by typing \"bf_auto_reload true\" in the console." );
 
 			//Update the status of the round timer AFTER the joining client's
 			//team is set.
