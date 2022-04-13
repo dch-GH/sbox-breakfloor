@@ -34,11 +34,6 @@ namespace Breakfloor
 
 		}
 
-		public override void PostLevelLoaded()
-		{
-			base.PostLevelLoaded();
-		}
-
 		public override void ClientJoined( Client cl )
 		{
 			var isAdmin = Devs.Contains( cl.PlayerId );
