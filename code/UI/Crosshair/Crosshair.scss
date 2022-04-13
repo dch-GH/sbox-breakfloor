@@ -22,9 +22,11 @@ reload {
     border-radius: 2px;
     position: absolute;
     width: 64px;
+    min-width: 64px;
     height: 22px;
     font-family: Poppins;
     font-weight: bold;
+    font-size: 14px;
     left: 200%;
     top: 100%;
     justify-content: center;
