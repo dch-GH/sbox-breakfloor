@@ -10,7 +10,7 @@ namespace Breakfloor
 	{
 		DamageInfo LastDamage;
 		public bool SupressPickupNotices { get; private set; }
-		
+
 		[Net] public BreakFloorBlock LastBlockStoodOn { get; private set; }
 
 		public BreakfloorPlayer()
@@ -104,15 +104,10 @@ namespace Breakfloor
 				ActiveChild = Input.ActiveChild;
 			}
 
-			if(Input.Released(InputButton.Flashlight))
-			{
-				Log.Info( LastBlockStoodOn );
-			}
-
 			if ( LifeState != LifeState.Alive )
 				return;
 
-			if(GroundEntity != null && GroundEntity.GetType() == typeof(BreakFloorBlock))
+			if ( GroundEntity != null && GroundEntity.GetType() == typeof( BreakFloorBlock ) )
 			{
 				LastBlockStoodOn = (BreakFloorBlock)GroundEntity;
 			}
@@ -198,10 +193,15 @@ namespace Breakfloor
 		[ClientRpc]
 		public void DidDamage( Vector3 pos, float amount, float healthinv )
 		{
-			Sound.FromScreen( "dm.ui_attacker" )
-				.SetPitch( 1 + healthinv * 1 );
+			HitMarker( healthinv );
 
 			//HitIndicator.Current?.OnHit( pos, amount );
+		}
+
+		private async void HitMarker( float pitch )
+		{
+			await GameTask.Delay( 60 );
+			Sound.FromScreen( "ui.bf_hitmarker" ).SetPitch( 1 + pitch * 1 );
 		}
 
 		[ClientRpc]
