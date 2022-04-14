@@ -29,6 +29,7 @@ namespace Breakfloor
 
 		public override void TakeDamage( DamageInfo info )
 		{
+			RenderColor = RenderColor.Darken( 0.35f );
 			base.TakeDamage( info );
 		}
 
