@@ -1,8 +1,54 @@
 ﻿rootpanel {
-    background-color: rgba( #333, 0 );
+    background-color: rgba(#333, 0);
     transition: background-color 0.2s ease-in;
 
     // &.devcamera {
     //     display: none;
     // }
+}
+
+TargetID {
+    position: absolute;
+    opacity: 0;
+    width: 800px;
+    height: 70px;
+    left: 50%;
+    top: 50%;
+    margin-top: 14px;
+    margin-left: -400px;
+
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.877);
+
+    transition: opacity 0.2s ease-in-out;
+
+    label {
+        font-family: "Poppins";
+        font-weight: bold;
+        margin-top: -6px;
+        padding-right: 2px;
+        font-size: 19px;
+    }
+
+    .target-health {
+        font-size: 14px;
+        color: rgba(235, 228, 228, 0.836);
+    }
+
+    &.active {
+        transition: opacity 0.4s ease-in-out;
+        opacity: 0.82;
+    }
+
+    &.friend {
+        color: rgb(111, 167, 252);
+    }
+
+    &.enemy {
+        color: rgb(221, 32, 32);
+    }
 }

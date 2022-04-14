@@ -12,7 +12,6 @@ namespace Breakfloor.UI
 
 			RootPanel.StyleSheet.Load( "/UI/BreakfloorHud.scss" );
 
-			RootPanel.AddChild<NameTags>();
 			RootPanel.AddChild<BFChatbox>();
 			RootPanel.AddChild<VoiceList>();
 			RootPanel.AddChild<KillFeed>();
@@ -21,6 +20,7 @@ namespace Breakfloor.UI
 			RootPanel.AddChild<Ammo>();
 			RootPanel.AddChild<RoundTimer>();
 			RootPanel.AddChild<Crosshair>();
+			RootPanel.AddChild<TargetID>();
 		}
 	}
 }
