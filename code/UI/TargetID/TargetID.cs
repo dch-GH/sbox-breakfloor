@@ -14,6 +14,7 @@ namespace Breakfloor.UI
 			StyleSheet.Load( "/ui/BreakfloorHud.scss" );
 			TargetName = AddChild<Label>();
 			TargetHealth = AddChild<Label>();
+			TargetHealth.AddClass( "target-health" );
 		}
 
 		public override void Tick()
@@ -27,14 +28,12 @@ namespace Breakfloor.UI
 				var isTargetEnemy = target.Client.GetValue<int>( "team" ) != Local.Client.GetValue<int>( "team" );
 				var teamText = isTargetEnemy ? "ENEMY:" : "FRIEND:";
 				TargetName.Text = $"{teamText} {target.Client.Name}";
-				TargetHealth.Text = $"Health: {target.Health.FloorToInt()}%";
+				TargetHealth.Text = $"HEALTH: {target.Health.FloorToInt()}%";
 
-				var whichClass =
-					isTargetEnemy
-					? "enemy"
-					: "friend";
 				SetClass( "active", true );
-				SetClass( whichClass, true );
+				SetClass( isTargetEnemy
+					? "enemy"
+					: "friend", true );
 			}
 			else
 			{
