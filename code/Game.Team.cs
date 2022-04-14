@@ -1,4 +1,5 @@
-﻿using Sandbox;
+﻿using Breakfloor.UI;
+using Sandbox;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,9 +23,22 @@ namespace Breakfloor
 		public static List<Client> TeamA = new List<Client>();
 		public static List<Client> TeamB = new List<Client>();
 
-		public static int GetMyTeam(Client client )
+		public static int GetMyTeam( Client client )
 		{
 			return TeamA.Contains( client ) ? TeamIndexA : TeamIndexB;
+		}
+
+		public static Color GetTeamColor( int index )
+		{
+			switch ( index )
+			{
+				case TeamIndexA:
+					return Color.FromBytes( 237, 36, 79 );
+				case TeamIndexB:
+					return Color.FromBytes( 26, 154, 240 );
+				default:
+					return Color.White;
+			}
 		}
 
 		public void JoinTeam( Client p, int index )
@@ -37,6 +51,7 @@ namespace Breakfloor
 						TeamA.Add( p );
 						p.SetValue( "team", TeamIndexA );
 						Log.Info( $"Client:{p} joined team A." );
+						BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team RED.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
 					}
 					break;
 				case TeamIndexB:
@@ -45,6 +60,7 @@ namespace Breakfloor
 						TeamB.Add( p );
 						p.SetValue( "team", TeamIndexB );
 						Log.Info( $"Client:{p} joined team B." );
+						BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team BLUE.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
 					}
 					break;
 			}
@@ -65,7 +81,7 @@ namespace Breakfloor
 			}
 		}
 
-		public static bool SameTeam(Client a, Client b)
+		public static bool SameTeam( Client a, Client b )
 		{
 			if ( a == null || b == null ) return false;
 

@@ -62,6 +62,21 @@ namespace Breakfloor
 				.OrderBy( x => Guid.NewGuid() )
 				.FirstOrDefault();
 
+			var teamColor = BreakfloorGame.GetTeamColor( teamIndex );
+
+			//Paint clothes or body to our TeamIndex color.
+			if ( Clothing.ClothingModels.Count > 0 )
+			{
+				foreach ( var item in Clothing.ClothingModels )
+				{
+					item.RenderColor = teamColor;
+				}
+			}
+			else
+			{
+				RenderColor = teamColor;
+			}
+
 			//Log.Info( $"Player:{Client} has teamIndex: {teamIndex}." );
 			//Log.Info($"Spawning player {Client} at {spawn} because it has index {spawn.Index}");
 
