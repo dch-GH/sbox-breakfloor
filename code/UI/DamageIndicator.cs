@@ -17,7 +17,7 @@ namespace Breakfloor.UI
 			Current = this;
 		}
 
-		public void Hit()
+		public void Hurt()
 		{
 			if ( !BreakfloorGame.DoDamageIndicator ) return;
 			hit = 0;

@@ -211,7 +211,8 @@ namespace Breakfloor
 			if ( IsLocalPawn )
 			{
 				_ = new Sandbox.ScreenShake.Perlin( size: 1.8f, rotation: 0.8f );
-				DamageIndicator.Current.Hit();
+				DamageIndicator.Current?.Hurt();
+				Breakfloor.UI.Health.Current?.Hurt();
 			}
 		}
 	}

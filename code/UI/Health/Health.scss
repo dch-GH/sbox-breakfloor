@@ -16,4 +16,8 @@
     font-family: Poppins;
     font-weight: bold;
     font-size: 50px;
+
+    &.hurt {
+        color: rgb(226, 65, 65);
+    }
 }
