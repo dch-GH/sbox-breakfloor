@@ -9,7 +9,7 @@ namespace Breakfloor
 {
 	partial class BreakfloorGame : Game
 	{
-		public static readonly string VERSION = "1.0.0";
+		public static readonly string VERSION = "1.1.0";
 		public static readonly Vector3 BlockDimensions = new Vector3( 64, 64, 64 );
 
 		public static BreakfloorGame Instance => Current as BreakfloorGame;
