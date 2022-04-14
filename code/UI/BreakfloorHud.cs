@@ -21,6 +21,7 @@ namespace Breakfloor.UI
 			RootPanel.AddChild<RoundTimer>();
 			RootPanel.AddChild<Crosshair>();
 			RootPanel.AddChild<TargetID>();
+			RootPanel.AddChild<DamageIndicator>();
 		}
 	}
 }

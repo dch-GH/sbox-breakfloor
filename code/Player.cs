@@ -3,6 +3,7 @@ using Sandbox;
 using System;
 using System.Linq;
 using Breakfloor.Weapons;
+using Breakfloor.UI;
 
 namespace Breakfloor
 {
@@ -207,9 +208,11 @@ namespace Breakfloor
 		[ClientRpc]
 		public void TookDamage( Vector3 pos )
 		{
-			//DebugOverlay.Sphere( pos, 5.0f, Color.Red, false, 50.0f );
-
-			//DamageIndicator.Current?.OnHit( pos );
+			if ( IsLocalPawn )
+			{
+				_ = new Sandbox.ScreenShake.Perlin( size: 1.8f, rotation: 0.8f );
+				DamageIndicator.Current.Hit();
+			}
 		}
 	}
 

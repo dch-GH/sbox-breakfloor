@@ -37,7 +37,7 @@ namespace Breakfloor.Weapons
 
 		public override void Simulate( Client player )
 		{
-			if ( CanReload() || (Owner.IsValid && !HasAmmo && player.GetValue<bool>( Breakfloor.BreakfloorGame.BF_AUTO_RELOAD_KEY )) )
+			if ( CanReload() || (Owner.IsValid && !HasAmmo && player.GetClientData<bool>( Breakfloor.BreakfloorGame.BF_AUTO_RELOAD_KEY )) )
 			{
 				Reload();
 			}
