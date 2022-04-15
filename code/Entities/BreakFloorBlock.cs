@@ -47,6 +47,7 @@ namespace Breakfloor
 			Health = BreakfloorGame.BlockHealthCvar;
 			EnableAllCollisions = true;
 			EnableDrawing = true;
+			RenderColor = Color.White;
 		}
 	}
 }
