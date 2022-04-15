@@ -9,7 +9,7 @@ namespace Breakfloor.Weapons
 
 		public override float PrimaryRate => 9.0f;
 		public override float SecondaryRate => 1.0f;
-		public override float ReloadTime => 5.0f;
+		public override float ReloadTime => 3.0f;
 		public override int MaxClip => 24;
 
 		public override string GetKilledByText()
@@ -40,7 +40,7 @@ namespace Breakfloor.Weapons
 			// Tell the clients to play the shoot effects
 			//
 			ShootEffects();
-			PlaySound( "rust_smg.shoot").SetVolume(0.45f);
+			PlaySound( "ar.shoot").SetVolume(0.40f);
 
 			// Shoot the bullets
 			var spread = (Owner as Breakfloor.BreakfloorPlayer).Controller.HasTag( "ducked" )
