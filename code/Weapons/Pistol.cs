@@ -43,7 +43,7 @@ namespace Breakfloor.Weapons
 			(Owner as AnimEntity)?.SetAnimParameter( "b_attack", true );
 
 			ShootEffects();
-			PlaySound( "rust_pistol.shoot" );
+			PlaySound( "rust_pistol.shoot" ).SetVolume(0.45f);
 			ShootBullet( 0.05f, 1.5f, 9.0f, 3.0f );
 			base.AttackPrimary();
 		}

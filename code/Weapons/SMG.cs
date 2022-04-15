@@ -40,7 +40,7 @@ namespace Breakfloor.Weapons
 			// Tell the clients to play the shoot effects
 			//
 			ShootEffects();
-			PlaySound( "rust_smg.shoot" );
+			PlaySound( "rust_smg.shoot").SetVolume(0.45f);
 
 			// Shoot the bullets
 			var spread = (Owner as Breakfloor.BreakfloorPlayer).Controller.HasTag( "ducked" )
