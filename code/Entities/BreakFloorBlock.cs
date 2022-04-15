@@ -35,7 +35,7 @@ namespace Breakfloor
 
 		public override void OnKilled()
 		{
-			Sound.FromWorld( "bf_block_glassbreak", Position );
+			Sound.FromWorld( "bf_block_glassbreak", Position ).SetVolume(0.6f);
 			EnableAllCollisions = false;
 			EnableDrawing = false;
 			LifeState = LifeState.Dead;
