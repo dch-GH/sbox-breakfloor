@@ -15,7 +15,7 @@ namespace Breakfloor
 		public static BreakfloorGame Instance => Current as BreakfloorGame;
 
 		[Net]
-		public TimeSpan RoundTimer { get; private set; }
+		public TimeSpan RoundTimer { get; private set; } // TODO: replace with RealTimeUntil?
 		private bool roundTimerStarted = false;
 		private TimeSince roundTimerLastSecond;
 
@@ -124,84 +124,24 @@ namespace Breakfloor
 			RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar );
 		}
 
+		// I started improving this but this just needs to get rewritten entirely.
+		// a few if-branches are OK but this is just unreadable.
+		// TODO: @REWRITE
+		// Needs to: detect if a player dies from falling into the pit, killed by other players, and suicides(?).
+		// Award players who shoot blocks from underneath someone a kill, and display the KillFeed appropiately.
 		public override void OnKilled( Client victimClient, Entity victimPawn )
 		{
 			//override the base.onkilled and tweaking it instead of calling it. its does some dumb shit.
 			Host.AssertServer();
-
 			Log.Info( $"{victimClient.Name} was killed" );
+		}
 
-			if ( victimPawn.LastAttacker != null )
-			{
-				//If we died from the kill floor at the bottom
-				//Count the kill for the player who destroyed the block we last stood on
-				if ( victimPawn.LastAttacker.GetType() == typeof( TriggerHurt )
-					&& victimPawn is BreakfloorPlayer ply )
-				{
-					var block = ply.LastBlockStoodOn;	
-					if ( block != null && block.Broken )
-					{
-						if ( block.LastAttacker == victimPawn ) 
-						{
-							//the player broke their own block and died
-							var suicideText = new string[3] { "got themself killed", "played themself", "dug straight down" };
-							OnKilledMessage( To.Everyone, victimClient.PlayerId,
-							victimClient.Name,
-							-1,
-							String.Empty,
-							Rand.FromArray<string>( suicideText ) );
-						}
-						else
-						{
-							//someone else resulted in them getting killed
-							OnKilledMessage( To.Everyone, block.LastAttacker.Client.PlayerId,
-								block.LastAttacker.Client.Name,
-								victimClient.PlayerId,
-								victimClient.Name,
-								"BREAKFLOORED" );
-
-							//actually give the block breaker the kill
-							block.LastAttacker.Client.AddInt( "kills" );
-						}
-			
-					}
-					else
-					{
-						OnKilledMessage( To.Everyone, victimClient.PlayerId,
-						victimClient.Name,
-						-1,
-						String.Empty,
-						"died");
-					}
-
-					return;
-				}
-
-				if ( victimPawn.LastAttacker.Client != null )
-				{
-					var killedByText = (victimPawn.LastAttackerWeapon as BreakfloorWeapon).GetKilledByText();
-
-					if ( string.IsNullOrEmpty( killedByText ) )
-					{
-						killedByText = victimPawn.LastAttackerWeapon?.ClassInfo?.Title;
-					}
-
-					OnKilledMessage( To.Everyone, victimPawn.LastAttacker.Client.PlayerId, victimPawn.LastAttacker.Client.Name,
-						victimClient.PlayerId,
-						victimClient.Name,
-						killedByText );
-				}
-				else
-				{
-					OnKilledMessage( To.Everyone, victimPawn.LastAttacker.NetworkIdent, victimPawn.LastAttacker.ToString(), victimClient.PlayerId, victimClient.Name, "killed" );
-				}
-			}
-			else
-			{
-				OnKilledMessage( To.Everyone, 0, "", victimClient.PlayerId, victimClient.Name, "died" );
-			}
-
-			//Log.Info( $"{client.Name} was killed by {killer.Client.NetworkIdent} with {weapon}" );
+		[ClientRpc]
+		public void OnKilledClient( long killerId, string killerName,
+			long victimId, string victimName,
+			string method )
+		{
+			KillFeed.Current.AddEntry( killerId, killerName, victimId, victimName, method );
 		}
 	}
 }

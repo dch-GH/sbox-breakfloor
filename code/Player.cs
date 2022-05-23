@@ -210,8 +210,6 @@ namespace Breakfloor
 		public void DidDamage( Vector3 pos, float amount, float healthinv )
 		{
 			HitMarker( healthinv );
-
-			//HitIndicator.Current?.OnHit( pos, amount );
 		}
 
 		private async void HitMarker( float pitch )
@@ -225,7 +223,7 @@ namespace Breakfloor
 		{
 			if ( IsLocalPawn )
 			{
-				_ = new Sandbox.ScreenShake.Perlin( size: 1.8f, rotation: 0.8f );
+				//_ = new Sandbox.ScreenShake.Perlin( size: 1.8f, rotation: 0.8f );
 				DamageIndicator.Current?.Hurt();
 				Breakfloor.UI.Health.Current?.Hurt();
 			}

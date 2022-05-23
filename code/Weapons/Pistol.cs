@@ -2,7 +2,7 @@
 
 namespace Breakfloor.Weapons
 {
-	[Library( "weapon_pistol", Title = "Pistol", Spawnable = true )]
+	[Library( "weapon_pistol", Title = "Pistol" )]
 	partial class Pistol : BreakfloorWeapon
 	{
 		public override string ViewModelPath => "weapons/rust_pistol/v_rust_pistol.vmdl";
@@ -27,7 +27,7 @@ namespace Breakfloor.Weapons
 
 		public override bool CanPrimaryAttack()
 		{
-			return base.CanPrimaryAttack() && Input.Pressed( InputButton.Attack1 );
+			return base.CanPrimaryAttack() && Input.Pressed( InputButton.PrimaryAttack );
 		}
 
 		public override void Reload()
@@ -40,10 +40,10 @@ namespace Breakfloor.Weapons
 			TimeSincePrimaryAttack = 0;
 			TimeSinceSecondaryAttack = 0;
 
-			(Owner as AnimEntity)?.SetAnimParameter( "b_attack", true );
+			(Owner as AnimatedEntity)?.SetAnimParameter( "b_attack", true );
 
 			ShootEffects();
-			PlaySound( "rust_pistol.shoot" ).SetVolume(0.45f);
+			PlaySound( "rust_pistol.shoot" ).SetVolume( 0.45f );
 			ShootBullet( 0.05f, 1.5f, 9.0f, 3.0f );
 			base.AttackPrimary();
 		}

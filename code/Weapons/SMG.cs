@@ -2,7 +2,7 @@
 
 namespace Breakfloor.Weapons
 {
-	[Library( "weapon_smg", Title = "SMG", Spawnable = true )]
+	[Library( "weapon_smg", Title = "SMG" )]
 	partial class SMG : BreakfloorWeapon
 	{
 		public override string ViewModelPath => "weapons/rust_smg/v_rust_smg.vmdl";
@@ -34,13 +34,13 @@ namespace Breakfloor.Weapons
 			TimeSincePrimaryAttack = 0;
 			TimeSinceSecondaryAttack = 0;
 
-			(Owner as AnimEntity)?.SetAnimParameter( "b_attack", true );
+			(Owner as AnimatedEntity)?.SetAnimParameter( "b_attack", true );
 
 			//
 			// Tell the clients to play the shoot effects
 			//
 			ShootEffects();
-			PlaySound( "ar.shoot").SetVolume(0.40f);
+			PlaySound( "ar.shoot" ).SetVolume( 0.40f );
 
 			// Shoot the bullets
 			var spread = (Owner as Breakfloor.BreakfloorPlayer).Controller.HasTag( "ducked" )
@@ -55,8 +55,15 @@ namespace Breakfloor.Weapons
 			// Grenade lob
 		}
 
+		//public override void Simulate( Client owner )
+		//{
+		//	if ( IsServer ) return;
+		//	Log.Info( TimeSincePrimaryAttack );
+		//	base.Simulate( owner );
+		//}
+
 		[ClientRpc]
-		protected override void ShootEffects()
+		protected override void ShootEffects()//   CrosshairPanel?.CreateEvent( "fire" );
 		{
 			Host.AssertClient();
 
@@ -65,11 +72,11 @@ namespace Breakfloor.Weapons
 
 			if ( Owner == Local.Pawn )
 			{
-				new Sandbox.ScreenShake.Perlin( 0.5f, 4.0f, 1.0f, 0.5f );
+				//new Sandbox.ScreenShake.Perlin( 0.5f, 4.0f, 1.0f, 0.5f );
 			}
 
 			ViewModelEntity?.SetAnimParameter( "fire", true );
-			CrosshairPanel?.CreateEvent( "fire" );
+			//CrosshairPanel?.CreateEvent( "fire" );
 		}
 
 		public override void SimulateAnimator( PawnAnimator anim )

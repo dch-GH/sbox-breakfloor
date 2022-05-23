@@ -24,7 +24,7 @@ namespace Breakfloor.UI
 			if ( ply.ActiveChild == null ) return;
 			var wep = (BreakfloorWeapon)ply.ActiveChild;
 
-			ReloadIndicator.SetClass( "active", !wep.HasAmmo && !wep.IsReloading );
+			ReloadIndicator.SetClass( "active", (wep.ClipAmmo <= 0) && !wep.IsReloading );
 		}
 	}
 }

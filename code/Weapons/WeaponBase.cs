@@ -18,9 +18,6 @@ namespace Breakfloor.Weapons
 		[Net]
 		public int ClipAmmo { get; protected set; }
 
-		[Net]
-		public bool HasAmmo => ClipAmmo > 0;
-
 		public override void Spawn()
 		{
 			base.Spawn();
@@ -37,7 +34,7 @@ namespace Breakfloor.Weapons
 
 		public override void Simulate( Client player )
 		{
-			if ( CanReload() || (Owner.IsValid && !HasAmmo && player.GetClientData<bool>( Breakfloor.BreakfloorGame.BF_AUTO_RELOAD_KEY )) )
+			if ( CanReload() || (Owner.IsValid && ClipAmmo <= 0 && player.GetClientData<bool>( Breakfloor.BreakfloorGame.BF_AUTO_RELOAD_KEY )) )
 			{
 				Reload();
 			}
@@ -87,7 +84,7 @@ namespace Breakfloor.Weapons
 
 		public virtual bool CanPrimaryAttack()
 		{
-			if ( !Owner.IsValid() || !Input.Down( InputButton.Attack1 ) ) return false;
+			if ( !Owner.IsValid() || !Input.Down( InputButton.PrimaryAttack ) ) return false;
 
 			var rate = PrimaryRate;
 			if ( rate <= 0 ) return true;
@@ -102,7 +99,7 @@ namespace Breakfloor.Weapons
 
 		public virtual bool CanSecondaryAttack()
 		{
-			if ( !Owner.IsValid() || !Input.Down( InputButton.Attack2 ) ) return false;
+			if ( !Owner.IsValid() || !Input.Down( InputButton.SecondaryAttack ) ) return false;
 
 			var rate = SecondaryRate;
 			if ( rate <= 0 ) return true;

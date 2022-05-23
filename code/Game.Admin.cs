@@ -8,7 +8,6 @@ namespace Breakfloor
 {
 	partial class BreakfloorGame : Game
 	{
-		[Net]
 		public static List<long> Devs { get; private set; }
 
 		public override void DoPlayerDevCam( Client client )
@@ -50,7 +49,7 @@ namespace Breakfloor
 			}
 		}
 
-		[ServerCmd( "bf_status" )]
+		[ConCmd.Server( "bf_status" )]
 		public static void AdminStatus()
 		{
 			var caller = ConsoleSystem.Caller;
@@ -78,7 +77,7 @@ namespace Breakfloor
 
 		}
 
-		[ServerCmd( "bf_kick" )]
+		[ConCmd.Server( "bf_kick" )]
 		public static void AdminKick( string id, string reason = null )
 		{
 			if ( !Devs.Contains( ConsoleSystem.Caller.PlayerId ) )
@@ -98,7 +97,7 @@ namespace Breakfloor
 			}
 		}
 
-		[ServerCmd( "bf_gag" )]
+		[ConCmd.Server( "bf_gag" )]
 		public static void AdminGag( string id, bool enabled )
 		{
 			var caller = ConsoleSystem.Caller;

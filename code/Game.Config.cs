@@ -12,7 +12,7 @@ namespace Breakfloor
 		public const string GamePrefix = "bf_";
 		public const string BF_AUTO_RELOAD_KEY = "bf_auto_reload";
 
-		[ServerVar( GamePrefix + "block_hp" )]
+		[ConVar.Server( GamePrefix + "block_hp" )]
 		public static float BlockHealthCvar { get; set; } = 20f;
 
 		/// <summary>
@@ -24,7 +24,7 @@ namespace Breakfloor
 		[ConVar.ClientData( BF_AUTO_RELOAD_KEY, Help = "set with true/false to toggle automatic reload when magazine is empty.")]
 		public static bool DoAutoReload { get; set; }
 
-		[ClientVar( "bf_damage_indicator")]
+		[ConVar.Client( "bf_damage_indicator")]
 		public static bool DoDamageIndicator { get; set; } = true;
 	}
 }

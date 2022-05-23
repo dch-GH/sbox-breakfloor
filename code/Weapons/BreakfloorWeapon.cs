@@ -85,7 +85,7 @@ namespace Breakfloor.Weapons
 
 		public override bool CanPrimaryAttack()
 		{
-			return base.CanPrimaryAttack() && HasAmmo;
+			return base.CanPrimaryAttack() && ClipAmmo > 0;
 		}
 
 		public override bool CanReload()
@@ -101,7 +101,7 @@ namespace Breakfloor.Weapons
 			TimeSinceReload = 0;
 			IsReloading = true;
 
-			(Owner as AnimEntity)?.SetAnimParameter( "b_reload", true );
+			(Owner as AnimatedEntity)?.SetAnimParameter( "b_reload", true );
 
 			StartReloadEffects();
 		}
@@ -171,11 +171,11 @@ namespace Breakfloor.Weapons
 
 			if ( IsLocalPawn )
 			{
-				_ = new Sandbox.ScreenShake.Perlin();
+				//_ = new Sandbox.ScreenShake.Perlin();
 			}
 
 			ViewModelEntity?.SetAnimParameter( "fire", true );
-			CrosshairPanel?.CreateEvent( "fire" );
+			//CrosshairPanel?.CreateEvent( "fire" );
 		}
 
 		/// <summary>

@@ -82,7 +82,7 @@ namespace Breakfloor
 			/// </summary>
 			public string Serialize()
 			{
-				return System.Text.Json.JsonSerializer.Serialize( Clothing.Select( x => new Entry { Id = x.Id } ) );
+				return System.Text.Json.JsonSerializer.Serialize( Clothing.Select( x => new Entry { Id = x.ResourceId } ) );
 			}
 
 			/// <summary>
@@ -101,7 +101,7 @@ namespace Breakfloor
 
 					foreach ( var entry in entries )
 					{
-						var item = Asset.FromId<Clothing>( entry.Id );
+						var item = ResourceLibrary.Get<Clothing>( entry.Id );
 						if ( item == null ) continue;
 						Add( item );
 					}
@@ -126,7 +126,7 @@ namespace Breakfloor
 				// of serializing an array of ints
 			}
 
-			public List<AnimEntity> ClothingModels = new();
+			public List<AnimatedEntity> ClothingModels = new();
 
 			public void ClearEntities()
 			{
@@ -141,7 +141,7 @@ namespace Breakfloor
 			/// Dress this citizen with clothes defined inside this class. We'll save the created entities in ClothingModels.
 			/// All clothing entities are tagged with "clothes".
 			/// </summary>
-			public void DressEntity( AnimEntity citizen, bool hideInFirstPerson = true, bool castShadowsInFirstPerson = true )
+			public void DressEntity( AnimatedEntity citizen, bool hideInFirstPerson = true, bool castShadowsInFirstPerson = true )
 			{
 				//
 				// Start with defaults
@@ -164,7 +164,7 @@ namespace Breakfloor
 						continue;
 					}
 
-					var anim = new AnimEntity( c.Model, citizen );
+					var anim = new AnimatedEntity( c.Model, citizen );
 
 					anim.Tags.Add( "clothes" );
 

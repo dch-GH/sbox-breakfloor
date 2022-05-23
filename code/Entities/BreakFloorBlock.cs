@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sandbox;
+using SandboxEditor;
 
 namespace Breakfloor
 {
-	[Library( "bf_block" )]
-	[Hammer.BoxSize( 32 )]
+	[HammerEntity]
+	[ClassName("bf_block")]
+	[BoxSize( 32 )]
 	internal class BreakFloorBlock : ModelEntity
 	{
 		[Property( "WorldModel" )]

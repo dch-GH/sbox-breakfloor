@@ -1,0 +1,17 @@
+//fix nametags (they show thru blocks)
+//remove old nametags. cast ray from player eyes and if they hit person show name on client screen like every valve mp game. color for team
+//block show HP somehow (make darker)
+//hit indicators
+
+show what team people are on you cant tell atm
+
+melee weapon (maybe you move slow while using it, but has backstab bonus?)
+add random powerup/perks on some blocks chance to drop
+stealth stuff?
+limited time use (cooldown) stealth silent block break drill
+
+
+investigate uncrouch clip through block bug (move forward while camp is going up)
+
+tweak block hp its a bit much
+
