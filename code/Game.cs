@@ -62,7 +62,7 @@ namespace Breakfloor
 			player.UpdateClothes( cl );
 			player.Respawn();
 
-			BFChatbox.AddInformation( To.Single(cl), 
+			BFChatbox.AddInformation( To.Single( cl ),
 				$"Welcome to Breakfloor! Toggle auto reloading by typing \"bf_auto_reload true\" in the console." );
 
 			//Update the status of the round timer AFTER the joining client's
@@ -108,7 +108,7 @@ namespace Breakfloor
 			{
 				block.Reset();
 			}
-			
+
 			foreach ( var e in WorldEntity.All )
 			{
 				e.RemoveAllDecals();
@@ -124,16 +124,67 @@ namespace Breakfloor
 			RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar );
 		}
 
-		// I started improving this but this just needs to get rewritten entirely.
-		// a few if-branches are OK but this is just unreadable.
-		// TODO: @REWRITE
-		// Needs to: detect if a player dies from falling into the pit, killed by other players, and suicides(?).
-		// Award players who shoot blocks from underneath someone a kill, and display the KillFeed appropiately.
 		public override void OnKilled( Client victimClient, Entity victimPawn )
 		{
 			//override the base.onkilled and tweaking it instead of calling it. its does some dumb shit.
 			Host.AssertServer();
-			Log.Info( $"{victimClient.Name} was killed" );
+
+			var vic = (BreakfloorPlayer)victimPawn;
+
+			if ( victimPawn.LastAttacker.GetType() == typeof( TriggerHurt ) )
+			{
+				var block = vic.LastBlockStoodOn;
+				if ( block != null && block.Broken )
+				{
+					if ( block.LastAttacker == vic ) //Player caused their own downfall
+					{
+						var suicideText = new string[3] { "got themself killed", "played themself", "dug straight down" };
+						OnKilledMessage( To.Everyone,
+							victimClient.PlayerId,
+							victimClient.Name,
+							-1,
+							String.Empty,
+							Rand.FromArray<string>( suicideText ) );
+					}
+					else //Other player caused it
+					{
+						OnKilledMessage( To.Everyone,
+							block.LastAttacker.Client.PlayerId,
+							block.LastAttacker.Client.Name,
+							victimClient.PlayerId,
+							victimClient.Name,
+							"BREAKFLOORED" );
+
+						block.LastAttacker.Client.AddInt( "kills" );
+					}
+					return;
+				}
+
+				//Otherwise, they just fell through a hole in the blocks and died
+				OnKilledMessage( To.Everyone,
+					victimClient.PlayerId,
+					victimClient.Name,
+					-1,
+					String.Empty,
+					"died" );
+				return;
+			}
+
+			if ( victimPawn.LastAttacker.Client != null )
+			{
+				var killedByText = (victimPawn.LastAttackerWeapon as BreakfloorWeapon).GetKilledByText();
+
+				if ( string.IsNullOrEmpty( killedByText ) )
+				{
+					killedByText = victimPawn.LastAttackerWeapon.ClassName;
+				}
+
+				OnKilledClient( To.Everyone, victimPawn.LastAttacker.Client.PlayerId, victimPawn.LastAttacker.Client.Name,
+					victimClient.PlayerId,
+					victimClient.Name,
+					killedByText );
+			}
+
 		}
 
 		[ClientRpc]

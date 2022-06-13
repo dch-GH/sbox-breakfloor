@@ -6,9 +6,16 @@ using System.Threading.Tasks;
 
 namespace Breakfloor.UI
 {
+	[UseTemplate]
 	public partial class KillFeed : Panel
 	{
 		public static KillFeed Current;
+
+		public KillFeed()
+		{
+			if ( !Host.IsClient ) return;
+			Current = this;
+		}
 
 		public partial class KillFeedEntry : Panel
 		{
@@ -32,10 +39,10 @@ namespace Breakfloor.UI
 			}
 		}
 
-		public Panel AddEntry( 
-			long killerId, string killerName, 
-			long victimId, string victimName, 
-			string method)
+		public Panel AddEntry(
+			long killerId, string killerName,
+			long victimId, string victimName,
+			string method )
 		{
 			Log.Info( $"{killerName} killed {victimName} using {method}" );
 
