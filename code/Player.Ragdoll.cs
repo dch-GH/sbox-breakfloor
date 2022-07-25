@@ -18,12 +18,8 @@ namespace Breakfloor
 			var ent = new ModelEntity();
 			ent.Position = Position;
 			ent.Rotation = Rotation;
-			ent.MoveType = MoveType.Physics;
 			ent.UsePhysicsCollision = true;
-			ent.SetInteractsAs( CollisionLayer.Debris );
-			ent.SetInteractsWith( CollisionLayer.WORLD_GEOMETRY );
-			ent.SetInteractsExclude( CollisionLayer.Player | CollisionLayer.Debris );
-
+			ent.Tags.Add( "ragdoll", "solid" );
 			ent.SetModel( GetModelName() );
 			ent.CopyBonesFrom( this );
 			ent.TakeDecalsFrom( this );

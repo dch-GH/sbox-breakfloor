@@ -22,7 +22,7 @@ namespace Breakfloor
 		{
 			base.Spawn();
 			Model = Model.Load( WorldModel );
-			CollisionGroup = CollisionGroup.Default;
+			Tags.Add( "solid" );
 			PhysicsEnabled = false;
 			UsePhysicsCollision = true;
 			EnableShadowReceive = false;

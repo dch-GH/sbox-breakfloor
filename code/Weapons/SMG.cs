@@ -7,14 +7,14 @@ namespace Breakfloor.Weapons
 	{
 		public override string ViewModelPath => "weapons/rust_smg/v_rust_smg.vmdl";
 
-		public override float PrimaryRate => 9.0f;
+		public override float PrimaryRate => 12.0f;
 		public override float SecondaryRate => 1.0f;
 		public override float ReloadTime => 3.0f;
-		public override int MaxClip => 24;
+		public override int MaxClip => 22;
 
 		public override string GetKilledByText()
 		{
-			var options = new string[5] { "sprayed", "dusted", "swiss cheese'd", "shot up", "gunned down" };
+			var options = new string[5] { "sprayed", "dusted", "swiss cheese'd", "dakka'd", "gunned down" };
 			return Rand.FromArray<string>( options );
 		}
 
@@ -42,11 +42,13 @@ namespace Breakfloor.Weapons
 			ShootEffects();
 			PlaySound( "ar.shoot" ).SetVolume( 0.40f );
 
+			const float damage = 5;
 			// Shoot the bullets
 			var spread = (Owner as Breakfloor.BreakfloorPlayer).Controller.HasTag( "ducked" )
 				? 0.09f
-				: 0.12f; //yikes lol
-			ShootBullet( spread, 1.5f, 9.0f, 3.0f );
+				: 0.12f;
+
+			ShootBullet( spread, 1.5f, damage, 3.0f );
 			base.AttackPrimary();
 		}
 

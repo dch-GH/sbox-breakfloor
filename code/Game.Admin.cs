@@ -8,13 +8,13 @@ namespace Breakfloor
 {
 	partial class BreakfloorGame : Game
 	{
-		public static List<long> Devs { get; private set; }
+		public static List<long> Admins { get; private set; }
 
 		public override void DoPlayerDevCam( Client client )
 		{
 			Host.AssertServer();
 
-			if ( !Devs.Contains( client.PlayerId ) )
+			if ( !Admins.Contains( client.PlayerId ) )
 				return;
 
 			var camera = client.Components.Get<DevCamera>( true );
@@ -33,7 +33,7 @@ namespace Breakfloor
 		{
 			Host.AssertServer();
 
-			if ( !Devs.Contains( client.PlayerId ) )
+			if ( !Admins.Contains( client.PlayerId ) )
 				return;
 
 			if ( client.Pawn is Player basePlayer )
@@ -54,7 +54,7 @@ namespace Breakfloor
 		{
 			var caller = ConsoleSystem.Caller;
 
-			if ( !Devs.Contains( caller.PlayerId ) )
+			if ( !Admins.Contains( caller.PlayerId ) )
 				return;
 
 			if ( caller.IsListenServerHost ) //Caller is a server host admin.
@@ -80,7 +80,7 @@ namespace Breakfloor
 		[ConCmd.Server( "bf_kick" )]
 		public static void AdminKick( string id, string reason = null )
 		{
-			if ( !Devs.Contains( ConsoleSystem.Caller.PlayerId ) )
+			if ( !Admins.Contains( ConsoleSystem.Caller.PlayerId ) )
 				return;
 
 			if ( string.IsNullOrEmpty( id ) ) return;
@@ -101,7 +101,7 @@ namespace Breakfloor
 		public static void AdminGag( string id, bool enabled )
 		{
 			var caller = ConsoleSystem.Caller;
-			if ( !Devs.Contains( caller.PlayerId ) )
+			if ( !Admins.Contains( caller.PlayerId ) )
 				return;
 
 			if ( string.IsNullOrEmpty( id ) ) return;

@@ -104,7 +104,7 @@ namespace Breakfloor.UI
 			if ( message.Contains( '\n' ) || message.Contains( '\r' ) )
 				return;
 
-			var admin = Breakfloor.BreakfloorGame.Devs.Contains( ConsoleSystem.Caller.PlayerId );
+			var admin = Breakfloor.BreakfloorGame.Admins.Contains( ConsoleSystem.Caller.PlayerId );
 			Log.Info( $"{ConsoleSystem.Caller}: {message}" );
 			AddChatEntry( To.Everyone, ConsoleSystem.Caller.Name, message, $"avatar:{ConsoleSystem.Caller.PlayerId}", isAdmin: admin );
 		}

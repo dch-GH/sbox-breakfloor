@@ -22,8 +22,7 @@ namespace Breakfloor.Weapons
 		{
 			base.Spawn();
 
-			CollisionGroup = CollisionGroup.Weapon; // so players touch it as a trigger but not as a solid
-			SetInteractsAs( CollisionLayer.Debris ); // so player movement doesn't walk into it
+			Tags.Add( "gun" );
 		}
 
 		[Net, Predicted]
@@ -122,19 +121,14 @@ namespace Breakfloor.Weapons
 
 			var tr = Trace.Ray( start, end )
 					.UseHitboxes()
-					.HitLayer( CollisionLayer.Water, !InWater )
-					.HitLayer( CollisionLayer.Debris )
 					.Ignore( Owner )
 					.Ignore( this )
-					.Size( radius )
+					.WithoutTags("gun")
+					.Size( radius )  
 					.Run();
 
 			if ( tr.Hit )
 				yield return tr;
-
-			//
-			// Another trace, bullet going through thin material, penetrating water surface?
-			//
 		}
 	}
 }

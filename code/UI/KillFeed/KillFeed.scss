@@ -1,37 +1,49 @@
 killfeed {
-    background-color: rgba(0, 0, 0, 0.37);
-    backdrop-filter: blur(20px);
-    color: rgba(216, 208, 208, 0.952);
-
-    justify-content: center;
-    align-items: center;
+    background: linear-gradient(to right, rgba(0,0,0,0), rgba(1,1,1,0.15) );
+    color: white;
     position: absolute;
-    right: 2%;
-    bottom: 2%;
-    border-radius: 15px;
-    width: 140px;
-    height: 80px;
-
+    right: 0%;
+    top: 1%;
+    width: 650px;
+    height: 200px;
     font-family: Poppins;
     font-weight: bold;
-    font-size: 32px;
+    font-size: 17px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 killfeedentry {
-    background-color: rgba(0, 0, 0, 0.37);
-    backdrop-filter: blur(20px);
-    color: rgba(216, 208, 208, 0.952);
-
+    background-color: rgb(89, 89, 101, 0.30);
+    backdrop-filter: invert(7%);
+    border-radius: 4px;
     justify-content: center;
     align-items: center;
-    position: absolute;
-    right: 2%;
-    bottom: 2%;
-    border-radius: 15px;
-    width: 140px;
-    height: 80px;
+    position: relative;
+    padding-right: 7px;
+    padding-left: 7px;
+    width: auto;
+    height: auto;
+    min-height: 1%;
+    opacity: 1;
+    margin-right: 12px;
+    margin-top: 2px;
+    border: 2px rgba(255,255,255, 0.03);
+    transition: transform 0.2s ease-in;
+    text-stroke: 1px rgb(50,50,50);
 
-    font-family: Poppins;
-    font-weight: bold;
-    font-size: 32px;
+    &.me {
+        color: gold;
+        font-size: 42px;
+    }
+
+    &:intro {
+        transform: translateX(100);
+    }
+
+    &:outro {
+        opacity: 0;
+        transition: all 0.6s ease-in;
+    }
 }

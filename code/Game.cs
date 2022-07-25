@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Breakfloor.UI;
 using Breakfloor.Weapons;
+using Breakfloor.HammerEnts;
 
 namespace Breakfloor
 {
@@ -15,9 +16,9 @@ namespace Breakfloor
 		public static BreakfloorGame Instance => Current as BreakfloorGame;
 
 		[Net]
-		public TimeSpan RoundTimer { get; private set; } // TODO: replace with RealTimeUntil?
+		public RealTimeUntil RoundTimer { get; private set; } = 0f;
+
 		private bool roundTimerStarted = false;
-		private TimeSince roundTimerLastSecond;
 
 		public BreakfloorGame()
 		{
@@ -28,9 +29,9 @@ namespace Breakfloor
 			//
 			if ( IsServer )
 			{
-				Devs = new List<long>() { 76561197998255119 };
+				Admins = new List<long>() { 76561197998255119 };
 				_ = new BreakfloorHud();
-				RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar ); //so the timer can be frozen at the roundtimecvar.
+				RoundTimer = RoundTimeCvar; //so the timer can be frozen at the roundtimecvar.
 				Log.Info( $"Breakfloor server running version: {VERSION}" );
 			}
 
@@ -38,7 +39,7 @@ namespace Breakfloor
 
 		public override void ClientJoined( Client cl )
 		{
-			var isAdmin = Devs.Contains( cl.PlayerId );
+			var isAdmin = Admins.Contains( cl.PlayerId );
 			Log.Info( $"\"{cl.Name}\" has joined the game" );
 			BFChatbox.AddInformation( To.Everyone, $"{cl.Name} has joined", $"avatar:{cl.PlayerId}", isAdmin );
 
@@ -63,15 +64,16 @@ namespace Breakfloor
 			player.Respawn();
 
 			BFChatbox.AddInformation( To.Single( cl ),
-				$"Welcome to Breakfloor! Toggle auto reloading by typing \"bf_auto_reload true\" in the console." );
+				$"Welcome to Breakfloor! You can toggle auto reloading by typing \"bf_auto_reload true\" into the console." );
 
 			//Update the status of the round timer AFTER the joining client's
 			//team is set.
-			if ( !roundTimerStarted && TeamA.Count >= 1 && TeamB.Count >= 1 )
+			if ( !roundTimerStarted && (TeamA.Count >= 1 && TeamB.Count >= 1) )
 			{
 				RestartRound();
-				RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar );
+				RoundTimer = RoundTimeCvar;
 				roundTimerStarted = true;
+				Log.Info( "start round!!" );
 			}
 		}
 
@@ -85,18 +87,20 @@ namespace Breakfloor
 		[Event.Tick.Server]
 		public void ServerTick()
 		{
+
 			//This is probably naive but I don't care lol.
-			if ( roundTimerStarted && roundTimerLastSecond >= 1 )
+			if ( roundTimerStarted)
 			{
-				RoundTimer = RoundTimer.Subtract( TimeSpan.FromSeconds( 1 ) );
-				if ( RoundTimer.TotalSeconds <= 0 )
+				if( RoundTimer <= 0 )
 				{
 					//handle restart round restart the timer etc.
 					RestartRound();
-
 				}
 
-				roundTimerLastSecond = 0;
+			}
+			else
+			{
+				RoundTimer = RoundTimeCvar + 1;
 			}
 		}
 
@@ -121,7 +125,7 @@ namespace Breakfloor
 				c.SetInt( "deaths", 0 );
 			}
 
-			RoundTimer = TimeSpan.FromMinutes( RoundTimeCvar );
+			RoundTimer = RoundTimeCvar;
 		}
 
 		public override void OnKilled( Client victimClient, Entity victimPawn )
@@ -131,7 +135,9 @@ namespace Breakfloor
 
 			var vic = (BreakfloorPlayer)victimPawn;
 
-			if ( victimPawn.LastAttacker.GetType() == typeof( TriggerHurt ) )
+			if ( victimPawn.LastAttacker == null ) return;
+
+			if ( victimPawn.LastAttacker.GetType() == typeof( HurtVolumeEntity ) )
 			{
 				var block = vic.LastBlockStoodOn;
 				if ( block != null && block.Broken )
@@ -139,20 +145,16 @@ namespace Breakfloor
 					if ( block.LastAttacker == vic ) //Player caused their own downfall
 					{
 						var suicideText = new string[3] { "got themself killed", "played themself", "dug straight down" };
-						OnKilledMessage( To.Everyone,
-							victimClient.PlayerId,
-							victimClient.Name,
-							-1,
-							String.Empty,
+						OnKilledClient( To.Everyone,
+							victimClient,
+							null,
 							Rand.FromArray<string>( suicideText ) );
 					}
 					else //Other player caused it
 					{
-						OnKilledMessage( To.Everyone,
-							block.LastAttacker.Client.PlayerId,
-							block.LastAttacker.Client.Name,
-							victimClient.PlayerId,
-							victimClient.Name,
+						OnKilledClient( To.Everyone,
+							block.LastAttacker.Client,
+							victimClient,
 							"BREAKFLOORED" );
 
 						block.LastAttacker.Client.AddInt( "kills" );
@@ -161,11 +163,9 @@ namespace Breakfloor
 				}
 
 				//Otherwise, they just fell through a hole in the blocks and died
-				OnKilledMessage( To.Everyone,
-					victimClient.PlayerId,
-					victimClient.Name,
-					-1,
-					String.Empty,
+				OnKilledClient( To.Everyone,
+					victimClient,
+					null,
 					"died" );
 				return;
 			}
@@ -179,20 +179,46 @@ namespace Breakfloor
 					killedByText = victimPawn.LastAttackerWeapon.ClassName;
 				}
 
-				OnKilledClient( To.Everyone, victimPawn.LastAttacker.Client.PlayerId, victimPawn.LastAttacker.Client.Name,
-					victimClient.PlayerId,
-					victimClient.Name,
-					killedByText );
+				OnKilledClient( To.Everyone, victimPawn.LastAttacker.Client, victimClient, killedByText );
 			}
 
 		}
 
 		[ClientRpc]
-		public void OnKilledClient( long killerId, string killerName,
-			long victimId, string victimName,
-			string method )
+		public void OnKilledClient( Client killer, Client victim, string method )
 		{
-			KillFeed.Current.AddEntry( killerId, killerName, victimId, victimName, method );
+			KillFeed.Current.AddEntry( killer, victim, method );
 		}
+
+		//public override void RenderHud()
+		//{
+		//	var ents = Entity.All.Where(
+		//		x =>
+		//		x.GetType() == typeof( BreakfloorSpawnPoint ) );
+
+
+		//	foreach ( BreakfloorSpawnPoint e in ents )
+		//	{
+		//		if ( e == null ) continue;
+
+		//		Vector2? start = (Vector2)e.Position.ToScreen( Screen.Size ).GetValueOrDefault();
+		//		Vector2? end = (Vector2)(e.Position + e.Rotation.Forward * 25).ToScreen( Screen.Size ).GetValueOrDefault();
+		//		Vector2? up = (e.Position + e.Rotation.Up * 25).ToScreen( Screen.Size ).GetValueOrDefault();
+
+		//		if ( !start.HasValue || !end.HasValue ) continue;
+		//		Render.Draw2D.Color = BreakfloorGame.GetTeamColor( e.Index );
+
+		//		Render.Draw2D.Circle( start.Value, 8f, 4 );
+		//		Render.Draw2D.Line( 2, start.Value, end.Value );
+		//		Render.Draw2D.Color = Color.Blue;
+		//		Render.Draw2D.Line( 2, start.Value, up.Value );
+
+		//	}
+
+		//	base.RenderHud();
+		//}
+
+
 	}
 }
+

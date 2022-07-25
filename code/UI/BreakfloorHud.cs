@@ -22,6 +22,7 @@ namespace Breakfloor.UI
 			RootPanel.AddChild<Crosshair>();
 			RootPanel.AddChild<TargetID>();
 			RootPanel.AddChild<DamageIndicator>();
+			RootPanel.AddChild<InventoryPanel>();
 		}
 	}
 }

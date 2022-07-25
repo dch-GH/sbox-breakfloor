@@ -17,21 +17,7 @@ namespace Breakfloor.Weapons
 		[Net, Predicted]
 		public TimeSince TimeSinceDeployed { get; set; }
 
-		/// <summary>
-		/// this is all for a weird bug where weapons just spawn at the world origin when a player/bot joins the first time. thefuck?
-		/// </summary>
-		private int tickAtSpawn;
-
 		public virtual string GetKilledByText() { return string.Empty; }
-
-		[Event.Tick.Server]
-		public void TickServer()
-		{
-			if ( Time.Tick - tickAtSpawn >= 1 && Owner == null )
-			{
-				Delete();
-			}
-		}
 
 		public override void Spawn()
 		{
@@ -42,11 +28,11 @@ namespace Breakfloor.Weapons
 				Parent = this,
 				Position = Position,
 				EnableTouch = true,
+				EnableAllCollisions = false,
 				EnableSelfCollisions = false
 			};
 
 			PickupTrigger.PhysicsBody.AutoSleep = false;
-			tickAtSpawn = Time.Tick;
 			ClipAmmo = MaxClip;
 		}
 
@@ -193,7 +179,7 @@ namespace Breakfloor.Weapons
 			//
 			foreach ( var tr in TraceBullet( pos, pos + forward * 5000, bulletSize ) )
 			{
-				tr.Surface.DoBulletImpact( tr );
+				tr.Surface.DoBulletImpact( tr ); //TODO: would be nice if this didnt happen on friendlies?
 
 				if ( !IsServer ) continue;
 				if ( !tr.Entity.IsValid() ) continue;

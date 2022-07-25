@@ -19,7 +19,7 @@ namespace Breakfloor
 		/// Round time in minutes.
 		/// </summary>
 		[ConVar.Replicated( GamePrefix + "round_time" )]
-		public static int RoundTimeCvar { get; set; } = 5;
+		public static float RoundTimeCvar { get; set; } = 150;
 
 		[ConVar.ClientData( BF_AUTO_RELOAD_KEY, Help = "set with true/false to toggle automatic reload when magazine is empty.")]
 		public static bool DoAutoReload { get; set; }

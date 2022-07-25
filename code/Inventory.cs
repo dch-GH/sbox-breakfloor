@@ -21,6 +21,7 @@ partial class Inventory : BaseInventory
 
 	public override bool Add( Entity entity, bool makeActive = false )
 	{
+
 		if ( !entity.IsValid() )
 			return false;
 
