@@ -73,7 +73,7 @@ namespace Breakfloor
 				RestartRound();
 				RoundTimer = RoundTimeCvar;
 				roundTimerStarted = true;
-				Log.Info( "start round!!" );
+				Log.Info( "Starting round!" );
 			}
 		}
 
@@ -89,9 +89,9 @@ namespace Breakfloor
 		{
 
 			//This is probably naive but I don't care lol.
-			if ( roundTimerStarted)
+			if ( roundTimerStarted )
 			{
-				if( RoundTimer <= 0 )
+				if ( RoundTimer <= 0 )
 				{
 					//handle restart round restart the timer etc.
 					RestartRound();
@@ -102,6 +102,12 @@ namespace Breakfloor
 			{
 				RoundTimer = RoundTimeCvar + 1;
 			}
+		}
+
+		[ConCmd.Admin( "bf_restart" )]
+		public static void BfRestart()
+		{
+			(Game.Current as BreakfloorGame).RestartRound();
 		}
 
 		public void RestartRound()
@@ -120,9 +126,13 @@ namespace Breakfloor
 
 			foreach ( var c in Client.All )
 			{
-				(c.Pawn as BreakfloorPlayer).Respawn();
-				c.SetInt( "kills", 0 );
-				c.SetInt( "deaths", 0 );
+				if ( c.Pawn is BreakfloorPlayer ply )
+				{
+					ply.Respawn();
+					c.SetInt( "kills", 0 );
+					c.SetInt( "deaths", 0 );
+				}
+
 			}
 
 			RoundTimer = RoundTimeCvar;

@@ -13,7 +13,7 @@ namespace Breakfloor
 		public const string BF_AUTO_RELOAD_KEY = "bf_auto_reload";
 
 		[ConVar.Server( GamePrefix + "block_hp" )]
-		public static float BlockHealthCvar { get; set; } = 20f;
+		public static float BlockHealthCvar { get; set; } = 40f;
 
 		/// <summary>
 		/// Round time in minutes.

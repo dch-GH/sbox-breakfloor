@@ -35,8 +35,9 @@ namespace Breakfloor
 		{
 			SetModel( "models/citizen/citizen.vmdl" );
 
-			Controller = new WalkController();
-			(Controller as WalkController).Gravity = 750.0f; //gotta get that jump height above the blocks.
+			Controller = new BreakfloorWalkController();
+			(Controller as BreakfloorWalkController).Gravity = 750.0f; //gotta get that jump height above the blocks.
+
 			Animator = new StandardPlayerAnimator();
 
 			CameraMode = new FirstPersonCamera();
@@ -48,6 +49,7 @@ namespace Breakfloor
 
 			Clothing.DressEntity( this );
 
+			Inventory = new Inventory( this ); //this should fix the bug of not being able to swap weapons after respawning.
 			Inventory.DeleteContents();
 			Inventory.Add( new Pistol() );
 			Inventory.Add( new SMG(), true );
@@ -82,7 +84,6 @@ namespace Breakfloor
 				}
 			}
 
-
 			//Log.Info( $"Player:{Client} has teamIndex: {teamIndex}." );
 			//Log.Info($"Spawning player {Client} at {spawn} because it has index {spawn.Index}");
 
@@ -92,6 +93,13 @@ namespace Breakfloor
 			LastBlockStoodOn = null;
 
 			OrientAnglesToSpawnClient( To.Single( Client ), spawn.Transform.Rotation.Angles() );
+			RespawnClient();
+
+		}
+
+		[ClientRpc]
+		private void RespawnClient()
+		{
 
 		}
 
@@ -168,15 +176,15 @@ namespace Breakfloor
 
 		public override void BuildInput( InputBuilder input )
 		{
-			if ( input.Pressed( InputButton.Slot1 ) ) SetActiveSlot( input, Inventory, 0 );
-			if ( input.Pressed( InputButton.Slot2 ) ) SetActiveSlot( input, Inventory, 1 );
-			if ( input.Pressed( InputButton.Slot3 ) ) SetActiveSlot( input, Inventory, 2 );
-			if ( input.Pressed( InputButton.Slot4 ) ) SetActiveSlot( input, Inventory, 3 );
-			if ( input.Pressed( InputButton.Slot5 ) ) SetActiveSlot( input, Inventory, 4 );
-			if ( input.Pressed( InputButton.Slot6 ) ) SetActiveSlot( input, Inventory, 5 );
-			if ( input.Pressed( InputButton.Slot7 ) ) SetActiveSlot( input, Inventory, 6 );
-			if ( input.Pressed( InputButton.Slot8 ) ) SetActiveSlot( input, Inventory, 7 );
-			if ( input.Pressed( InputButton.Slot9 ) ) SetActiveSlot( input, Inventory, 8 );
+			if ( input.Pressed( InputButton.Slot1 ) ) SetActiveSlot( input, 0 );
+			if ( input.Pressed( InputButton.Slot2 ) ) SetActiveSlot( input, 1 );
+			if ( input.Pressed( InputButton.Slot3 ) ) SetActiveSlot( input, 2 );
+			if ( input.Pressed( InputButton.Slot4 ) ) SetActiveSlot( input, 3 );
+			if ( input.Pressed( InputButton.Slot5 ) ) SetActiveSlot( input, 4 );
+			if ( input.Pressed( InputButton.Slot6 ) ) SetActiveSlot( input, 5 );
+			if ( input.Pressed( InputButton.Slot7 ) ) SetActiveSlot( input, 6 );
+			if ( input.Pressed( InputButton.Slot8 ) ) SetActiveSlot( input, 7 );
+			if ( input.Pressed( InputButton.Slot9 ) ) SetActiveSlot( input, 8 );
 
 			if ( shouldOrientView )
 			{
@@ -255,24 +263,23 @@ namespace Breakfloor
 			Sound.FromScreen( "ui.bf_hitmarker" ).SetPitch( 1 + pitch * 1 );
 		}
 
-		private static void SetActiveSlot( InputBuilder input, IBaseInventory inventory, int i )
+
+		private void SetActiveSlot( InputBuilder input, int i )
 		{
 			var player = Local.Pawn as Player;
-			
+
 			if ( player == null )
 				return;
 
 			var activeChild = player.ActiveChild;
 			if ( activeChild is BreakfloorWeapon weapon && weapon.IsReloading ) return; //No weapon switch while reloading
 
-			var ent = inventory.GetSlot( i );
+			var ent = Inventory.GetSlot( i );
 			if ( activeChild == ent )
 				return;
 
 			if ( ent == null )
 				return;
-
-			Log.Info( "slotttt" );
 
 			input.ActiveChild = ent;
 		}

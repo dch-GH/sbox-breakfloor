@@ -10,7 +10,7 @@ namespace Breakfloor
 {
 	[HammerEntity]
 	[ClassName("bf_block")]
-	[BoxSize( 32 )]
+	[BoxSize( 64 )]
 	internal class BreakFloorBlock : ModelEntity
 	{
 		[Property( "WorldModel" )]
@@ -22,10 +22,13 @@ namespace Breakfloor
 		{
 			base.Spawn();
 			Model = Model.Load( WorldModel );
+
 			Tags.Add( "solid" );
+
 			PhysicsEnabled = false;
 			UsePhysicsCollision = true;
 			EnableShadowReceive = false;
+
 			Reset();
 		}
 
