@@ -175,8 +175,8 @@ namespace Breakfloor
 					// NOTE: this should fix the bug where if game restarted while crouching
 					// the player crouch would break sync and clip through geo
 					var pos = Position + Vector3.Up * 7f;
-					var bbox = new BBox( mins, maxs * 2 );
-					// DebugOverlay.Box( pos, bbox.Mins, bbox.Maxs, Color.Yellow, 5f, false );
+					var bbox = new BBox( mins, maxs + Vector3.Up * 24 );
+					DebugOverlay.Box( pos, bbox.Mins, bbox.Maxs, Color.Yellow, 5f, false );
 					var pm = Trace.Box( bbox, new Ray( pos, Vector3.Up ), 0.5f )
 										.Ignore( Pawn )
 										.Run();
