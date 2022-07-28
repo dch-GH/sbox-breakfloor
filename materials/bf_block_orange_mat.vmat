@@ -15,7 +15,7 @@ Layer0
 	//---- Color ----
 	g_flModelTintAmount "1.000"
 	g_vColorTint "[1.000000 1.000000 1.000000 1.000000]"
-	TextureColor "materials/orange_tile_.color.png"
+	TextureColor "materials/1372652108_preview_dev_measurewall01a_color01.png"
 
 	//---- Fade ----
 	g_flFadeExponent "1.000"

@@ -1,7 +1,7 @@
 {
   "Title": "Breakfloor",
   "Type": "game",
-  "Org": "local",
+  "Org": "null",
   "Ident": "breakfloor",
   "Schema": 1,
   "HasAssets": true,
@@ -12,7 +12,8 @@
   "RootNamespace": "Breakfloor",
   "Metadata": {
     "MapList": [
-      "null.breakfloor_tsar"
+      "null.breakfloor_tsar",
+      "null.breakfloor_orange"
     ],
     "MapSelect": "Tagged",
     "MinPlayers": 2,
@@ -70,6 +71,7 @@
       "VelocityIterations": 8,
       "SoftBodyIterations": 1,
       "SoftBodySubsteps": 1
-    }
+    },
+    "GameCategory": "Shooter"
   }
 }
