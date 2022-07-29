@@ -18,13 +18,18 @@ namespace Breakfloor.UI
 		public override void Tick()
 		{
 			base.Tick();
-			if ( Local.Pawn == null || Local.Client.GetValue<bool>( BreakfloorGame.BF_AUTO_RELOAD_KEY ) ) return;
+
+			if ( Local.Pawn == null ) return;
+
 			var ply = (BreakfloorPlayer)Local.Pawn;
+
+			SetClass( "hidden", ply.LifeState != LifeState.Alive );
 
 			if ( ply.ActiveChild == null ) return;
 			var wep = (BreakfloorWeapon)ply.ActiveChild;
 
-			ReloadIndicator.SetClass( "active", (wep.ClipAmmo <= 0) && !wep.IsReloading );
+			if ( !Local.Client.GetValue<bool>( BreakfloorGame.BF_AUTO_RELOAD_KEY ) )
+				ReloadIndicator.SetClass( "active", (wep.ClipAmmo <= 0) && !wep.IsReloading );
 		}
 	}
 }
