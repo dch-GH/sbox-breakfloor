@@ -74,7 +74,7 @@ namespace Breakfloor.UI
 
 		}
 
-		[ConCmd.Client( "chat_add", CanBeCalledFromServer = true )]
+		[ConCmd.Client( "bf_chat_add", CanBeCalledFromServer = true )]
 		public static void AddChatEntry( string name, string message, string avatar = null, string lobbyState = null, bool isAdmin = false )
 		{
 
@@ -87,13 +87,13 @@ namespace Breakfloor.UI
 			}
 		}
 
-		[ConCmd.Client( "chat_addinfo", CanBeCalledFromServer = true )]
+		[ConCmd.Client( "bf_chat_addinfo", CanBeCalledFromServer = true )]
 		public static void AddInformation( string message, string avatar = null, bool isPlayerAdmin = false )
 		{
 			Current?.AddEntry( null, message, avatar, admin: isPlayerAdmin );
 		}
 
-		[ConCmd.Server( "say" )]
+		[ConCmd.Server( "bf_say" )]
 		public static void Say( string message )
 		{
 			Assert.NotNull( ConsoleSystem.Caller );
