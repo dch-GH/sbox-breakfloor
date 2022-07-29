@@ -59,6 +59,7 @@ namespace Breakfloor.UI
 			BFChatEntry e = Canvas.AddChild<BFChatEntry>();
 
 			e.Message.Text = message;
+			// TODO: set NameLabel FontColor to be user's team color. requires passing Client to AddEntry.
 			e.NameLabel.Text = string.Concat( name, " :" );
 			e.Avatar.SetTexture( avatar );
 

@@ -15,7 +15,7 @@ namespace Breakfloor.UI
 
 		public BFChatEntry()
 		{
-			DevLabel = Add.Label( "(ADMIN)", "devlabel" );
+			DevLabel = Add.Label( "[ADMIN]", "devlabel" );
 			Avatar = Add.Image();
 			NameLabel = Add.Label( "Name", "name" );
 			Message = Add.Label( "Message", "message" );

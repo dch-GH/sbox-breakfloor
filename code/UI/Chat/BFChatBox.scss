@@ -54,9 +54,6 @@ bfchatentry {
 
 	&:intro {
 		max-height: 0px;
-		// padding-top: 0;
-		// padding-bottom: 0;
-		// margin-bottom: 0;
 		opacity: 0;
 		transform: translate(-500px, 0);
 	}
@@ -76,8 +73,8 @@ bfchatentry {
 			position: relative;
 			transform: scale(1);
 			font-weight: 600;
-			font-size: 16px;
-			color: rgb(60, 134, 218);
+			font-size: 14px;
+			color: rgb(165, 173, 180);
 			text-stroke: 2px black;
 			padding-right: 3px;
 			padding-left: 2px;
@@ -85,11 +82,9 @@ bfchatentry {
 		}
 
 		.message {
-			font-family: Arial, Helvetica, sans-serif;
+			font-family: monospace;
 			color: rgb(208, 222, 240);
-			font-weight: bold;
 			font-size: 15px;
-			// text-stroke: 2px white;
 		}
 	}
 
