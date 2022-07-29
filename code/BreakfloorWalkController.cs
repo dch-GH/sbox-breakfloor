@@ -33,9 +33,6 @@ namespace Breakfloor
 
 		public Unstuck Unstuck;
 
-		protected Vector3 origMins;
-		protected Vector3 origMaxs;
-
 		protected Vector3 mins;
 		protected Vector3 maxs;
 
