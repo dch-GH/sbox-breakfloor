@@ -2,9 +2,9 @@
     background-color: rgba(#333, 0);
     transition: background-color 0.2s ease-in;
 
-     &.devcamera {
+    &.devcamera {
         display: none;
-     }
+    }
 }
 
 TargetID {
@@ -45,7 +45,7 @@ TargetID {
     }
 
     &.friend {
-        color: rgb(111, 167, 252);
+        color: rgb(150, 240, 98);
     }
 
     &.enemy {
