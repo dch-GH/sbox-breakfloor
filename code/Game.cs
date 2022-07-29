@@ -87,8 +87,6 @@ namespace Breakfloor
 		[Event.Tick.Server]
 		public void ServerTick()
 		{
-
-			//This is probably naive but I don't care lol.
 			if ( roundTimerStarted )
 			{
 				if ( RoundTimer <= 0 )
@@ -96,7 +94,6 @@ namespace Breakfloor
 					//handle restart round restart the timer etc.
 					RestartRound();
 				}
-
 			}
 			else
 			{

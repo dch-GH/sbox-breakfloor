@@ -121,8 +121,12 @@ namespace Breakfloor
 
 			Inventory.DeleteContents();
 
-			// facepunch fucked up ragdoll stuff with the physics tags update i think, disable it for now.
-			//BecomeRagdollOnClient( LastDamage.Force, GetHitboxBone( LastDamage.HitboxIndex ) );
+			BecomeRagdollOnClient(
+				Velocity,
+				LastDamage.Flags,
+				LastDamage.Position,
+				LastDamage.Force,
+				GetHitboxBone( LastDamage.HitboxIndex ) );
 
 			Controller = null;
 
