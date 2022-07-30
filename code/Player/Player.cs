@@ -1,4 +1,4 @@
-﻿using Breakfloor.HammerEnts;
+using Breakfloor.HammerEnts;
 using Sandbox;
 using System;
 using System.Linq;
@@ -29,6 +29,28 @@ namespace Breakfloor
 		public override void Spawn()
 		{
 			base.Spawn();
+			FlashlightEntity = new SpotLightEntity
+			{
+				Enabled = false,
+				DynamicShadows = true,
+				Range = 3200f,
+				Falloff = 0.3f,
+				LinearAttenuation = 0.3f,
+				Brightness = 8f,
+				Color = Color.FromBytes( 200, 200, 200, 230 ),
+				InnerConeAngle = 9,
+				OuterConeAngle = 32,
+				FogStrength = 1.0f,
+				Owner = this,
+				LightCookie = Texture.Load( "materials/effects/lightcookie.vtex" ),
+
+				// this helps with not casting the player model shadow clientside 
+				// (from the light being inside player model)
+				// no idea what to do for player puppets though, thats still fucked.
+				EnableViewmodelRendering = true
+			};
+
+			FlashlightPosOffset = 14;
 		}
 
 		public override void Respawn()
@@ -176,6 +198,16 @@ namespace Breakfloor
 			TickPlayerUse();
 
 			SimulateActiveChild( cl, ActiveChild );
+			FlashlightSimulate();
+		}
+
+		public override void FrameSimulate( Client cl )
+		{
+			base.FrameSimulate( cl );
+
+			//Update the flashlight position on the client in framesim
+			//so the movement is nice and smooth.
+			FlashlightFrameSimulate();
 		}
 
 		public override void BuildInput( InputBuilder input )
@@ -297,6 +329,12 @@ namespace Breakfloor
 			if ( best == null ) return;
 
 			ActiveChild = best;
+		}
+
+		[ClientRpc]
+		public void PlaySoundClient( string snd )
+		{
+			PlaySound( snd );
 		}
 	}
 }

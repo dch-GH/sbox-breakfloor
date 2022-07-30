@@ -9,9 +9,9 @@ using SandboxEditor;
 namespace Breakfloor
 {
 	[HammerEntity]
-	[ClassName("bf_block")]
+	[ClassName( "bf_block" )]
 	[BoxSize( 64 )]
-	internal class BreakFloorBlock : ModelEntity
+	public class BreakFloorBlock : ModelEntity
 	{
 		[Property( "WorldModel" )]
 		public string WorldModel { get; set; }
@@ -40,7 +40,7 @@ namespace Breakfloor
 
 		public override void OnKilled()
 		{
-			Sound.FromWorld( "bf_block_glassbreak", Position ).SetVolume(0.6f);
+			Sound.FromWorld( "bf_block_glassbreak", Position ).SetVolume( 0.6f );
 			EnableAllCollisions = false;
 			EnableDrawing = false;
 			LifeState = LifeState.Dead;
