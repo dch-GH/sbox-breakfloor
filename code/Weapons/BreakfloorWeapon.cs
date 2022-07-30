@@ -169,6 +169,9 @@ namespace Breakfloor.Weapons
 		/// </summary>
 		public virtual void ShootBullet( Vector3 pos, Vector3 dir, float spread, float force, float damage, float bulletSize )
 		{
+			// Make client/server randomness match up for spread cones.
+			Rand.SetSeed( Time.Tick );
+
 			var forward = dir;
 			forward += (Vector3.Random + Vector3.Random + Vector3.Random + Vector3.Random) * spread * 0.25f;
 			forward = forward.Normal;
