@@ -35,10 +35,7 @@
 						_class = "PhysicsShapeBox"
 						parent_bone = ""
 						surface_prop = "default"
-						collision_group = ""
-						collision_interact_as = ""
-						collision_interact_with = ""
-						collision_interact_exclude = ""
+						collision_tags = "solid"
 						origin = [ 0.0, 0.0, 0.0 ]
 						angles = [ 0.0, 0.0, 0.0 ]
 						dimensions = [ 64.0, 64.0, 64.0 ]
@@ -76,7 +73,7 @@
 						[
 							{
 								from = "materials/dev/reflectivity_30.vmat"
-								to = "materials/concrete_c_bld.vmat"
+								to = "materials/bf_block_tstar.vmat"
 							},
 						]
 						use_global_default = false
@@ -88,5 +85,6 @@
 		model_archetype = ""
 		primary_associated_entity = ""
 		anim_graph_name = ""
+		base_model_name = ""
 	}
 }
