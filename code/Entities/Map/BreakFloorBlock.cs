@@ -10,7 +10,7 @@ namespace Breakfloor
 {
 	[HammerEntity]
 	[ClassName( "bf_block" )]
-	[BoxSize( 64 )]
+	[EditorModel( "models/bf_block.vmdl", CastShadows = false )]
 	[Title( "Breakfloor Block" ), Category( "Map" ), Icon( "check_box_outline_blank" ), 
 		Description("The blocks to be broken. Usually shouldn't be placed manually, use a volume instead.")]
 	public class BreakFloorBlock : ModelEntity
