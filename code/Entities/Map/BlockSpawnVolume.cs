@@ -8,8 +8,8 @@ namespace Breakfloor
 	[HammerEntity]
 	[DrawAngles]
 	[BoundsHelper( "mins", "maxs" )]
-	[ClassName("bf_block_volume")]
-	[Title( "Breakfloor Block Volume" ), Category( "Map" ), Icon( "apps" ), Description("Define a box volume to fill with blocks. Axis-aligned.")]
+	[ClassName( "bf_block_volume" )]
+	[Title( "Breakfloor Block Volume" ), Category( "Map" ), Icon( "apps" ), Description( "Define a box volume to fill with blocks. Axis-aligned." )]
 	public partial class BlockSpawnVolume : Entity
 	{
 		[Property]
@@ -64,7 +64,7 @@ namespace Breakfloor
 		{
 			if ( !debug ) return;
 
-			DebugOverlay.Box( Position, mins: Mins, maxs: Maxs, Color.Blue.WithAlpha(0.45f), depthTest: false );
+			DebugOverlay.Box( Position, mins: Mins, maxs: Maxs, Color.Blue.WithAlpha( 0.45f ), depthTest: false );
 
 			var minPos = Position + Mins;
 			var maxPos = Position + Maxs;
@@ -83,5 +83,48 @@ namespace Breakfloor
 		}
 	}
 
+	[HammerEntity]
+	[DrawAngles]
+	[ClassName( "bf_column_volume" )]
+	[Title( "Breakfloor Column Volume" ), Category( "Map" ), Icon( "texture" ), Description( "Define a box volume to fill with column. Axis-aligned." )]
+	public partial class ColumnSpawnVolume : BlockSpawnVolume
+	{
+		[Property]
+		int NumBlocksPerColumn { get; set; } = 5;
 
+		[Property]
+		bool CheckerStyle { get; set; } = false;
+
+		public override void Spawn()
+		{
+			base.Spawn();
+			Transmit = TransmitType.Always;
+
+			var full = (int)BreakfloorGame.StandardBlockSize;
+			var hb = (int)BreakfloorGame.StandardHalfBlockSize;
+
+			EnableDrawing = false;
+
+			int i = 0;
+			int j = 0;
+			for ( int x = (int)(Position.x + Mins.x) + hb; x <= ((int)Position.x + Maxs.x) - hb; x += full )
+			{
+				i++;
+
+				for ( int y = (int)(Position.y + Mins.y) + hb; y <= ((int)Position.y + Maxs.y) - hb; y += full )
+				{
+					j++;
+
+					if ( CheckerStyle && (i + j) % 2 == 0 )
+						continue;
+
+					new BlockSpawnColumn
+					{
+						Position = new Vector3( x, y, Position.z - hb ),
+						NumBlocks = NumBlocksPerColumn
+					}.Spawn();				
+				}
+			}
+		}
+	}
 }
