@@ -88,7 +88,7 @@ namespace Breakfloor
 
 			CreateHull();
 
-			var teamIndex = BreakfloorGame.GetMyTeam( Client );
+			var teamIndex = Client.GetValue<int>( BreakfloorGame.TeamDataKey );
 			var spawn = Entity.All.OfType<BreakfloorSpawnPoint>()
 				.Where( x => x.Index == teamIndex )
 				.OrderBy( x => Guid.NewGuid() )

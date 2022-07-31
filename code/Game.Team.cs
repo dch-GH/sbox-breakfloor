@@ -17,14 +17,10 @@ namespace Breakfloor
 
 	public partial class BreakfloorGame : Game
 	{
+		public const string TeamDataKey = "team";
 
 		public static List<Client> TeamA = new List<Client>();
 		public static List<Client> TeamB = new List<Client>();
-
-		public static int GetMyTeam( Client client )
-		{
-			return TeamA.Contains( client ) ? Teams.A : Teams.B;
-		}
 
 		public static Color GetTeamColor( int index )
 		{

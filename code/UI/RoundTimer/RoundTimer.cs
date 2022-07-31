@@ -17,10 +17,8 @@ namespace Breakfloor.UI
 		public override void Tick()
 		{
 			base.Tick();
-			var game = Game.Current as BreakfloorGame;
 
-			var span = TimeSpan.FromSeconds( (game.RoundTimer * 60).Clamp( 0, float.MaxValue ));
-
+			var span = TimeSpan.FromSeconds( (BreakfloorGame.Instance.RoundTimer * 60).Clamp( 0, float.MaxValue ));
 			value.Text = span.ToString( @"h\:mm" );
 		}
 	}

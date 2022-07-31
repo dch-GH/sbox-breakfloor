@@ -20,6 +20,7 @@ namespace Breakfloor
 		public RealTimeUntil RoundTimer { get; private set; } = 0f;
 
 		private bool roundTimerStarted = false;
+		private MapRules gameRules;
 
 		public BreakfloorGame()
 		{
@@ -33,11 +34,28 @@ namespace Breakfloor
 				// This is really silly, I know. I assume we'll be able to store 
 				// at the very least a JSON/.txt file or something on the s&works addon page for secrets some day.
 				Admins = new List<long>() { 76561197998255119 };
-				
+
 				_ = new BreakfloorHud();
 				RoundTimer = RoundTimeCvar; //so the timer can be frozen at the roundtimecvar.
 			}
+		}
 
+		public override void PostLevelLoaded()
+		{
+			base.PostLevelLoaded();
+
+			gameRules = Entity.All.OfType<MapRules>().FirstOrDefault();
+			if ( gameRules == null )
+			{
+				Log.Info( "No map rules found for this map, using standard ruleset." );
+				var maxTeamSize = int.Parse( ConsoleSystem.GetValue( "maxplayers" ) ) / 2;
+				Log.Info( $"Max team size:{maxTeamSize}" );
+				gameRules = new MapRules
+				{
+					TeamCount = 1, //0 start indexed
+					MaxTeamSize = maxTeamSize
+				};
+			}
 		}
 
 		public override void ClientJoined( Client cl )
@@ -107,7 +125,7 @@ namespace Breakfloor
 		[ConCmd.Admin( "bf_restart" )]
 		public static void BfRestart()
 		{
-			(Game.Current as BreakfloorGame).RestartRound();
+			Instance.RestartRound();
 		}
 
 		public void RestartRound()
@@ -166,7 +184,7 @@ namespace Breakfloor
 						OnKilledClient( To.Everyone,
 							block.LastAttacker.Client,
 							victimClient,
-							"BREAKFLOORED" );
+							"BREAKFLOOR'D" );
 
 						block.LastAttacker.Client.AddInt( "kills" );
 					}
