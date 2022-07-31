@@ -15,7 +15,7 @@ namespace Breakfloor
 		[Net] public BreakFloorBlock LastBlockStoodOn { get; private set; }
 
 		// These are for resetting/setting the player view angles
-		// to that of their spawnpoint direction, so the player faces the correct direction.
+		// to that of their spawnpoint direction, so the player faces the correct direction on respawn.
 		// We need to use BuildInput because Input.Rotation is carried over
 		// between disconnects/gamemode restarts and will get applied instantly in Simualate. Needs to be overridden manually. :)
 		private bool shouldOrientView;
@@ -29,6 +29,11 @@ namespace Breakfloor
 		public override void Spawn()
 		{
 			base.Spawn();
+
+			// TODO: find a way to make flashlights look good on other
+			// players. Also, the light shines through geo (any map/gamemode) and onto the
+			// viewmodel. Effectively wallhacks in breakfloor when someone is looking your direction.
+
 			FlashlightEntity = new SpotLightEntity
 			{
 				Enabled = false,
@@ -299,7 +304,6 @@ namespace Breakfloor
 			Sound.FromScreen( "ui.bf_hitmarker" ).SetPitch( 1 + pitch * 1 );
 		}
 
-
 		private void SetActiveSlot( InputBuilder input, int i )
 		{
 			var player = Local.Pawn as Player;
@@ -318,17 +322,6 @@ namespace Breakfloor
 				return;
 
 			input.ActiveChild = ent;
-		}
-
-		public void SwitchToBestWeapon()
-		{
-			var best = Children.Select( x => x as BreakfloorWeapon )
-				.Where( x => x.IsValid() )
-				.FirstOrDefault();
-
-			if ( best == null ) return;
-
-			ActiveChild = best;
 		}
 
 		[ClientRpc]

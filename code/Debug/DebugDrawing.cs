@@ -6,7 +6,7 @@ using SandboxEditor;
 
 namespace Breakfloor.Debug
 {
-	public class DebugDrawPlayerSpawn
+	public class DebugDrawing
 	{
 		//[DebugOverlay( "playerspawn", "PlayerSpawn", "perm_media" )]
 		//public static void Draw()

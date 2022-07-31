@@ -11,14 +11,17 @@ namespace Breakfloor
 			ent.Position = Position;
 			ent.Rotation = Rotation;
 			ent.Scale = Scale;
+
 			ent.UsePhysicsCollision = true;
 			ent.EnableAllCollisions = true;
+
 			ent.SetModel( GetModelName() );
 			ent.CopyBonesFrom( this );
 			ent.CopyBodyGroups( this );
 			ent.CopyMaterialGroup( this );
 			ent.CopyMaterialOverrides( this );
 			ent.TakeDecalsFrom( this );
+
 			ent.EnableAllCollisions = true;
 			ent.SurroundingBoundsMode = SurroundingBoundsType.Physics;
 			ent.RenderColor = RenderColor;
