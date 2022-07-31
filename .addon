@@ -12,11 +12,11 @@
   "RootNamespace": "Breakfloor",
   "Metadata": {
     "MapList": [
-      "null.breakfloor_tsar",
+      "null.bkf_tstar",
       "null.bkf_orange"
     ],
     "MapSelect": "Tagged",
-    "MinPlayers": 2,
+    "MinPlayers": 1,
     "MaxPlayers": 16,
     "PerMapRanking": false,
     "LeaderboardType": "None",
