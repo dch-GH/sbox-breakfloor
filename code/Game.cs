@@ -10,8 +10,9 @@ namespace Breakfloor
 {
 	partial class BreakfloorGame : Game
 	{
-		public static readonly string VERSION = "1.1.0";
-		public static readonly Vector3 BlockDimensions = new Vector3( 64, 64, 64 );
+		public static readonly float StandardBlockSize = 64;
+		public static readonly float StandardHalfBlockSize = StandardBlockSize / 2;
+		public static readonly Vector3 StandardBlockDimensions = Vector3.One * StandardBlockSize;
 
 		public static BreakfloorGame Instance => Current as BreakfloorGame;
 
@@ -29,10 +30,12 @@ namespace Breakfloor
 			//
 			if ( IsServer )
 			{
+				// This is really silly, I know. I assume we'll be able to store 
+				// at the very least a JSON/.txt file or something on the s&works addon page for secrets some day.
 				Admins = new List<long>() { 76561197998255119 };
+				
 				_ = new BreakfloorHud();
 				RoundTimer = RoundTimeCvar; //so the timer can be frozen at the roundtimecvar.
-				Log.Info( $"Breakfloor server running version: {VERSION}" );
 			}
 
 		}
@@ -47,11 +50,11 @@ namespace Breakfloor
 			var teamDifference = TeamA.Count - TeamB.Count;
 			if ( teamDifference < 0 )
 			{
-				JoinTeam( cl, TeamIndexA );
+				JoinTeam( cl, Teams.A );
 			}
 			else if ( teamDifference > 0 )
 			{
-				JoinTeam( cl, TeamIndexB );
+				JoinTeam( cl, Teams.B );
 			}
 			else
 			{
@@ -63,8 +66,8 @@ namespace Breakfloor
 			player.UpdateClothes( cl );
 			player.Respawn();
 
-			BFChatbox.AddInformation( To.Single( cl ),
-				$"Welcome to Breakfloor! You can toggle auto reloading by typing \"bf_auto_reload true\" into the console." );
+			//BFChatbox.AddInformation( To.Single( cl ),
+			//	$"Welcome to Breakfloor! You can toggle auto reloading by typing \"bf_auto_reload true\" into the console." );
 
 			//Update the status of the round timer AFTER the joining client's
 			//team is set.
@@ -91,7 +94,7 @@ namespace Breakfloor
 			{
 				if ( RoundTimer <= 0 )
 				{
-					//handle restart round restart the timer etc.
+					//handle restart round and restart the timer, etc.
 					RestartRound();
 				}
 			}
@@ -137,14 +140,15 @@ namespace Breakfloor
 
 		public override void OnKilled( Client victimClient, Entity victimPawn )
 		{
-			//override the base.onkilled and tweaking it instead of calling it. its does some dumb shit.
+			//override the base.onkilled and tweak it instead of calling base. it does shit we dont want.
 			Host.AssertServer();
 
 			var vic = (BreakfloorPlayer)victimPawn;
 
 			if ( victimPawn.LastAttacker == null ) return;
 
-			if ( victimPawn.LastAttacker.GetType() == typeof( HurtVolumeEntity ) )
+			
+			if ( victimPawn.LastAttacker.GetType() == typeof( HurtVolumeEntity ) ) // First check if we died to a map hurt trigger
 			{
 				var block = vic.LastBlockStoodOn;
 				if ( block != null && block.Broken )
@@ -177,6 +181,8 @@ namespace Breakfloor
 				return;
 			}
 
+			// Player didn't die from falling or a hurt trigger then.
+			// They died to a gun, how boring.
 			if ( victimPawn.LastAttacker.Client != null )
 			{
 				var killedByText = (victimPawn.LastAttackerWeapon as BreakfloorWeapon).GetKilledByText();
@@ -196,36 +202,6 @@ namespace Breakfloor
 		{
 			KillFeed.Current.AddEntry( killer, victim, method );
 		}
-
-		//public override void RenderHud()
-		//{
-		//	var ents = Entity.All.Where(
-		//		x =>
-		//		x.GetType() == typeof( BreakfloorSpawnPoint ) );
-
-
-		//	foreach ( BreakfloorSpawnPoint e in ents )
-		//	{
-		//		if ( e == null ) continue;
-
-		//		Vector2? start = (Vector2)e.Position.ToScreen( Screen.Size ).GetValueOrDefault();
-		//		Vector2? end = (Vector2)(e.Position + e.Rotation.Forward * 25).ToScreen( Screen.Size ).GetValueOrDefault();
-		//		Vector2? up = (e.Position + e.Rotation.Up * 25).ToScreen( Screen.Size ).GetValueOrDefault();
-
-		//		if ( !start.HasValue || !end.HasValue ) continue;
-		//		Render.Draw2D.Color = BreakfloorGame.GetTeamColor( e.Index );
-
-		//		Render.Draw2D.Circle( start.Value, 8f, 4 );
-		//		Render.Draw2D.Line( 2, start.Value, end.Value );
-		//		Render.Draw2D.Color = Color.Blue;
-		//		Render.Draw2D.Line( 2, start.Value, up.Value );
-
-		//	}
-
-		//	base.RenderHud();
-		//}
-
-
 	}
 }
 

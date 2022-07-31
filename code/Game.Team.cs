@@ -6,35 +6,33 @@ using System.Linq;
 
 namespace Breakfloor
 {
-	//it makes more sense to use an enum but because of the way clientdata works its just better to use static ints lol
-	//public enum Team : int
-	//{
-	//	None = -1,
-	//	A = 0,
-	//	B = 1
-	//}
+	// i know it should be an enum, BUT, because of the way clientdata works its just better to use static ints...
+	// saves you from doing a lot of casting and copy pasting. this is good enough imo and is effectively an enum.
+	public static class Teams
+	{
+		public const int None = -1;
+		public const int A = 0;
+		public const int B = 1;
+	}
 
 	public partial class BreakfloorGame : Game
 	{
-		public const int TeamIndexNone = -1;
-		public const int TeamIndexA = 0;
-		public const int TeamIndexB = 1;
 
 		public static List<Client> TeamA = new List<Client>();
 		public static List<Client> TeamB = new List<Client>();
 
 		public static int GetMyTeam( Client client )
 		{
-			return TeamA.Contains( client ) ? TeamIndexA : TeamIndexB;
+			return TeamA.Contains( client ) ? Teams.A : Teams.B;
 		}
 
 		public static Color GetTeamColor( int index )
 		{
 			switch ( index )
 			{
-				case TeamIndexA:
+				case Teams.A:
 					return Color.FromBytes( 237, 36, 79 );
-				case TeamIndexB:
+				case Teams.B:
 					return Color.FromBytes( 26, 154, 240 );
 				default:
 					return Color.White;
@@ -45,20 +43,20 @@ namespace Breakfloor
 		{
 			switch ( index )
 			{
-				case TeamIndexA:
+				case Teams.A:
 					if ( !TeamA.Contains( p.Client ) )
 					{
 						TeamA.Add( p );
-						p.SetValue( "team", TeamIndexA );
+						p.SetValue( "team", Teams.A );
 						Log.Info( $"Client:{p} joined team A." );
 						BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team RED.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
 					}
 					break;
-				case TeamIndexB:
+				case Teams.B:
 					if ( !TeamB.Contains( p.Client ) )
 					{
 						TeamB.Add( p );
-						p.SetValue( "team", TeamIndexB );
+						p.SetValue( "team", Teams.B );
 						Log.Info( $"Client:{p} joined team B." );
 						BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team BLUE.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
 					}
@@ -73,11 +71,11 @@ namespace Breakfloor
 			var randomValue = Rand.Int( 0, 2 );
 			if ( randomValue == 1 )
 			{
-				JoinTeam( client, TeamIndexA );
+				JoinTeam( client, Teams.A );
 			}
 			else
 			{
-				JoinTeam( client, TeamIndexB );
+				JoinTeam( client, Teams.B );
 			}
 		}
 
