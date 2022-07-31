@@ -103,6 +103,19 @@ namespace Breakfloor
 			if ( TeamA.Contains( cl ) ) TeamA.Remove( cl );
 			if ( TeamB.Contains( cl ) ) TeamB.Remove( cl );
 			base.ClientDisconnect( cl, reason );
+
+			AfterClientDisconnect();
+		}
+
+		public async void AfterClientDisconnect()
+		{
+			await GameTask.DelayRealtimeSeconds( 2 );
+			if ( Client.All.Count <= 1 )
+			{
+				roundTimerStarted = false;
+				RestartRound();
+			}
+				
 		}
 
 		[Event.Tick.Server]
