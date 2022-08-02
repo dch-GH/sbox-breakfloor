@@ -15,7 +15,7 @@
       "null.bkf_orange",
       "null.bkf_tstar"
     ],
-    "MapSelect": "Tagged",
+    "MapSelect": "Official",
     "MinPlayers": 1,
     "MaxPlayers": 16,
     "PerMapRanking": false,
