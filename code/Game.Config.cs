@@ -16,10 +16,10 @@ namespace Breakfloor
 		public static float BlockHealthCvar { get; set; } = 40f;
 
 		/// <summary>
-		/// Round time in minutes.
+		/// Round time in seconds.
 		/// </summary>
 		[ConVar.Replicated( GamePrefix + "round_time" )]
-		public static float RoundTimeCvar { get; set; } = 150;
+		public static float RoundTimeCvar { get; set; } = 210;
 
 		[ConVar.ClientData( BF_AUTO_RELOAD_KEY, Help = "set with true/false to toggle automatic reload when magazine is empty.")]
 		public static bool DoAutoReload { get; set; }
