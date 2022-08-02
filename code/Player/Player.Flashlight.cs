@@ -26,17 +26,13 @@ namespace Breakfloor
 
 		private void FlashlightSimulate()
 		{
+			if ( !FlashlightEntity.IsValid() )
+				return;
+
 			if ( Input.Released( InputButton.Flashlight ) )
 			{
 				FlashlightEnabled = !FlashlightEnabled;
-				using ( Prediction.Off() )
-				{
-					PlaySoundClient( FlashlightEntity.Enabled ? "flashlight-on" : "flashlight-off" );
-				}
 			}
-
-			if ( !FlashlightEntity.IsValid() )
-				return;
 
 			FlashlightEntity.Enabled = FlashlightEnabled;
 
@@ -52,6 +48,11 @@ namespace Breakfloor
 			//for client side smooth movement
 			if ( FlashlightEntity != null && FlashlightEntity.IsValid() )
 			{
+				if ( Input.Released( InputButton.Flashlight ) )
+				{
+					PlaySound( FlashlightEntity.Enabled ? "flashlight_off" : "flashlight_on" );			
+				}
+
 				// This calculation is pretty much ripped from Source 1, minus some ladder stuff and a double check they do
 				// inside the player hull. Works great for me!
 
