@@ -10,7 +10,7 @@ namespace Breakfloor.Weapons
 		public override float PrimaryRate => 12.0f;
 		public override float SecondaryRate => 1.0f;
 		public override float ReloadTime => 3.0f;
-		public override int MaxClip => 30;
+		public override int MaxClip => 35;
 
 		public override string GetKilledByText()
 		{
