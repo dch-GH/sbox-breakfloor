@@ -100,7 +100,6 @@ namespace Breakfloor
 					break;
 			}
 
-
 			var player = new BreakfloorPlayer();
 			cl.Pawn = player;
 			player.Team = decidedTeam;

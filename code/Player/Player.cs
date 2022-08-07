@@ -89,14 +89,13 @@ namespace Breakfloor
 
 			CreateHull();
 
-			var teamIndex = Client.GetValue<int>( BreakfloorGame.TeamDataKey );
 			var spawn = Entity.All.OfType<BreakfloorSpawnPoint>()
-				.Where( x => (int)x.Index == teamIndex )
+				.Where( x => x.Index == Team )
 				.OrderBy( x => Guid.NewGuid() )
 				.FirstOrDefault();
 
 			{
-				var teamColor = BreakfloorGame.GetTeamColor( teamIndex.ToTeam() );
+				var teamColor = BreakfloorGame.GetTeamColor( Team);
 
 				//Paint clothes or body to our TeamIndex color.
 				if ( Clothing.ClothingModels.Count > 0 )

@@ -64,7 +64,7 @@ namespace Breakfloor
 					if ( !TeamRed.Contains( p ) )
 					{
 						TeamRed.Add( p );
-						Log.Info( $"Client:{p} joined team A." );
+						Log.Info( $"Client:{p} joined team RED." );
 						BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team RED.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
 					}
 					break;
