@@ -25,7 +25,7 @@ namespace Breakfloor.UI
 			var tr = Trace.Ray( ply.EyePosition, ply.EyePosition + ply.EyeRotation.Forward * 1500f ).Ignore( ply ).UseHitboxes().Run();
 			if ( tr.Hit && tr.Entity is BreakfloorPlayer target )
 			{
-				var isTargetEnemy = target.Client.GetValue<int>( BreakfloorGame.TeamDataKey ) != Local.Client.GetValue<int>( BreakfloorGame.TeamDataKey );
+				var isTargetEnemy = target.Team != ply.Team;
 				var teamText = isTargetEnemy ? "ENEMY:" : "FRIEND:";
 				TargetName.Text = $"{teamText} {target.Client.Name}";
 				TargetHealth.Text = $"HEALTH: {target.Health.FloorToInt()}%";
