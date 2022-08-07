@@ -105,24 +105,21 @@ namespace Breakfloor
 
 			EnableDrawing = false;
 
-			int i = 0;
 			int j = 0;
 			for ( int x = (int)(Position.x + Mins.x) + hb; x <= ((int)Position.x + Maxs.x) - hb; x += full )
 			{
-				i++;
-
 				for ( int y = (int)(Position.y + Mins.y) + hb; y <= ((int)Position.y + Maxs.y) - hb; y += full )
 				{
 					j++;
 
-					if ( CheckerStyle && (i + j) % 2 == 0 )
+					if ( CheckerStyle && j % 2 == 0 )
 						continue;
 
 					new BlockSpawnColumn
 					{
 						Position = new Vector3( x, y, Position.z - hb ),
 						NumBlocks = NumBlocksPerColumn
-					}.Spawn();				
+					}.Spawn();
 				}
 			}
 		}

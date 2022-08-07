@@ -12,11 +12,18 @@ namespace Breakfloor
 	{
 		[Property]
 		[Description( "How many teams are on this map." )]
-		public int TeamCount { get; set; } = 2;
+		public TeamMode TeamSetup { get; set; } = TeamMode.TwoOpposing;
 
 		[Property]
 		[Description( "How many players can be on each team." )]
 		public int MaxTeamSize { get; set; } = 1;
+
+		public static MapRules Default = new MapRules
+		{
+			TeamSetup = TeamMode.TwoOpposing,
+			MaxTeamSize = int.Parse( ConsoleSystem.GetValue( "maxplayers" ) ) / 2
+		};
+
 	}
 }
 

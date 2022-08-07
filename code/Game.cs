@@ -45,17 +45,15 @@ namespace Breakfloor
 			base.PostLevelLoaded();
 
 			gameRules = Entity.All.OfType<MapRules>().FirstOrDefault();
+
 			if ( gameRules == null )
 			{
-				Log.Info( "No map rules found for this map, using standard ruleset." );
-				var maxTeamSize = int.Parse( ConsoleSystem.GetValue( "maxplayers" ) ) / 2;
-				Log.Info( $"Max team size:{maxTeamSize}" );
-				gameRules = new MapRules
-				{
-					TeamCount = 1, //0 start indexed
-					MaxTeamSize = maxTeamSize
-				};
+				Log.Warning( "No map rules found for this map, using standard ruleset." );
+				gameRules = MapRules.Default;
+
 			}
+
+			ConsoleSystem.Run( "maxplayers", (int)gameRules.TeamSetup * gameRules.MaxTeamSize );
 		}
 
 		public override void ClientJoined( Client cl )
@@ -64,23 +62,45 @@ namespace Breakfloor
 			Log.Info( $"\"{cl.Name}\" has joined the game" );
 			BFChatbox.AddInformation( To.Everyone, $"{cl.Name} has joined", $"avatar:{cl.PlayerId}", isAdmin );
 
+			var decidedTeam = Team.None;
 			//Decide which team the client will be on.
-			var teamDifference = TeamA.Count - TeamB.Count;
-			if ( teamDifference < 0 )
+			switch ( gameRules.TeamSetup )
 			{
-				JoinTeam( cl, Teams.A );
+				case TeamMode.FFA:
+					JoinTeam( cl, Team.FFA );
+					decidedTeam = Team.FFA;
+					break;
+				case TeamMode.TwoOpposing:
+					var teamDifference = TeamRed.Count - TeamBlue.Count;
+					if ( teamDifference < 0 )
+					{
+						JoinTeam( cl, Team.RED );
+						decidedTeam = Team.RED;
+					}
+					else if ( teamDifference > 0 )
+					{
+						JoinTeam( cl, Team.BLUE );
+						decidedTeam = Team.BLUE;
+					}
+					else
+					{
+						Log.Info( $"Joining random team:{cl}" );
+						var randomValue = Rand.Int( (int)Team.RED, (int)Team.BLUE );
+						JoinTeam( cl,
+							randomValue == 1 ? Team.RED : Team.BLUE );
+						decidedTeam = randomValue == 1 ? Team.RED : Team.BLUE;
+					}
+					break;
+				case TeamMode.ThreeWay:
+					break;
+				case TeamMode.FourWay:
+					break;
 			}
-			else if ( teamDifference > 0 )
-			{
-				JoinTeam( cl, Teams.B );
-			}
-			else
-			{
-				JoinRandomTeam( cl );
-			}
+
 
 			var player = new BreakfloorPlayer();
 			cl.Pawn = player;
+			player.Team = decidedTeam;
 			player.UpdateClothes( cl );
 			player.Respawn();
 
@@ -89,7 +109,7 @@ namespace Breakfloor
 
 			//Update the status of the round timer AFTER the joining client's
 			//team is set.
-			if ( !roundTimerStarted && (TeamA.Count >= 1 && TeamB.Count >= 1) )
+			if ( !roundTimerStarted && (TeamRed.Count >= 1 && TeamBlue.Count >= 1) )
 			{
 				RestartRound();
 				RoundTimer = RoundTimeCvar;
@@ -100,8 +120,10 @@ namespace Breakfloor
 
 		public override void ClientDisconnect( Client cl, NetworkDisconnectionReason reason )
 		{
-			if ( TeamA.Contains( cl ) ) TeamA.Remove( cl );
-			if ( TeamB.Contains( cl ) ) TeamB.Remove( cl );
+			if ( TeamRed.Contains( cl ) ) TeamRed.Remove( cl );
+			if ( TeamBlue.Contains( cl ) ) TeamBlue.Remove( cl );
+			if ( TeamGreen.Contains( cl ) ) TeamRed.Remove( cl );
+			if ( TeamYellow.Contains( cl ) ) TeamBlue.Remove( cl );
 			base.ClientDisconnect( cl, reason );
 
 			AfterClientDisconnect();
@@ -115,7 +137,7 @@ namespace Breakfloor
 				roundTimerStarted = false;
 				RestartRound();
 			}
-				
+
 		}
 
 		[Event.Tick.Server]
@@ -178,7 +200,7 @@ namespace Breakfloor
 
 			if ( victimPawn.LastAttacker == null ) return;
 
-			
+
 			if ( victimPawn.LastAttacker.GetType() == typeof( HurtVolumeEntity ) ) // First check if we died to a map hurt trigger
 			{
 				var block = vic.LastBlockStoodOn;

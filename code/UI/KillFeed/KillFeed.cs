@@ -53,7 +53,7 @@ namespace Breakfloor.UI
 			{
 				e.Killer.Text = $"{killer.Name} ";
 				e.Killer.SetClass( "me", killer.Id == Local.PlayerId );
-				var colors = new Color[] { BreakfloorGame.GetTeamColor( killer.GetValue<int>( BreakfloorGame.TeamDataKey ) ), Color.White };
+				var colors = new Color[] { BreakfloorGame.GetTeamColor( killer.GetValue<int>( BreakfloorGame.TeamDataKey ).ToTeam() ), Color.White };
 				e.Killer.Style.FontColor = Color.Average( colors );
 			}
 
@@ -64,7 +64,7 @@ namespace Breakfloor.UI
 			{
 				e.Victim.Text = $"{victim.Name} ";
 				e.Victim.SetClass( "me", victim.Id == Local.PlayerId );
-				var colors = new Color[] { BreakfloorGame.GetTeamColor( victim.GetValue<int>( BreakfloorGame.TeamDataKey ) ), Color.White };
+				var colors = new Color[] { BreakfloorGame.GetTeamColor( victim.GetValue<int>( BreakfloorGame.TeamDataKey ).ToTeam() ), Color.White };
 				e.Victim.Style.FontColor = Color.Average( colors );
 			}
 

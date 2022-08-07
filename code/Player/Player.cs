@@ -9,10 +9,11 @@ namespace Breakfloor
 {
 	partial class BreakfloorPlayer : Player
 	{
+		[Net] public Team Team { get; set; }
+		[Net] public BreakFloorBlock LastBlockStoodOn { get; private set; }
+
 		TimeSince timeSinceDied;
 		DamageInfo LastDamage;
-
-		[Net] public BreakFloorBlock LastBlockStoodOn { get; private set; }
 
 		// These are for resetting/setting the player view angles
 		// to that of their spawnpoint direction, so the player faces the correct direction on respawn.
@@ -90,12 +91,12 @@ namespace Breakfloor
 
 			var teamIndex = Client.GetValue<int>( BreakfloorGame.TeamDataKey );
 			var spawn = Entity.All.OfType<BreakfloorSpawnPoint>()
-				.Where( x => x.Index == teamIndex )
+				.Where( x => (int)x.Index == teamIndex )
 				.OrderBy( x => Guid.NewGuid() )
 				.FirstOrDefault();
 
 			{
-				var teamColor = BreakfloorGame.GetTeamColor( teamIndex );
+				var teamColor = BreakfloorGame.GetTeamColor( teamIndex.ToTeam() );
 
 				//Paint clothes or body to our TeamIndex color.
 				if ( Clothing.ClothingModels.Count > 0 )
@@ -241,7 +242,7 @@ namespace Breakfloor
 			if ( LifeState == LifeState.Dead )
 				return;
 
-			if ( info.Attacker != null && BreakfloorGame.SameTeam( Client, info.Attacker.Client ) )
+			if ( info.Attacker != null && this.SameTeam( info.Attacker as BreakfloorPlayer ) )
 			{
 				return;
 			}

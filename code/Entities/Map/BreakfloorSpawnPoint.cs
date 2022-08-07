@@ -9,8 +9,7 @@ namespace Breakfloor.HammerEnts
 	[Title( "Breakfloor Spawn Point" ), Category( "Gameplay" ), Icon( "place" )]
 	public class BreakfloorSpawnPoint : SpawnPoint
 	{
-		//this is fucked
 		[Property]
-		public int Index { get; set; }
+		public Team Index { get; set; } = Team.None;
 	}
 }

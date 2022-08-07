@@ -21,10 +21,11 @@ namespace Breakfloor
 		[ConVar.Replicated( GamePrefix + "round_time" )]
 		public static float RoundTimeCvar { get; set; } = 210;
 
+		[ConVar.Client( GamePrefix + "damage_indicator")]
+		public static bool DoDamageIndicator { get; set; } = true;
+
 		[ConVar.ClientData( BF_AUTO_RELOAD_KEY, Help = "set with true/false to toggle automatic reload when magazine is empty.")]
 		public static bool DoAutoReload { get; set; }
 
-		[ConVar.Client( "bf_damage_indicator")]
-		public static bool DoDamageIndicator { get; set; } = true;
 	}
 }
