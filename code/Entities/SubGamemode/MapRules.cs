@@ -17,13 +17,6 @@ namespace Breakfloor
 		[Property]
 		[Description( "How many players can be on each team." )]
 		public int MaxTeamSize { get; set; } = 1;
-
-		public static MapRules Default = new MapRules
-		{
-			TeamSetup = TeamMode.TwoOpposing,
-			MaxTeamSize = int.Parse( ConsoleSystem.GetValue( "maxplayers" ) ) / 2
-		};
-
 	}
 }
 

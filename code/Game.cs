@@ -49,11 +49,14 @@ namespace Breakfloor
 			if ( gameRules == null )
 			{
 				Log.Warning( "No map rules found for this map, using standard ruleset." );
-				gameRules = MapRules.Default;
-
+				gameRules = new MapRules
+				{
+					TeamSetup = TeamMode.TwoOpposing,
+					MaxTeamSize = int.Parse( ConsoleSystem.GetValue( "maxplayers" ) ) / 2
+				};
 			}
 
-			ConsoleSystem.Run( "maxplayers", (int)gameRules.TeamSetup * gameRules.MaxTeamSize );
+			ConsoleSystem.SetValue( "maxplayers", (int)gameRules.TeamSetup * gameRules.MaxTeamSize );
 		}
 
 		public override void ClientJoined( Client cl )
