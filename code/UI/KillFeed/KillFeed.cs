@@ -49,26 +49,25 @@ namespace Breakfloor.UI
 
 			e.AddClass( method );
 
-			if ( killer != null && killer is BreakfloorPlayer k )
+			if ( killer != null && killer.Pawn is BreakfloorPlayer k )
 			{
-				e.Killer.Text = $"{killer.Name} ";
+				e.Killer.Text = killer.Name;
 				e.Killer.SetClass( "me", killer.Id == Local.PlayerId );
-				var colors = new Color[] { BreakfloorGame.GetTeamColor(k.Team), Color.White };
+				var colors = new Color[] { BreakfloorGame.GetTeamColor( k.Team ), Color.White };
 				e.Killer.Style.FontColor = Color.Average( colors );
 			}
 
 
 			e.Method.Text = $"{method} ";
 
-			if ( victim != null && victim is BreakfloorPlayer v )
+			if ( victim != null && victim.Pawn is BreakfloorPlayer v )
 			{
-				e.Victim.Text = $"{victim.Name} ";
+				e.Victim.Text = victim.Name;
 				e.Victim.SetClass( "me", victim.Id == Local.PlayerId );
 				var colors = new Color[] { BreakfloorGame.GetTeamColor( v.Team ), Color.White };
 				e.Victim.Style.FontColor = Color.Average( colors );
 			}
 
-			//dumb
 			if ( killer != null && victim != null )
 			{
 				Log.Info( $"{killer.Name} {method} {victim.Name}" );
