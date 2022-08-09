@@ -65,53 +65,18 @@ namespace Breakfloor
 			Log.Info( $"\"{cl.Name}\" has joined the game" );
 			BFChatbox.AddInformation( To.Everyone, $"{cl.Name} has joined", $"avatar:{cl.PlayerId}", isAdmin );
 
-			var decidedTeam = Team.None;
-			//Decide which team the client will be on.
-			switch ( gameRules.TeamSetup )
-			{
-				case TeamMode.FFA:
-					JoinTeam( cl, Team.FFA );
-					decidedTeam = Team.FFA;
-					break;
-				case TeamMode.TwoOpposing:
-					var teamDifference = TeamRed.Count - TeamBlue.Count;
-					if ( teamDifference < 0 )
-					{
-						JoinTeam( cl, Team.RED );
-						decidedTeam = Team.RED;
-					}
-					else if ( teamDifference > 0 )
-					{
-						JoinTeam( cl, Team.BLUE );
-						decidedTeam = Team.BLUE;
-					}
-					else
-					{
-						Log.Info( $"Joining random team:{cl}" );
-						var randomValue = Rand.Int( (int)Team.RED, (int)Team.BLUE );
-						JoinTeam( cl,
-							randomValue == 1 ? Team.RED : Team.BLUE );
-						decidedTeam = randomValue == 1 ? Team.RED : Team.BLUE;
-					}
-					break;
-				case TeamMode.ThreeWay:
-					break;
-				case TeamMode.FourWay:
-					break;
-			}
-
 			var player = new BreakfloorPlayer();
 			cl.Pawn = player;
-			player.Team = decidedTeam;
+			player.Team = HandleTeamAssign( cl );
 			player.UpdateClothes( cl );
 			player.Respawn();
 
-			//BFChatbox.AddInformation( To.Single( cl ),
-			//	$"Welcome to Breakfloor! You can toggle auto reloading by typing \"bf_auto_reload true\" into the console." );
+			BFChatbox.AddInformation( To.Single( cl ),
+				$"Welcome to Breakfloor! You can toggle auto reloading by typing \"bf_auto_reload true\" into the console." );
 
 			//Update the status of the round timer AFTER the joining client's
 			//team is set.
-			if ( !roundTimerStarted && (TeamRed.Count >= 1 && TeamBlue.Count >= 1) )
+			if ( !roundTimerStarted && (GetTeamCount( Team.RED ) >= 1 && GetTeamCount( Team.BLUE ) >= 1) )
 			{
 				RestartRound();
 				RoundTimer = RoundTimeCvar;
@@ -122,12 +87,7 @@ namespace Breakfloor
 
 		public override void ClientDisconnect( Client cl, NetworkDisconnectionReason reason )
 		{
-			if ( TeamRed.Contains( cl ) ) TeamRed.Remove( cl );
-			if ( TeamBlue.Contains( cl ) ) TeamBlue.Remove( cl );
-			if ( TeamGreen.Contains( cl ) ) TeamRed.Remove( cl );
-			if ( TeamYellow.Contains( cl ) ) TeamBlue.Remove( cl );
 			base.ClientDisconnect( cl, reason );
-
 			AfterClientDisconnect();
 		}
 
@@ -223,7 +183,7 @@ namespace Breakfloor
 							victimClient,
 							"BREAKFLOOR'D" );
 
-						block.LastAttacker.Client.AddInt( "kills" );
+						block.LastAttacker.Client.AddInt( "kills", 2);
 					}
 					return;
 				}

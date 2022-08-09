@@ -7,7 +7,7 @@ namespace Breakfloor.Weapons
 	{
 		public override string ViewModelPath => "weapons/rust_smg/v_rust_smg.vmdl";
 
-		public override float PrimaryRate => 12.0f;
+		public override float PrimaryRate => 14.0f;
 		public override float SecondaryRate => 1.0f;
 		public override float ReloadTime => 3.0f;
 		public override int MaxClip => 35;

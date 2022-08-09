@@ -26,15 +26,6 @@ namespace Breakfloor
 
 	public partial class BreakfloorGame : Game
 	{
-		public const string TeamDataKey = "team";
-
-		public static List<Client> TeamFFA = new();
-		public static List<Client> TeamRed = new();
-		public static List<Client> TeamBlue = new();
-		public static List<Client> TeamGreen = new();
-		public static List<Client> TeamYellow = new();
-
-
 		public static Color GetTeamColor( Team index )
 		{
 			switch ( index )
@@ -43,56 +34,74 @@ namespace Breakfloor
 					return Color.FromBytes( 237, 36, 79 );
 				case Team.BLUE:
 					return Color.FromBytes( 26, 154, 240 );
+				case Team.GREEN:
+					return Color.Green;
+				case Team.YELLOW:
+					return Color.Yellow;
 				default:
 					return Color.White;
 			}
 		}
 
+		public static int GetTeamCount( Team team )
+		{
+			if ( Client.All.Count <= 1 ) return 0;
+
+			int num = 0;
+			foreach ( var c in Client.All )
+			{
+				var pawn = (BreakfloorPlayer)c.Pawn;
+				if ( pawn.Team == team )
+					num++;
+			}
+
+			return num;
+		}
+
 		public void JoinTeam( Client p, Team index )
 		{
-			switch ( index )
+			var team = Enum.GetName<Team>( index );
+			BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team {team}.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
+			Log.Info( $"Client:{p} joined team {team}" );
+		}
+
+		public Team HandleTeamAssign( Client cl )
+		{
+			Team decidedTeam = Team.None;
+			switch ( gameRules.TeamSetup )
 			{
-				case Team.FFA:
-					if ( !TeamFFA.Contains( p ) )
+				case TeamMode.FFA:
+					JoinTeam( cl, Team.FFA );
+					decidedTeam = Team.FFA;
+					break;
+				case TeamMode.TwoOpposing:
+					var teamDifference = GetTeamCount( Team.RED ) - GetTeamCount( Team.BLUE );
+					if ( teamDifference < 0 )
 					{
-						TeamFFA.Add( p );
-						Log.Info( $"Client:{p} joined the free-for-all." );
-						BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined the free-for-all.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
+						JoinTeam( cl, Team.RED );
+						decidedTeam = Team.RED;
+					}
+					else if ( teamDifference > 0 )
+					{
+						JoinTeam( cl, Team.BLUE );
+						decidedTeam = Team.BLUE;
+					}
+					else
+					{
+						Log.Info( $"Joining random team:{cl}" );
+						var randomValue = Rand.Int( (int)Team.RED, (int)Team.BLUE );
+						JoinTeam( cl,
+							randomValue == 1 ? Team.RED : Team.BLUE );
+						decidedTeam = randomValue == 1 ? Team.RED : Team.BLUE;
 					}
 					break;
-				case Team.RED:
-					if ( !TeamRed.Contains( p ) )
-					{
-						TeamRed.Add( p );
-						Log.Info( $"Client:{p} joined team RED." );
-						BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team RED.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
-					}
+				case TeamMode.ThreeWay:
 					break;
-				case Team.BLUE:
-					if ( !TeamBlue.Contains( p ) )
-					{
-						TeamBlue.Add( p );
-						Log.Info( $"Client:{p} joined team BlUE." );
-						BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team BLUE.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
-					}
-					break;
-				case Team.GREEN:
-					if ( !TeamGreen.Contains( p ) )
-					{
-						TeamGreen.Add( p );
-						Log.Info( $"Client:{p} joined team GREEN." );
-						BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team GREEN.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
-					}
-					break;
-				case Team.YELLOW:
-					if ( !TeamYellow.Contains( p ) )
-					{
-						TeamYellow.Add( p );
-						Log.Info( $"Client:{p} joined team YELLOW." );
-						BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team YELLOW.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
-					}
+				case TeamMode.FourWay:
 					break;
 			}
+
+			return decidedTeam;
 		}
 	}
 }
