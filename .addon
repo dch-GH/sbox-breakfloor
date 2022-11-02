@@ -3,6 +3,7 @@
   "Type": "game",
   "Org": "null",
   "Ident": "breakfloor",
+  "Tags": "",
   "Schema": 1,
   "HasAssets": true,
   "AssetsPath": "",
@@ -72,6 +73,7 @@
       "SoftBodyIterations": 1,
       "SoftBodySubsteps": 1
     },
-    "GameCategory": "Shooter"
+    "GameCategory": "Shooter",
+    "ParentPackage": ""
   }
 }

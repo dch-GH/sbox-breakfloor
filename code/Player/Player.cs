@@ -22,6 +22,12 @@ namespace Breakfloor
 		private bool shouldOrientView;
 		private Angles spawnViewAngles;
 
+		// Used for the always available melee kick attack.
+		[Net] public TimeSince LastKickAttack { get; private set; }
+		private float _kickCooldown = 1.2f;
+		private float _kickRange = 52f;
+		private float _kickDamage = 9f;
+
 		public BreakfloorPlayer()
 		{
 			Inventory = new Inventory( this );
@@ -79,7 +85,6 @@ namespace Breakfloor
 
 			Inventory = new Inventory( this ); //this should fix the bug of not being able to swap weapons after respawning.
 			Inventory.DeleteContents();
-			Inventory.Add( new Pistol() );
 			Inventory.Add( new SMG(), true );
 
 			LifeState = LifeState.Alive;
@@ -95,7 +100,7 @@ namespace Breakfloor
 				.FirstOrDefault();
 
 			{
-				var teamColor = BreakfloorGame.GetTeamColor( Team);
+				var teamColor = BreakfloorGame.GetTeamColor( Team );
 
 				//Paint clothes or body to our TeamIndex color.
 				if ( Clothing.ClothingModels.Count > 0 )
@@ -192,6 +197,9 @@ namespace Breakfloor
 				ActiveChild = Input.ActiveChild;
 			}
 
+			if ( Input.Pressed( InputButton.SecondaryAttack ) || Input.Down( InputButton.SecondaryAttack ) )
+				KickAttack();
+
 			if ( LifeState != LifeState.Alive )
 				return;
 
@@ -278,6 +286,46 @@ namespace Breakfloor
 					Health = 0f;
 					OnKilled();
 				}
+			}
+		}
+
+		private void KickAttack()
+		{
+			if ( LastKickAttack < _kickCooldown )
+				return;
+
+			// Kick bash
+			var pos = EyePosition;
+			var forward = pos + (EyeRotation.Forward * _kickRange);
+			var tr = Trace.Ray( pos, forward )
+					.UseHitboxes()
+					.Ignore( this )
+					.WithoutTags( "gun" )
+					.Size( 1 )
+					.Run();
+
+			if ( !tr.Hit ) return;
+
+			tr.DoSurfaceMelee();
+
+			if ( !IsServer ) return;
+
+			LastKickAttack = 0;
+
+			if ( !tr.Entity.IsValid() ) return;
+
+			var force = 10f;
+
+			//
+			// Turn off prediction, so any exploding effects don't get culled
+			//
+			using ( Prediction.Off() )
+			{
+				var damageInfo = DamageInfo.FromBullet( tr.EndPosition, forward * 100 * force, _kickDamage )
+					.UsingTraceResult( tr )
+					.WithAttacker( this );
+
+				tr.Entity.TakeDamage( damageInfo );
 			}
 		}
 

@@ -1,4 +1,5 @@
 ﻿using Sandbox;
+using Sandbox.UI;
 
 namespace Breakfloor.Weapons
 {
@@ -14,7 +15,12 @@ namespace Breakfloor.Weapons
 
 		public override string GetKilledByText()
 		{
-			var options = new string[5] { "sprayed", "dusted", "swiss cheese'd", "dakka'd", "gunned down" };
+			var options = new string[]
+			{
+				"sprayed", "dusted", "swiss cheese'd", "dakka'd", "gunned down",
+				"smoked", "popped", "poked a hole in", "iced", "spun the block on"
+			};
+
 			return Rand.FromArray<string>( options );
 		}
 
@@ -55,31 +61,17 @@ namespace Breakfloor.Weapons
 
 		public override void AttackSecondary()
 		{
-			// Grenade lob
+			// Nothing
 		}
 
-		//public override void Simulate( Client owner )
-		//{
-		//	if ( IsServer ) return;
-		//	Log.Info( TimeSincePrimaryAttack );
-		//	base.Simulate( owner );
-		//}
-
 		[ClientRpc]
-		protected override void ShootEffects()//   CrosshairPanel?.CreateEvent( "fire" );
+		protected override void ShootEffects()
 		{
 			Host.AssertClient();
 
 			Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
 			Particles.Create( "particles/pistol_ejectbrass.vpcf", EffectEntity, "ejection_point" );
-
-			if ( Owner == Local.Pawn )
-			{
-				//new Sandbox.ScreenShake.Perlin( 0.5f, 4.0f, 1.0f, 0.5f );
-			}
-
 			ViewModelEntity?.SetAnimParameter( "fire", true );
-			//CrosshairPanel?.CreateEvent( "fire" );
 		}
 
 		public override void SimulateAnimator( PawnAnimator anim )
