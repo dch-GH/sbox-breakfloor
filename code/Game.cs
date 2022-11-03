@@ -52,11 +52,9 @@ namespace Breakfloor
 				gameRules = new MapRules
 				{
 					TeamSetup = TeamMode.TwoOpposing,
-					MaxTeamSize = int.Parse( ConsoleSystem.GetValue( "maxplayers" ) ) / 2
+					MaxTeamSize = 8
 				};
 			}
-
-			ConsoleSystem.SetValue( "maxplayers", (int)gameRules.TeamSetup * gameRules.MaxTeamSize );
 		}
 
 		public override void ClientJoined( Client cl )
@@ -183,7 +181,7 @@ namespace Breakfloor
 							victimClient,
 							"BREAKFLOOR'D" );
 
-						block.LastAttacker.Client.AddInt( "kills", 2);
+						block.LastAttacker.Client.AddInt( "kills", 2 );
 					}
 					return;
 				}

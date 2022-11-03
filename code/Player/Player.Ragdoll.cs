@@ -1,76 +1,96 @@
 ﻿using Sandbox;
-namespace Breakfloor
+
+namespace Breakfloor;
+
+partial class BreakfloorPlayer
 {
-	partial class BreakfloorPlayer
+	public PlayerCorpse Ragdoll { get; set; }
+
+	[ClientRpc]
+	private void BecomeRagdollOnClient( Vector3 force, int forceBone )
 	{
-		[ClientRpc]
-		private void BecomeRagdollOnClient( Vector3 velocity, DamageFlags damageFlags, Vector3 forcePos, Vector3 force, int bone )
+		var ragdoll = new PlayerCorpse
 		{
-			var ent = new ModelEntity();
-			ent.Tags.Add( "ragdoll", "solid", "debris" );
-			ent.Position = Position;
-			ent.Rotation = Rotation;
-			ent.Scale = Scale;
+			Position = Position,
+			Rotation = Rotation
+		};
 
-			ent.UsePhysicsCollision = true;
-			ent.EnableAllCollisions = true;
+		ragdoll.CopyFrom( this );
+		ragdoll.ApplyForceToBone( force, forceBone );
+		ragdoll.Player = this;
 
-			ent.SetModel( GetModelName() );
-			ent.CopyBonesFrom( this );
-			ent.CopyBodyGroups( this );
-			ent.CopyMaterialGroup( this );
-			ent.CopyMaterialOverrides( this );
-			ent.TakeDecalsFrom( this );
+		Ragdoll = ragdoll;
+	}
+}
 
-			ent.EnableAllCollisions = true;
-			ent.SurroundingBoundsMode = SurroundingBoundsType.Physics;
-			ent.RenderColor = RenderColor;
-			ent.PhysicsGroup.Velocity = velocity;
-			ent.PhysicsEnabled = true;
+public class PlayerCorpse : ModelEntity
+{
+	public Player Player { get; set; }
 
-			foreach ( var child in Children )
-			{
-				if ( !child.Tags.Has( "clothes" ) ) continue;
-				if ( child is not ModelEntity e ) continue;
+	private TimeSince TimeSinceSpawned { get; set; }
 
-				var model = e.GetModelName();
+	public PlayerCorpse()
+	{
+		UsePhysicsCollision = true;
+		TimeSinceSpawned = 0f;
+		PhysicsEnabled = true;
+	}
 
-				var clothing = new ModelEntity();
-				clothing.SetModel( model );
-				clothing.SetParent( ent, true );
-				clothing.RenderColor = e.RenderColor;
-				clothing.CopyBodyGroups( e );
-				clothing.CopyMaterialGroup( e );
-			}
+	public void CopyFrom( Player player )
+	{
+		RenderColor = player.RenderColor;
 
-			if ( damageFlags.HasFlag( DamageFlags.Bullet ) ||
-				 damageFlags.HasFlag( DamageFlags.PhysicsImpact ) )
-			{
-				PhysicsBody body = bone > 0 ? ent.GetBonePhysicsBody( bone ) : null;
+		SetModel( player.GetModelName() );
+		TakeDecalsFrom( player );
 
-				if ( body != null )
-				{
-					body.ApplyImpulseAt( forcePos, force * body.Mass );
-				}
-				else
-				{
-					ent.PhysicsGroup.ApplyImpulse( force );
-				}
-			}
+		// We have to use `this` to refer to the extension methods.
+		this.CopyBonesFrom( player );
+		this.SetRagdollVelocityFrom( player );
 
-			if ( damageFlags.HasFlag( DamageFlags.Blast ) )
-			{
-				if ( ent.PhysicsGroup != null )
-				{
-					ent.PhysicsGroup.AddVelocity( (Position - (forcePos + Vector3.Down * 100.0f)).Normal * (force.Length * 0.2f) );
-					var angularDir = (Rotation.FromYaw( 90 ) * force.WithZ( 0 ).Normal).Normal;
-					ent.PhysicsGroup.AddAngularVelocity( angularDir * (force.Length * 0.02f) );
-				}
-			}
+		foreach ( var child in Children )
+		{
+			if ( !child.Tags.Has( "clothes" ) ) continue;
+			if ( child is not ModelEntity e ) continue;
 
-			Corpse = ent;
+			var model = e.GetModelName();
 
-			ent.DeleteAsync( 10.0f );
+			var clothing = new ModelEntity();
+			clothing.SetModel( model );
+			clothing.SetParent( e, true );
+			clothing.RenderColor = e.RenderColor;
+			clothing.CopyBodyGroups( e );
+			clothing.CopyMaterialGroup( e );
+		}
+	}
+
+	public void ApplyForceToBone( Vector3 force, int forceBone )
+	{
+		PhysicsGroup.AddVelocity( force );
+
+		if ( forceBone >= 0 )
+		{
+			var body = GetBonePhysicsBody( forceBone );
+
+			if ( body != null )
+				body.ApplyForce( force * 1000 );
+			else
+				PhysicsGroup.AddVelocity( force );
+		}
+	}
+
+	public override void Spawn()
+	{
+		Tags.Add( "corpse" );
+
+		base.Spawn();
+	}
+
+	[Event.Tick.Client]
+	protected virtual void ClientTick()
+	{
+		if ( IsClientOnly && TimeSinceSpawned > 10f )
+		{
+			Delete();
 		}
 	}
 }

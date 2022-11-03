@@ -16,7 +16,7 @@
       "null.bkf_orange",
       "null.bkf_tstar"
     ],
-    "MapSelect": "Official",
+    "MapSelect": "Tagged",
     "MinPlayers": 1,
     "MaxPlayers": 16,
     "PerMapRanking": false,
@@ -74,6 +74,9 @@
       "SoftBodySubsteps": 1
     },
     "GameCategory": "Shooter",
-    "ParentPackage": ""
+    "ParentPackage": "",
+    "GeneralExtensions": false,
+    "TargettedExtensions": true,
+    "ExtensionApiVersion": 1001
   }
 }

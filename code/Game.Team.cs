@@ -58,7 +58,7 @@ namespace Breakfloor
 			return num;
 		}
 
-		public void JoinTeam( Client p, Team index )
+		private void DisplayTeamJoined( Client p, Team index )
 		{
 			var team = Enum.GetName<Team>( index );
 			BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team {team}.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
@@ -71,26 +71,26 @@ namespace Breakfloor
 			switch ( gameRules.TeamSetup )
 			{
 				case TeamMode.FFA:
-					JoinTeam( cl, Team.FFA );
+					DisplayTeamJoined( cl, Team.FFA );
 					decidedTeam = Team.FFA;
 					break;
 				case TeamMode.TwoOpposing:
 					var teamDifference = GetTeamCount( Team.RED ) - GetTeamCount( Team.BLUE );
 					if ( teamDifference < 0 )
 					{
-						JoinTeam( cl, Team.RED );
+						DisplayTeamJoined( cl, Team.RED );
 						decidedTeam = Team.RED;
 					}
 					else if ( teamDifference > 0 )
 					{
-						JoinTeam( cl, Team.BLUE );
+						DisplayTeamJoined( cl, Team.BLUE );
 						decidedTeam = Team.BLUE;
 					}
 					else
 					{
 						Log.Info( $"Joining random team:{cl}" );
 						var randomValue = Rand.Int( (int)Team.RED, (int)Team.BLUE );
-						JoinTeam( cl,
+						DisplayTeamJoined( cl,
 							randomValue == 1 ? Team.RED : Team.BLUE );
 						decidedTeam = randomValue == 1 ? Team.RED : Team.BLUE;
 					}
