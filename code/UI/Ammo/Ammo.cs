@@ -16,7 +16,7 @@ namespace Breakfloor.UI
 			var ply = (BreakfloorPlayer)Local.Pawn;
 
 			if(ply.ActiveChild == null) return;
-			var wep = (BreakfloorWeapon)ply.ActiveChild;
+			var wep = (BreakfloorGun)ply.ActiveChild;
 
 			Count.Text = $"{wep.ClipAmmo} / {wep.MaxClip}";
 

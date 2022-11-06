@@ -12,8 +12,8 @@ partial class BreakfloorPlayer : Player
 	[Net] public Team Team { get; set; }
 	[Net] public BreakFloorBlock LastBlockStoodOn { get; private set; }
 
-	TimeSince timeSinceDied;
-	DamageInfo LastDamage;
+	public TimeSince TimeSinceDeath { get; private set; }
+	public DamageInfo LastDamage { get; private set; }
 
 	// These are for resetting/setting the player view angles
 	// to that of their spawnpoint direction, so the player faces the correct direction on respawn.
@@ -21,12 +21,6 @@ partial class BreakfloorPlayer : Player
 	// between disconnects/gamemode restarts and will get applied instantly in Simualate. Needs to be overridden manually. :)
 	private bool shouldOrientView;
 	private Angles spawnViewAngles;
-
-	// Used for the always available melee kick attack.
-	[Net] public TimeSince LastKickAttack { get; private set; }
-	private float _kickCooldown = 1.2f;
-	private float _kickRange = 52f;
-	private float _kickDamage = 9f;
 
 	public BreakfloorPlayer()
 	{
@@ -150,7 +144,7 @@ partial class BreakfloorPlayer : Player
 
 	public override void OnKilled()
 	{
-		timeSinceDied = 0;
+		TimeSinceDeath = 0;
 		base.OnKilled();
 
 		Inventory.DeleteContents();
@@ -177,7 +171,7 @@ partial class BreakfloorPlayer : Player
 	{
 		if ( LifeState == LifeState.Dead )
 		{
-			if ( timeSinceDied > 2 && IsServer )
+			if ( TimeSinceDeath > 2 && IsServer )
 			{
 				Respawn();
 			}
@@ -195,9 +189,6 @@ partial class BreakfloorPlayer : Player
 		{
 			ActiveChild = Input.ActiveChild;
 		}
-
-		if ( Input.Pressed( InputButton.SecondaryAttack ) || Input.Down( InputButton.SecondaryAttack ) )
-			KickAttack();
 
 		if ( LifeState != LifeState.Alive )
 			return;
@@ -224,23 +215,13 @@ partial class BreakfloorPlayer : Player
 
 	public override void BuildInput( InputBuilder input )
 	{
-		if ( input.Pressed( InputButton.Slot1 ) ) SetActiveSlot( input, 0 );
-		if ( input.Pressed( InputButton.Slot2 ) ) SetActiveSlot( input, 1 );
-		if ( input.Pressed( InputButton.Slot3 ) ) SetActiveSlot( input, 2 );
-		if ( input.Pressed( InputButton.Slot4 ) ) SetActiveSlot( input, 3 );
-		if ( input.Pressed( InputButton.Slot5 ) ) SetActiveSlot( input, 4 );
-		if ( input.Pressed( InputButton.Slot6 ) ) SetActiveSlot( input, 5 );
-		if ( input.Pressed( InputButton.Slot7 ) ) SetActiveSlot( input, 6 );
-		if ( input.Pressed( InputButton.Slot8 ) ) SetActiveSlot( input, 7 );
-		if ( input.Pressed( InputButton.Slot9 ) ) SetActiveSlot( input, 8 );
-
+		input.ActiveChild = Inventory.GetSlot( 0 );
 		if ( shouldOrientView )
 		{
 			input.ViewAngles = spawnViewAngles;
 			shouldOrientView = false;
 			return;
 		}
-
 	}
 
 	public override void TakeDamage( DamageInfo info )
@@ -288,46 +269,6 @@ partial class BreakfloorPlayer : Player
 		}
 	}
 
-	private void KickAttack()
-	{
-		if ( LastKickAttack < _kickCooldown )
-			return;
-
-		// Kick bash
-		var pos = EyePosition;
-		var forward = pos + (EyeRotation.Forward * _kickRange);
-		var tr = Trace.Ray( pos, forward )
-				.UseHitboxes()
-				.Ignore( this )
-				.WithoutTags( "gun" )
-				.Size( 1 )
-				.Run();
-
-		if ( !tr.Hit ) return;
-
-		tr.DoSurfaceMelee();
-
-		if ( !IsServer ) return;
-
-		LastKickAttack = 0;
-
-		if ( !tr.Entity.IsValid() ) return;
-
-		var force = 10f;
-
-		//
-		// Turn off prediction, so any exploding effects don't get culled
-		//
-		using ( Prediction.Off() )
-		{
-			var damageInfo = DamageInfo.FromBullet( tr.EndPosition, forward * 100 * force, _kickDamage )
-				.UsingTraceResult( tr )
-				.WithAttacker( this );
-
-			tr.Entity.TakeDamage( damageInfo );
-		}
-	}
-
 	[ClientRpc]
 	public void TookDamage( Vector3 pos )
 	{
@@ -359,7 +300,7 @@ partial class BreakfloorPlayer : Player
 			return;
 
 		var activeChild = player.ActiveChild;
-		if ( activeChild is BreakfloorWeapon weapon && weapon.IsReloading ) return; //No weapon switch while reloading
+		if ( activeChild is BreakfloorGun weapon && weapon.IsReloading ) return; //No weapon switch while reloading
 
 		var ent = Inventory.GetSlot( i );
 		if ( activeChild == ent )

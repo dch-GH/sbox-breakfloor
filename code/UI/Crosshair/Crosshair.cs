@@ -26,7 +26,7 @@ namespace Breakfloor.UI
 			SetClass( "hidden", ply.LifeState != LifeState.Alive );
 
 			if ( ply.ActiveChild == null ) return;
-			var wep = (BreakfloorWeapon)ply.ActiveChild;
+			var wep = (BreakfloorGun)ply.ActiveChild;
 
 			if ( !Local.Client.GetValue<bool>( BreakfloorGame.BF_AUTO_RELOAD_KEY ) )
 				ReloadIndicator.SetClass( "active", (wep.ClipAmmo <= 0) && !wep.IsReloading );

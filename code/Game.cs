@@ -156,17 +156,17 @@ namespace Breakfloor
 			//override the base.onkilled and tweak it instead of calling base. it does shit we dont want.
 			Host.AssertServer();
 
-			var vic = (BreakfloorPlayer)victimPawn;
+			var vicPlayer = (BreakfloorPlayer)victimPawn;
 
 			if ( victimPawn.LastAttacker == null ) return;
 
 
 			if ( victimPawn.LastAttacker.GetType() == typeof( HurtVolumeEntity ) ) // First check if we died to a map hurt trigger
 			{
-				var block = vic.LastBlockStoodOn;
+				var block = vicPlayer.LastBlockStoodOn;
 				if ( block != null && block.Broken )
 				{
-					if ( block.LastAttacker == vic ) //Player caused their own downfall
+					if ( block.LastAttacker == vicPlayer ) //Player caused their own downfall
 					{
 						var suicideText = new string[3] { "got themself killed", "played themself", "dug straight down" };
 						OnKilledClient( To.Everyone,
@@ -196,16 +196,17 @@ namespace Breakfloor
 
 			// Player didn't die from falling or a hurt trigger then.
 			// They died to a gun, how boring.
-			if ( victimPawn.LastAttacker.Client != null )
+			if ( vicPlayer.LastAttacker.Client != null )
 			{
-				var killedByText = (victimPawn.LastAttackerWeapon as BreakfloorWeapon).GetKilledByText();
+				var killedByText = (victimPawn.LastAttackerWeapon as BreakfloorGun)
+					.GetKilledByText( vicPlayer.LastDamage.Flags );
 
 				if ( string.IsNullOrEmpty( killedByText ) )
 				{
-					killedByText = victimPawn.LastAttackerWeapon.ClassName;
+					killedByText = vicPlayer.LastAttackerWeapon.ClassName;
 				}
 
-				OnKilledClient( To.Everyone, victimPawn.LastAttacker.Client, victimClient, killedByText );
+				OnKilledClient( To.Everyone, vicPlayer.LastAttacker.Client, victimClient, killedByText );
 			}
 
 		}

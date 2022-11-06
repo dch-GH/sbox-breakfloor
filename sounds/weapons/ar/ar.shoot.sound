@@ -2,18 +2,20 @@
 {
 	data = 
 	{
-		ui = false
-		volume = 1.0
-		volumerandom = 0.0
-		pitch = 1.0
-		pitchrandom = 0.1
-		distancemax = 2000.0
-		sounds = 
+		UI = false
+		Volume = 1
+		VolumeRandom = 0.05
+		Pitch = 1
+		PitchRandom = 0.1
+		Decibels = 110
+		Sounds = 
 		[
-			"sounds/weapons/ar/404562__superphat__assaultrifle1.wav",
-			"sounds/weapons/ar/404561__superphat__assaultrifle2.wav",
-			"sounds/weapons/ar/404560__superphat__assaultrifle3.wav",
+			resource:"sounds/weapons/ar/404562__superphat__assaultrifle1.wav",
+			resource:"sounds/weapons/ar/404561__superphat__assaultrifle2.wav",
+			resource:"sounds/weapons/ar/404560__superphat__assaultrifle3.wav",
 		]
-		selectionmode = "3"
+		SelectionMode = "Random"
+		MaximumDistance = 2777.795
+		MinimumDistance = 138.88976
 	}
 }
