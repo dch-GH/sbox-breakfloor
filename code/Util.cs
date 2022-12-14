@@ -59,14 +59,14 @@ public static class TraceResultExtensions
 		//
 		// Make particle effect
 		//
-		string particleName = Rand.FromArray( self.ImpactEffects.Bullet );
-		if ( string.IsNullOrWhiteSpace( particleName ) ) particleName = Rand.FromArray( self.ImpactEffects.Regular );
+		string particleName = Game.Random.FromArray( self.ImpactEffects.Bullet );
+		if ( string.IsNullOrWhiteSpace( particleName ) ) particleName = Game.Random.FromArray( self.ImpactEffects.Regular );
 
 		surf = self.GetBaseSurface();
 		while ( string.IsNullOrWhiteSpace( particleName ) && surf != null )
 		{
-			particleName = Rand.FromArray( surf.ImpactEffects.Bullet );
-			if ( string.IsNullOrWhiteSpace( particleName ) ) particleName = Rand.FromArray( surf.ImpactEffects.Regular );
+			particleName = Game.Random.FromArray( surf.ImpactEffects.Bullet );
+			if ( string.IsNullOrWhiteSpace( particleName ) ) particleName = Game.Random.FromArray( surf.ImpactEffects.Regular );
 
 			surf = surf.GetBaseSurface();
 		}

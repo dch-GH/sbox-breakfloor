@@ -3,25 +3,25 @@ using Sandbox;
 
 namespace Breakfloor;
 
-public partial class BreakfloorPlayer : Player
+public partial class BreakfloorPlayer
 {
 	public SpotLightEntity FlashlightEntity { get; private set; }
 	public bool FlashlightEnabled { get; private set; }
 
 	private static bool debug { get; set; }
 
-	// [ConCmd.Client( "bf_debug_flashlight" )]
-	// public static void DebugFlashlight()
-	// {
-	// 	debug = !debug;
-	// }
+	[ConCmd.Client( "bf_debug_flashlight" )]
+	public static void DebugFlashlight()
+	{
+		debug = !debug;
+	}
 
 	private void FlashlightSimulate()
 	{
 		if ( !FlashlightEntity.IsValid() )
 			return;
 
-		if ( Input.Released( InputButton.Flashlight ) )
+		if ( Input.Pressed( InputButton.Flashlight ) )
 		{
 			FlashlightEnabled = !FlashlightEnabled;
 		}
@@ -33,7 +33,7 @@ public partial class BreakfloorPlayer : Player
 	{
 		if ( FlashlightEntity != null && FlashlightEntity.IsValid() )
 		{
-			if ( Input.Released( InputButton.Flashlight ) )
+			if ( Input.Pressed( InputButton.Flashlight ) )
 			{
 				PlaySound( FlashlightEntity.Enabled ? "flashlight_off" : "flashlight_on" );
 			}
@@ -45,8 +45,8 @@ public partial class BreakfloorPlayer : Player
 			float pullbackCutoff = 128f; // the distance when we start pulling the flashlight behind player
 			float far = FlashlightEntity.Range; //the overall max range of the trace and spotlight
 
-			Vector3 origin = EyePosition + (Vector3.Up * -14); // offset to chest height-ish;
-			Vector3 dest = origin + EyeRotation.Forward * far;
+			Vector3 origin = AimRay.Position + (Vector3.Up * -14); // offset to chest height-ish;
+			Vector3 dest = origin + AimRay.Forward * far;
 			Vector3 dir = dest - origin;
 
 			// check for intersections in front
@@ -86,7 +86,7 @@ public partial class BreakfloorPlayer : Player
 
 			origin -= dir * pullAmtModifier;
 			FlashlightEntity.Position = origin;
-			FlashlightEntity.Rotation = EyeRotation;
+			FlashlightEntity.Rotation = ViewAngles.ToRotation();
 
 			// debug draw the same way Source does
 			if ( debug )

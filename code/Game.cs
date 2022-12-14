@@ -8,13 +8,13 @@ using Breakfloor.HammerEnts;
 
 namespace Breakfloor
 {
-	partial class BreakfloorGame : Game
+	partial class BreakfloorGame : GameManager
 	{
 		public static readonly float StandardBlockSize = 64;
 		public static readonly float StandardHalfBlockSize = StandardBlockSize / 2;
 		public static readonly Vector3 StandardBlockDimensions = Vector3.One * StandardBlockSize;
 
-		public static BreakfloorGame Instance => Current as BreakfloorGame;
+		public static BreakfloorGame Instance { get; private set; }
 
 		[Net]
 		public RealTimeUntil RoundTimer { get; private set; } = 0f;
@@ -29,7 +29,7 @@ namespace Breakfloor
 			// and will create the UI panels clientside. It's accessible 
 			// globally via Hud.Current, so we don't need to store it.
 			//
-			if ( IsServer )
+			if ( Game.IsServer )
 			{
 				// This is really silly, I know. I assume we'll be able to store 
 				// at the very least a JSON/.txt file or something on the s&works addon page for secrets some day.
@@ -38,6 +38,8 @@ namespace Breakfloor
 				_ = new BreakfloorHud();
 				RoundTimer = RoundTimeCvar; //so the timer can be frozen at the roundtimecvar.
 			}
+
+			Instance = this;
 		}
 
 		public override void PostLevelLoaded()
@@ -57,11 +59,11 @@ namespace Breakfloor
 			}
 		}
 
-		public override void ClientJoined( Client cl )
+		public override void ClientJoined( IClient cl )
 		{
-			var isAdmin = Admins.Contains( cl.PlayerId );
+			var isAdmin = Admins.Contains( cl.SteamId );
 			Log.Info( $"\"{cl.Name}\" has joined the game" );
-			BFChatbox.AddInformation( To.Everyone, $"{cl.Name} has joined", $"avatar:{cl.PlayerId}", isAdmin );
+			BFChatbox.AddInformation( To.Everyone, $"{cl.Name} has joined", $"avatar:{cl.SteamId}", isAdmin );
 
 			var player = new BreakfloorPlayer();
 			cl.Pawn = player;
@@ -83,7 +85,7 @@ namespace Breakfloor
 			}
 		}
 
-		public override void ClientDisconnect( Client cl, NetworkDisconnectionReason reason )
+		public override void ClientDisconnect( IClient cl, NetworkDisconnectionReason reason )
 		{
 			base.ClientDisconnect( cl, reason );
 			AfterClientDisconnect();
@@ -92,7 +94,7 @@ namespace Breakfloor
 		public async void AfterClientDisconnect()
 		{
 			await GameTask.DelayRealtimeSeconds( 2 );
-			if ( Client.All.Count <= 1 )
+			if ( Game.Clients.Count <= 1 )
 			{
 				roundTimerStarted = false;
 				RestartRound();
@@ -137,7 +139,7 @@ namespace Breakfloor
 				e.RemoveAllDecals();
 			}
 
-			foreach ( var c in Client.All )
+			foreach ( var c in Game.Clients )
 			{
 				if ( c.Pawn is BreakfloorPlayer ply )
 				{
@@ -151,10 +153,10 @@ namespace Breakfloor
 			RoundTimer = RoundTimeCvar;
 		}
 
-		public override void OnKilled( Client victimClient, Entity victimPawn )
+		public override void OnKilled( IClient victimClient, Entity victimPawn )
 		{
-			//override the base.onkilled and tweak it instead of calling base. it does shit we dont want.
-			Host.AssertServer();
+			//override the base.onkilled and tweak it instead of calling base.
+			Game.AssertServer();
 
 			var vicPlayer = (BreakfloorPlayer)victimPawn;
 
@@ -172,7 +174,7 @@ namespace Breakfloor
 						OnKilledClient( To.Everyone,
 							victimClient,
 							null,
-							Rand.FromArray<string>( suicideText ) );
+							Game.Random.FromArray<string>( suicideText ) );
 					}
 					else //Other player caused it
 					{
@@ -199,7 +201,7 @@ namespace Breakfloor
 			if ( vicPlayer.LastAttacker.Client != null )
 			{
 				var killedByText = (victimPawn.LastAttackerWeapon as BreakfloorGun)
-					.GetKilledByText( vicPlayer.LastDamage.Flags );
+					.GetKilledByText( vicPlayer.LastDamage );
 
 				if ( string.IsNullOrEmpty( killedByText ) )
 				{
@@ -212,7 +214,7 @@ namespace Breakfloor
 		}
 
 		[ClientRpc]
-		public void OnKilledClient( Client killer, Client victim, string method )
+		public void OnKilledClient( IClient killer, IClient victim, string method )
 		{
 			KillFeed.Current.AddEntry( killer, victim, method );
 		}

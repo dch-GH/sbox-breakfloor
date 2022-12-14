@@ -6,15 +6,15 @@ using System.Linq;
 
 namespace Breakfloor
 {
-	partial class BreakfloorGame : Game
+	partial class BreakfloorGame : GameManager
 	{
 		public static List<long> Admins { get; private set; }
 
-		public override void DoPlayerDevCam( Client client )
+		public override void DoPlayerDevCam( IClient client )
 		{
-			Host.AssertServer();
+			Game.AssertServer();
 
-			if ( !Admins.Contains( client.PlayerId ) )
+			if ( !Admins.Contains( client.SteamId ) )
 				return;
 
 			var camera = client.Components.Get<DevCamera>( true );
@@ -29,48 +29,28 @@ namespace Breakfloor
 			camera.Enabled = !camera.Enabled;
 		}
 
-		public override void DoPlayerNoclip( Client client )
-		{
-			Host.AssertServer();
-
-			if ( !Admins.Contains( client.PlayerId ) )
-				return;
-
-			if ( client.Pawn is Player basePlayer )
-			{
-				if ( basePlayer.DevController is NoclipController )
-				{
-					basePlayer.DevController = null;
-				}
-				else
-				{
-					basePlayer.DevController = new NoclipController();
-				}
-			}
-		}
-
 		[ConCmd.Server( "bf_status" )]
 		public static void AdminStatus()
 		{
 			var caller = ConsoleSystem.Caller;
 
-			if ( !Admins.Contains( caller.PlayerId ) )
+			if ( !Admins.Contains( caller.SteamId ) )
 				return;
 
 			if ( caller.IsListenServerHost ) //Caller is a server host admin.
 			{
 				Log.Info( "Printing status on Host..." );
-				foreach ( var c in Client.All )
+				foreach ( var c in Game.Clients )
 				{
-					Log.Info( $"{c.Name} : {c.PlayerId}" );
+					Log.Info( $"{c.Name} : {c.SteamId}" );
 				}
 			}
 			else //Caller is a client admin.
 			{
-				ClientLog( To.Single( caller ), "Printing status on Client..." );
-				foreach ( var c in Client.All )
+				ClientLog( To.Single( caller ), "Printing status on IClient..." );
+				foreach ( var c in Game.Clients )
 				{
-					ClientLog( To.Single( caller ), $"{c.Name} : {c.PlayerId}" );
+					ClientLog( To.Single( caller ), $"{c.Name} : {c.SteamId}" );
 				}
 
 			}
@@ -80,19 +60,19 @@ namespace Breakfloor
 		[ConCmd.Server( "bf_kick" )]
 		public static void AdminKick( string id, string reason = null )
 		{
-			if ( !Admins.Contains( ConsoleSystem.Caller.PlayerId ) )
+			if ( !Admins.Contains( ConsoleSystem.Caller.SteamId ) )
 				return;
 
 			if ( string.IsNullOrEmpty( id ) ) return;
 
-			foreach ( var c in Client.All )
+			foreach ( var c in Game.Clients )
 			{
-				if ( c.PlayerId == long.Parse( id ) )
+				if ( c.SteamId == long.Parse( id ) )
 				{
 					c.Pawn.Delete();
-					Log.Info( $"name:{c.Name}, id:{c.PlayerId} kicked by admin." );
+					Log.Info( $"name:{c.Name}, id:{c.SteamId} kicked by admin." );
 					var kickedText = string.IsNullOrEmpty( reason ) ? "was kicked by admin." : $"was kicked by admin. Reason: {reason}";
-					BFChatbox.AddInformation( To.Everyone, $"{c.Name} ({c.PlayerId}) {kickedText}", null, true );
+					BFChatbox.AddInformation( To.Everyone, $"{c.Name} ({c.SteamId}) {kickedText}", null, true );
 				}
 			}
 		}
@@ -101,21 +81,21 @@ namespace Breakfloor
 		public static void AdminGag( string id, bool enabled )
 		{
 			var caller = ConsoleSystem.Caller;
-			if ( !Admins.Contains( caller.PlayerId ) )
+			if ( !Admins.Contains( caller.SteamId ) )
 				return;
 
 			if ( string.IsNullOrEmpty( id ) ) return;
 			var parsedId = long.Parse( id );
-			var everyoneElse = Client.All.Where( x => x.PlayerId != parsedId );
+			var everyoneElse = Game.Clients.Where( x => x.SteamId != parsedId );
 
-			foreach ( var c in Client.All )
+			foreach ( var c in Game.Clients )
 			{
 				//found the target
-				if ( c.PlayerId == parsedId )
+				if ( c.SteamId == parsedId )
 				{
 					c.SetValue( "gagged", enabled ); //gag flag them
 
-					if(enabled)
+					if ( enabled )
 					{
 						//announce to the gagged user and to everyone
 						BFChatbox.AddInformation( To.Multiple( everyoneElse ), $"{c.Name} was gagged by an admin.", null, false );
@@ -127,7 +107,7 @@ namespace Breakfloor
 						BFChatbox.AddInformation( To.Multiple( everyoneElse ), $"{c.Name} was un-gagged by an admin.", null, false );
 						BFChatbox.AddInformation( To.Single( c ), "You were un-gagged by an admin. You can now chat again.", null, false );
 					}
-					
+
 					//Logging info
 					if ( caller.IsListenServerHost ) //Caller is a server host admin.
 					{
@@ -144,7 +124,7 @@ namespace Breakfloor
 		[ClientRpc]
 		public static void ClientLog( string message )
 		{
-			Host.AssertClient();
+			Game.AssertClient();
 			Log.Info( message );
 		}
 

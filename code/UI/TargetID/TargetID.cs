@@ -19,10 +19,10 @@ namespace Breakfloor.UI
 
 		public override void Tick()
 		{
-			var ply = (BreakfloorPlayer)Local.Pawn;
+			var ply = (BreakfloorPlayer)Game.LocalPawn;
 			if ( ply == null ) return;
 
-			var tr = Trace.Ray( ply.EyePosition, ply.EyePosition + ply.EyeRotation.Forward * 1500f ).Ignore( ply ).UseHitboxes().Run();
+			var tr = Trace.Ray( ply.AimRay.Position, ply.AimRay.Position + ply.AimRay.Forward * 1500f ).Ignore( ply ).UseHitboxes().Run();
 			if ( tr.Hit && tr.Entity is BreakfloorPlayer target )
 			{
 				var isTargetEnemy = target.Team != ply.Team;

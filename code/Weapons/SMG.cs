@@ -27,26 +27,23 @@ namespace Breakfloor.Weapons
 			"smacked", "bludgeoned", "beat down"
 		};
 
-		public override string GetKilledByText( DamageFlags flags )
+		public override string GetKilledByText( DamageInfo dmg )
 		{
-			// I'm certain this will need a rewrite when FP makes DamageFlags strings
-			// like Hitbox tags.
-			if ( flags.HasFlag( DamageFlags.Bullet ) )
-				return Rand.FromArray<string>( primaryOptions );
-			else if ( flags.HasFlag( DamageFlags.Blunt ) )
-				return Rand.FromArray<string>( secondaryOptions );
+			if ( dmg.HasTag( DamageTags.Bullet ) )
+				return Game.Random.FromArray<string>( primaryOptions );
+			else if ( dmg.HasTag( DamageTags.Blunt ) )
+				return Game.Random.FromArray<string>( secondaryOptions );
 			else
-				return base.GetKilledByText( flags );
+				return base.GetKilledByText( dmg );
 		}
 
 		public override void Spawn()
 		{
 			base.Spawn();
-			// Set world model.
 			SetModel( "models/mp5/w_mp5.vmdl" );
 		}
 
-		public override void Simulate( Client owner )
+		public override void Simulate( IClient owner )
 		{
 			base.Simulate( owner );
 		}
@@ -95,8 +92,8 @@ namespace Breakfloor.Weapons
 			TimeSinceSecondaryAttack = 0;
 
 			// Gun bash
-			var pos = Owner.EyePosition;
-			var forward = pos + (Owner.EyeRotation.Forward * gunBashRange);
+			var pos = Owner.AimRay.Position;
+			var forward = pos + (Owner.AimRay.Forward * gunBashRange);
 			var tr = Trace.Ray( pos, forward )
 					.UseHitboxes()
 					.Ignore( Owner )
@@ -105,18 +102,12 @@ namespace Breakfloor.Weapons
 					.Size( 1 )
 					.Run();
 
-			if ( ViewModelEntity.IsValid()
-				&& ViewModelEntity is BreakfloorViewmodel vm )
-			{
-				vm.ImpulseForce = Owner.EyeRotation.Forward * 16f;
-			}
-
 			PlaySound( "gun_bash" );
 
 			if ( !tr.Hit ) return;
 			tr.DoSurfaceMelee();
 
-			if ( !IsServer ) return;
+			if ( !Game.IsServer ) return;
 			if ( !tr.Entity.IsValid() ) return;
 
 			var force = 2f;
@@ -130,7 +121,7 @@ namespace Breakfloor.Weapons
 					.WithPosition( tr.EndPosition )
 					.WithForce( forward * force )
 					.WithWeapon( this )
-					.WithFlag( DamageFlags.Blunt )
+					.WithTag( DamageTags.Blunt )
 					.UsingTraceResult( tr )
 					.WithAttacker( this );
 
@@ -153,17 +144,17 @@ namespace Breakfloor.Weapons
 		[ClientRpc]
 		protected override void ShootEffects()
 		{
-			Host.AssertClient();
+			Game.AssertClient();
 
 			Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
 			Particles.Create( "particles/pistol_ejectbrass.vpcf", EffectEntity, "ejection_point" );
 			ViewModelEntity?.SetAnimParameter( "fire", true );
 		}
 
-		public override void SimulateAnimator( PawnAnimator anim )
+		public override void SimulateAnimator( CitizenAnimationHelper anim )
 		{
-			anim.SetAnimParameter( "holdtype", 3 ); // TODO this is shit
-			anim.SetAnimParameter( "aim_body_weight", 1.0f );
+			SetAnimParameter( "holdtype", 3 ); // TODO this is shit
+			SetAnimParameter( "aim_body_weight", 1.0f );
 		}
 	}
 }

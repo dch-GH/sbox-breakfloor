@@ -7,7 +7,7 @@ namespace Breakfloor.UI
 	{
 		public BreakfloorHud()
 		{
-			if ( !IsClient )
+			if ( !Game.IsClient )
 				return;
 
 			RootPanel.StyleSheet.Load( "/UI/BreakfloorHud.scss" );
@@ -22,7 +22,7 @@ namespace Breakfloor.UI
 			RootPanel.AddChild<Crosshair>();
 			RootPanel.AddChild<TargetID>();
 			RootPanel.AddChild<DamageIndicator>();
-			RootPanel.AddChild<InventoryPanel>();
+			//RootPanel.AddChild<InventoryPanel>();
 		}
 	}
 }

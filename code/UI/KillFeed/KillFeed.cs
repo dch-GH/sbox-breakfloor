@@ -13,7 +13,7 @@ namespace Breakfloor.UI
 
 		public KillFeed()
 		{
-			if ( !Host.IsClient ) return;
+			if ( !Game.IsClient ) return;
 			Current = this;
 		}
 
@@ -43,7 +43,7 @@ namespace Breakfloor.UI
 			}
 		}
 
-		public Panel AddEntry( Client killer, Client victim, string method )
+		public Panel AddEntry( IClient killer, IClient victim, string method )
 		{
 			var e = Current.AddChild<KillFeedEntry>();
 
@@ -52,7 +52,7 @@ namespace Breakfloor.UI
 			if ( killer != null && killer.Pawn is BreakfloorPlayer k )
 			{
 				e.Killer.Text = killer.Name;
-				e.Killer.SetClass( "me", killer.Id == Local.PlayerId );
+				e.Killer.SetClass( "me", killer.Id == Game.LocalClient.SteamId );
 				var colors = new Color[] { BreakfloorGame.GetTeamColor( k.Team ), Color.White };
 				e.Killer.Style.FontColor = Color.Average( colors );
 			}
@@ -63,7 +63,7 @@ namespace Breakfloor.UI
 			if ( victim != null && victim.Pawn is BreakfloorPlayer v )
 			{
 				e.Victim.Text = victim.Name;
-				e.Victim.SetClass( "me", victim.Id == Local.PlayerId );
+				e.Victim.SetClass( "me", victim.Id == Game.LocalClient.SteamId );
 				var colors = new Color[] { BreakfloorGame.GetTeamColor( v.Team ), Color.White };
 				e.Victim.Style.FontColor = Color.Average( colors );
 			}

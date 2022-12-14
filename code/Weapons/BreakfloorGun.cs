@@ -17,7 +17,7 @@ public partial class BreakfloorGun : Gun, IUse
 	[Net, Predicted]
 	public TimeSince TimeSinceDeployed { get; set; }
 
-	public virtual string GetKilledByText( DamageFlags flags ) { return string.Empty; }
+	public virtual string GetKilledByText( DamageInfo dmg ) { return string.Empty; }
 
 	public override void Spawn()
 	{
@@ -43,7 +43,7 @@ public partial class BreakfloorGun : Gun, IUse
 		TimeSinceDeployed = 0;
 	}
 
-	public override void Simulate( Client owner )
+	public override void Simulate( IClient owner )
 	{
 		if ( TimeSinceDeployed < 0.6f )
 			return;
@@ -103,12 +103,12 @@ public partial class BreakfloorGun : Gun, IUse
 
 	public override void CreateViewModel()
 	{
-		Host.AssertClient();
+		Game.AssertClient();
 
 		if ( string.IsNullOrEmpty( ViewModelPath ) )
 			return;
 
-		ViewModelEntity = new BreakfloorViewmodel
+		ViewModelEntity = new ViewModel
 		{
 			Position = Position,
 			Owner = Owner,
@@ -148,7 +148,7 @@ public partial class BreakfloorGun : Gun, IUse
 	[ClientRpc]
 	protected virtual void ShootEffects()
 	{
-		Host.AssertClient();
+		Game.AssertClient();
 
 		Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
 
@@ -166,8 +166,6 @@ public partial class BreakfloorGun : Gun, IUse
 	/// </summary>
 	public virtual void ShootBullet( Vector3 pos, Vector3 dir, float spread, float force, float damage, float bulletSize )
 	{
-		// Make client/server randomness match up for spread cones.
-		Rand.SetSeed( Time.Tick );
 
 		var forward = dir;
 		forward += (Vector3.Random + Vector3.Random + Vector3.Random + Vector3.Random) * spread * 0.25f;
@@ -181,7 +179,7 @@ public partial class BreakfloorGun : Gun, IUse
 		{
 			tr.Surface.DoBulletImpact( tr ); //TODO: would be nice if this didnt happen on friendlies?
 
-			if ( !IsServer ) continue;
+			if ( !Game.IsServer ) continue;
 			if ( !tr.Entity.IsValid() ) continue;
 
 			//
@@ -204,7 +202,7 @@ public partial class BreakfloorGun : Gun, IUse
 	/// </summary>
 	public virtual void ShootBullet( float spread, float force, float damage, float bulletSize )
 	{
-		ShootBullet( Owner.EyePosition, Owner.EyeRotation.Forward, spread, force, damage, bulletSize );
+		ShootBullet( Owner.AimRay.Position, Owner.AimRay.Forward, spread, force, damage, bulletSize );
 	}
 
 	/// <summary>
@@ -212,8 +210,8 @@ public partial class BreakfloorGun : Gun, IUse
 	/// </summary>
 	public virtual void ShootBullets( int numBullets, float spread, float force, float damage, float bulletSize )
 	{
-		var pos = Owner.EyePosition;
-		var dir = Owner.EyeRotation.Forward;
+		var pos = Owner.AimRay.Position;
+		var dir = Owner.AimRay.Forward;
 
 		for ( int i = 0; i < numBullets; i++ )
 		{

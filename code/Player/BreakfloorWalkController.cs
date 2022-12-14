@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Sandbox;
 
 
 namespace Breakfloor
 {
-	internal partial class BreakfloorWalkController : BasePlayerController
+	public partial class BreakfloorWalkController : BaseNetworkable
 	{
 		[Net] public float SprintSpeed { get; set; } = 320.0f;
 		[Net] public float WalkSpeed { get; set; } = 150.0f;
@@ -31,7 +32,24 @@ namespace Breakfloor
 
 		[Net] public bool CrouchActive { get; set; } = false;
 
-		public Unstuck Unstuck;
+		internal HashSet<string> Events;
+		internal HashSet<string> Tags;
+
+		[Net] public Entity Pawn { get; set; }
+
+		public IClient Client { get; set; }
+		public Vector3 Position { get; set; }
+		public Rotation Rotation { get; set; }
+		public Vector3 Velocity { get; set; }
+		public Rotation EyeRotation { get; set; }
+		public Vector3 EyeLocalPosition { get; set; }
+		public Vector3 BaseVelocity { get; set; }
+		public Entity GroundEntity { get; set; }
+		public Vector3 GroundNormal { get; set; }
+
+		public Vector3 WishVelocity { get; set; }
+
+		//public Unstuck Unstuck;
 
 		protected Vector3 mins;
 		protected Vector3 maxs;
@@ -41,15 +59,17 @@ namespace Breakfloor
 		bool IsTouchingLadder = false;
 		Vector3 LadderNormal;
 
-		public BreakfloorWalkController()
-		{
-			Unstuck = new Unstuck( this );
-		}
+		/// <summary>
+		/// Any bbox traces we do will be offset by this amount.
+		/// todo: this needs to be predicted
+		/// </summary>
+		public Vector3 TraceOffset;
+
 
 		/// <summary>
 		/// This is temporary, get the hull size for the player's collision
 		/// </summary>
-		public override BBox GetHull()
+		public BBox GetHull()
 		{
 			var girth = BodyGirth * 0.5f;
 			var mins = new Vector3( -girth, -girth, 0 );
@@ -83,21 +103,25 @@ namespace Breakfloor
 			SetBBox( mins, maxs );
 		}
 
-		public override void FrameSimulate()
+		public void FrameSimulate()
 		{
-			base.FrameSimulate();
-
-			EyeRotation = Input.Rotation;
+			var pl = Pawn as BreakfloorPlayer;
+			EyeRotation = pl.ViewAngles.ToRotation();
 		}
 
-		public override void Simulate()
+		public void Simulate()
 		{
+			Events?.Clear();
+			Tags?.Clear();
+
+			var pl = Pawn as BreakfloorPlayer;
+			EyeRotation = pl.ViewAngles.ToRotation();
 
 			EyeLocalPosition = Vector3.Up * (EyeHeight * Pawn.Scale);
 			UpdateBBox();
 
 			EyeLocalPosition += TraceOffset;
-			EyeRotation = Input.Rotation;
+			EyeRotation = pl.ViewAngles.ToRotation();
 
 			RestoreGroundPos();
 
@@ -106,11 +130,11 @@ namespace Breakfloor
 
 			//Rot = Rotation.LookAt( Input.Rotation.Forward.WithZ( 0 ), Vector3.Up );
 
-			if ( Unstuck.TestAndFix() )
-				return;
+			//if ( Unstuck.TestAndFix() )
+			//	return;
 
 			CheckLadder();
-			Swimming = Pawn.WaterLevel > 0.6f;
+			Swimming = Pawn.GetWaterLevel() > 0.6f;
 
 			//
 			// Start Gravity
@@ -148,9 +172,9 @@ namespace Breakfloor
 			//
 			// Work out wish velocity.. just take input, rotate it to view, clamp to -1, 1
 			//
-			WishVelocity = new Vector3( Input.Forward, Input.Left, 0 );
+			WishVelocity = new Vector3( pl.InputDirection.y, pl.InputDirection.x, 0 );
 			var inSpeed = WishVelocity.Length.Clamp( 0, 1 );
-			WishVelocity *= Input.Rotation.Angles().WithPitch( 0 ).ToRotation();
+			WishVelocity *= pl.ViewAngles.WithPitch( 0 ).ToRotation();
 
 			if ( !Swimming && !IsTouchingLadder )
 			{
@@ -226,24 +250,56 @@ namespace Breakfloor
 
 			SaveGroundPos();
 
-			if ( Debug )
-			{
-				DebugOverlay.Box( Position + TraceOffset, mins, maxs, Color.Red );
-				DebugOverlay.Box( Position, mins, maxs, Color.Blue );
+			//if ( Debug )
+			//{
+			//	DebugOverlay.Box( Position + TraceOffset, mins, maxs, Color.Red );
+			//	DebugOverlay.Box( Position, mins, maxs, Color.Blue );
 
-				var lineOffset = 0;
-				if ( Host.IsServer ) lineOffset = 10;
+			//	var lineOffset = 0;
+			//	if ( Game.IsServer ) lineOffset = 10;
 
-				DebugOverlay.ScreenText( $"        Position: {Position}", lineOffset + 0 );
-				DebugOverlay.ScreenText( $"        Velocity: {Velocity}", lineOffset + 1 );
-				DebugOverlay.ScreenText( $"    BaseVelocity: {BaseVelocity}", lineOffset + 2 );
-				DebugOverlay.ScreenText( $"    GroundEntity: {GroundEntity} [{GroundEntity?.Velocity}]", lineOffset + 3 );
-				DebugOverlay.ScreenText( $" SurfaceFriction: {SurfaceFriction}", lineOffset + 4 );
-				DebugOverlay.ScreenText( $"    WishVelocity: {WishVelocity}", lineOffset + 5 );
-				DebugOverlay.ScreenText( $"    Mins: {mins}", lineOffset + 6 );
-				DebugOverlay.ScreenText( $"    Maxs: {maxs}", lineOffset + 7 );
-			}
+			//	DebugOverlay.ScreenText( $"        Position: {Position}", lineOffset + 0 );
+			//	DebugOverlay.ScreenText( $"        Velocity: {Velocity}", lineOffset + 1 );
+			//	DebugOverlay.ScreenText( $"    BaseVelocity: {BaseVelocity}", lineOffset + 2 );
+			//	DebugOverlay.ScreenText( $"    GroundEntity: {GroundEntity} [{GroundEntity?.Velocity}]", lineOffset + 3 );
+			//	DebugOverlay.ScreenText( $" SurfaceFriction: {SurfaceFriction}", lineOffset + 4 );
+			//	DebugOverlay.ScreenText( $"    WishVelocity: {WishVelocity}", lineOffset + 5 );
+			//	DebugOverlay.ScreenText( $"    Mins: {mins}", lineOffset + 6 );
+			//	DebugOverlay.ScreenText( $"    Maxs: {maxs}", lineOffset + 7 );
+			//}
 
+		}
+
+		public void SetTag( string tagName )
+		{
+			// TODO - shall we allow passing data with the event?
+
+			Tags ??= new HashSet<string>();
+
+			if ( Tags.Contains( tagName ) )
+				return;
+
+			Tags.Add( tagName );
+		}
+
+		/// <summary>
+		/// </summary>
+		public bool HasTag( string tagName )
+		{
+			if ( Tags == null ) return false;
+			return Tags.Contains( tagName );
+		}
+
+		public void AddEvent( string eventName )
+		{
+			// TODO - shall we allow passing data with the event?
+
+			if ( Events == null ) Events = new HashSet<string>();
+
+			if ( Events.Contains( eventName ) )
+				return;
+
+			Events.Add( eventName );
 		}
 
 		public virtual float GetWishSpeed()
@@ -452,8 +508,9 @@ namespace Breakfloor
 
 		public virtual void CheckLadder()
 		{
-			var wishvel = new Vector3( Input.Forward, Input.Left, 0 );
-			wishvel *= Input.Rotation.Angles().WithPitch( 0 ).ToRotation();
+			var pl = (BreakfloorPlayer)Pawn;
+			var wishvel = new Vector3( pl.InputDirection.y, pl.InputDirection.x, 0 );
+			wishvel *= pl.ViewAngles.WithPitch( 0 ).ToRotation();
 			wishvel = wishvel.Normal;
 
 			if ( IsTouchingLadder )
@@ -609,9 +666,22 @@ namespace Breakfloor
 		/// liftFeet will move the start position up by this amount, while keeping the top of the bbox at the same
 		/// position. This is good when tracing down because you won't be tracing through the ceiling above.
 		/// </summary>
-		public override TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0.0f )
+		public TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0.0f )
 		{
-			return TraceBBox( start, end, mins, maxs, liftFeet );
+			if ( liftFeet > 0 )
+			{
+				start += Vector3.Up * liftFeet;
+				maxs = maxs.WithZ( maxs.z - liftFeet );
+			}
+
+			var tr = Trace.Ray( start + TraceOffset, end + TraceOffset )
+						.Size( mins, maxs )
+						.WithAnyTags( "solid", "playerclip", "passbullets", "player" )
+						.Ignore( Pawn )
+						.Run();
+
+			tr.EndPosition -= TraceOffset;
+			return tr;
 		}
 
 		/// <summary>

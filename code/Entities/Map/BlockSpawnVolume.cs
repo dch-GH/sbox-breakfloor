@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Sandbox;
-using SandboxEditor;
+using Editor;
 
 namespace Breakfloor
 {

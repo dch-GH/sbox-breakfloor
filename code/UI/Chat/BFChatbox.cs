@@ -1,7 +1,7 @@
 ﻿using Sandbox.UI.Construct;
 using Sandbox;
 using Sandbox.UI;
-using System;
+using Sandbox.Diagnostics;
 
 namespace Breakfloor.UI
 {
@@ -25,8 +25,6 @@ namespace Breakfloor.UI
 			Input.AddEventListener( "onblur", () => Close() );
 			Input.AcceptsFocus = true;
 			Input.AllowEmojiReplace = true;
-
-			Sandbox.Hooks.Chat.OnOpenChat += Open;
 		}
 
 		public override void Tick()
@@ -69,7 +67,7 @@ namespace Breakfloor.UI
 			BFChatEntry e = Canvas.AddChild<BFChatEntry>();
 
 			e.Message.Text = message;
-			// TODO: set NameLabel FontColor to be user's team color. requires passing Client to AddEntry.
+			// TODO: set NameLabel FontColor to be user's team color. requires passing IClient to AddEntry.
 			e.NameLabel.Text = string.Concat( name, " :" );
 			e.Avatar.SetTexture( avatar );
 
@@ -92,7 +90,7 @@ namespace Breakfloor.UI
 			Current?.AddEntry( name, message, avatar, lobbyState, admin: isAdmin );
 
 			// Only log clientside if we're not the listen server host
-			if ( !Global.IsListenServer )
+			if ( !Game.IsListenServer )
 			{
 				Log.Info( $"{name}: {message}" );
 			}
@@ -115,9 +113,9 @@ namespace Breakfloor.UI
 			if ( message.Contains( '\n' ) || message.Contains( '\r' ) )
 				return;
 
-			var admin = Breakfloor.BreakfloorGame.Admins.Contains( ConsoleSystem.Caller.PlayerId );
+			var admin = Breakfloor.BreakfloorGame.Admins.Contains( ConsoleSystem.Caller.SteamId );
 			Log.Info( $"{ConsoleSystem.Caller}: {message}" );
-			AddChatEntry( To.Everyone, ConsoleSystem.Caller.Name, message, $"avatar:{ConsoleSystem.Caller.PlayerId}", isAdmin: admin );
+			AddChatEntry( To.Everyone, ConsoleSystem.Caller.Name, message, $"avatar:{ConsoleSystem.Caller.SteamId}", isAdmin: admin );
 		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using Sandbox;
-using SandboxEditor;
+using Editor;
 
 namespace Breakfloor
 {

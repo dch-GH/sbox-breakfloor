@@ -28,7 +28,7 @@ namespace Breakfloor.UI
 		public override void Tick()
 		{
 			base.Tick();
-			var pawn = Local.Pawn;
+			var pawn = Game.LocalPawn;
 			if ( pawn == null ) return;
 			value.Text = pawn.Health.FloorToInt().ToString();
 

@@ -12,8 +12,8 @@ namespace Breakfloor.UI
 		public override void Tick()
 		{
 			base.Tick();
-			if ( Local.Pawn == null ) return;
-			var ply = (BreakfloorPlayer)Local.Pawn;
+			if ( Game.LocalPawn == null ) return;
+			var ply = (BreakfloorPlayer)Game.LocalPawn;
 
 			if(ply.ActiveChild == null) return;
 			var wep = (BreakfloorGun)ply.ActiveChild;

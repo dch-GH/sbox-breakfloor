@@ -4,11 +4,23 @@ using System;
 using System.Linq;
 using Breakfloor.Weapons;
 using Breakfloor.UI;
+using System.Runtime.CompilerServices;
 
 namespace Breakfloor;
 
-partial class BreakfloorPlayer : Player
+[Title( "Player" ), Icon( "emoji_people" )]
+partial class BreakfloorPlayer : AnimatedEntity
 {
+	[Net, Predicted]
+	public BreakfloorWalkController Controller { get; set; }
+
+	[Net, Predicted] public Entity ActiveChild { get; set; }
+	[ClientInput] public Vector3 InputDirection { get; protected set; }
+	[ClientInput] public Entity ActiveChildInput { get; set; }
+	[ClientInput] public Angles ViewAngles { get; set; }
+	public Angles OriginalViewAngles { get; private set; }
+
+
 	[Net] public Team Team { get; set; }
 	[Net] public BreakFloorBlock LastBlockStoodOn { get; private set; }
 
@@ -24,13 +36,16 @@ partial class BreakfloorPlayer : Player
 
 	public BreakfloorPlayer()
 	{
-		Inventory = new Inventory( this );
+
 	}
 
 	public override void Spawn()
 	{
-		base.Spawn();
+		EnableLagCompensation = true;
 
+		Tags.Add( "player" );
+
+		base.Spawn();
 		// TODO: find a way to make flashlights look good on other (worldview)
 		// players. Also, other player's worldview flashlight shines through geo (any map/gamemode) and onto the
 		// viewmodel. Effectively wallhacks in breakfloor when someone is looking your direction.
@@ -61,16 +76,14 @@ partial class BreakfloorPlayer : Player
 		};
 	}
 
-	public override void Respawn()
+	public void Respawn()
 	{
 		SetModel( "models/citizen/citizen.vmdl" );
 
 		Controller = new BreakfloorWalkController();
-		(Controller as BreakfloorWalkController).Gravity = 750.0f; //gotta get that jump height above the blocks.
-
-		Animator = new StandardPlayerAnimator();
-
-		CameraMode = new FirstPersonCamera();
+		Controller.Pawn = this;
+		Controller.Client = Client;
+		Controller.Gravity = 750.0f; //gotta get that jump height above the blocks.
 
 		EnableAllCollisions = true;
 		EnableDrawing = true;
@@ -79,16 +92,17 @@ partial class BreakfloorPlayer : Player
 
 		Clothing.DressEntity( this );
 
-		Inventory = new Inventory( this ); //this should fix the bug of not being able to swap weapons after respawning.
-		Inventory.DeleteContents();
-		Inventory.Add( new SMG(), true );
+		//Inventory = new Inventory( this ); //this should fix the bug of not being able to swap weapons after respawning.
+		//Inventory.DeleteContents();
+		//Inventory.Add( new SMG(), true );
 
 		LifeState = LifeState.Alive;
 		Health = 100;
 		Velocity = Vector3.Zero;
-		WaterLevel = 0;
 
-		CreateHull();
+		// CreateHull
+		SetupPhysicsFromAABB( PhysicsMotionType.Keyframed, new Vector3( -16, -16, 0 ), new Vector3( 16, 16, 72 ) );
+		EnableHitboxes = true;
 
 		var spawn = Entity.All.OfType<BreakfloorSpawnPoint>()
 			.Where( x => x.Index == Team )
@@ -112,8 +126,8 @@ partial class BreakfloorPlayer : Player
 			}
 		}
 
-		//Log.Info( $"Player:{Client} has teamIndex: {teamIndex}." );
-		//Log.Info($"Spawning player {Client} at {spawn} because it has index {spawn.Index}");
+		//Log.Info( $"Player:{IClient} has teamIndex: {teamIndex}." );
+		//Log.Info($"Spawning player {IClient} at {spawn} because it has index {spawn.Index}");
 
 		Transform = spawn.Transform;
 		ResetInterpolation();
@@ -147,7 +161,7 @@ partial class BreakfloorPlayer : Player
 		TimeSinceDeath = 0;
 		base.OnKilled();
 
-		Inventory.DeleteContents();
+		//Inventory.DeleteContents();
 
 		BecomeRagdollOnClient(
 			(Velocity / 2) + LastDamage.Force,
@@ -155,7 +169,7 @@ partial class BreakfloorPlayer : Player
 
 		Controller = null;
 
-		CameraMode = new SpectateRagdollCamera();
+		//CameraMode = new SpectateRagdollCamera();
 
 		EnableAllCollisions = false;
 		EnableDrawing = false;
@@ -167,11 +181,11 @@ partial class BreakfloorPlayer : Player
 		}
 	}
 
-	public override void Simulate( Client cl )
+	public override void Simulate( IClient cl )
 	{
 		if ( LifeState == LifeState.Dead )
 		{
-			if ( TimeSinceDeath > 2 && IsServer )
+			if ( TimeSinceDeath > 2 && Game.IsServer )
 			{
 				Respawn();
 			}
@@ -179,16 +193,18 @@ partial class BreakfloorPlayer : Player
 			return;
 		}
 
-		var controller = GetActiveController();
-		controller?.Simulate( cl, this, GetActiveAnimator() );
+		//var controller = GetActiveController();
+		//controller?.Simulate( cl, this, GetActiveAnimator() );
 
-		//
-		// Input requested a weapon switch
-		//
-		if ( Input.ActiveChild != null )
-		{
-			ActiveChild = Input.ActiveChild;
-		}
+		Controller?.Simulate();
+
+		////
+		//// Input requested a weapon switch
+		////
+		//if ( Input.ActiveChild != null )
+		//{
+		//	ActiveChild = Input.ActiveChild;
+		//}
 
 		if ( LifeState != LifeState.Alive )
 			return;
@@ -198,30 +214,48 @@ partial class BreakfloorPlayer : Player
 			LastBlockStoodOn = (BreakFloorBlock)GroundEntity;
 		}
 
-		TickPlayerUse();
+		//TickPlayerUse();
 
-		SimulateActiveChild( cl, ActiveChild );
 		FlashlightSimulate();
 	}
 
-	public override void FrameSimulate( Client cl )
+	public override void FrameSimulate( IClient cl )
 	{
 		base.FrameSimulate( cl );
 
+		Controller?.FrameSimulate();
 		//Update the flashlight position on the client in framesim
 		//so the movement is nice and smooth.
 		FlashlightFrameSimulate();
 	}
 
-	public override void BuildInput( InputBuilder input )
+	public override void BuildInput()
 	{
-		input.ActiveChild = Inventory.GetSlot( 0 );
 		if ( shouldOrientView )
 		{
-			input.ViewAngles = spawnViewAngles;
+			ViewAngles = spawnViewAngles;
 			shouldOrientView = false;
 			return;
 		}
+
+		OriginalViewAngles = ViewAngles;
+		InputDirection = Input.AnalogMove;
+
+		if ( Input.StopProcessing )
+			return;
+
+		var look = Input.AnalogLook;
+
+		if ( ViewAngles.pitch > 90f || ViewAngles.pitch < -90f )
+		{
+			look = look.WithYaw( look.yaw * -1f );
+		}
+
+		var viewAngles = ViewAngles;
+		viewAngles += look;
+		viewAngles.pitch = viewAngles.pitch.Clamp( -89f, 89f );
+		viewAngles.roll = 0f;
+		ViewAngles = viewAngles.Normal;
 	}
 
 	public override void TakeDamage( DamageInfo info )
@@ -258,7 +292,7 @@ partial class BreakfloorPlayer : Player
 
 		LastAttacker = info.Attacker;
 		LastAttackerWeapon = info.Weapon;
-		if ( IsServer && Health > 0f && LifeState == LifeState.Alive )
+		if ( Game.IsServer && Health > 0f && LifeState == LifeState.Alive )
 		{
 			Health -= info.Damage;
 			if ( Health <= 0f )
@@ -292,24 +326,24 @@ partial class BreakfloorPlayer : Player
 		Sound.FromScreen( "ui.bf_hitmarker" ).SetPitch( 1 + pitch * 1 );
 	}
 
-	private void SetActiveSlot( InputBuilder input, int i )
+	private void SetActiveSlot( int i )
 	{
-		var player = Local.Pawn as Player;
+		//var player = Game.LocalPawn as Player;
 
-		if ( player == null )
-			return;
+		//if ( player == null )
+		//	return;
 
-		var activeChild = player.ActiveChild;
-		if ( activeChild is BreakfloorGun weapon && weapon.IsReloading ) return; //No weapon switch while reloading
+		//var activeChild = player.ActiveChild;
+		//if ( activeChild is BreakfloorGun weapon && weapon.IsReloading ) return; //No weapon switch while reloading
 
-		var ent = Inventory.GetSlot( i );
-		if ( activeChild == ent )
-			return;
+		//var ent = Inventory.GetSlot( i );
+		//if ( activeChild == ent )
+		//	return;
 
-		if ( ent == null )
-			return;
+		//if ( ent == null )
+		//	return;
 
-		input.ActiveChild = ent;
+		//input.ActiveChild = ent;
 	}
 
 	[ClientRpc]

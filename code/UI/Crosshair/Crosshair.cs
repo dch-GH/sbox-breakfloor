@@ -19,16 +19,16 @@ namespace Breakfloor.UI
 		{
 			base.Tick();
 
-			if ( Local.Pawn == null ) return;
+			if ( Game.LocalPawn == null ) return;
 
-			var ply = (BreakfloorPlayer)Local.Pawn;
+			var ply = (BreakfloorPlayer)Game.LocalPawn;
 
 			SetClass( "hidden", ply.LifeState != LifeState.Alive );
 
 			if ( ply.ActiveChild == null ) return;
 			var wep = (BreakfloorGun)ply.ActiveChild;
 
-			if ( !Local.Client.GetValue<bool>( BreakfloorGame.BF_AUTO_RELOAD_KEY ) )
+			if ( !Game.LocalClient.GetValue<bool>( BreakfloorGame.BF_AUTO_RELOAD_KEY ) )
 				ReloadIndicator.SetClass( "active", (wep.ClipAmmo <= 0) && !wep.IsReloading );
 		}
 	}

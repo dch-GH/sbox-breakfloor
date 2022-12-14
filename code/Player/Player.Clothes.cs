@@ -44,7 +44,7 @@ namespace Breakfloor
 			/// point than just calling Deserialize directly because if we have
 			/// inventory based skins at some point, we can validate ownership here
 			/// </summary>
-			public void LoadFromClient( Client cl )
+			public void LoadFromClient( IClient cl )
 			{
 				var data = cl.GetClientData( "avatar" );
 				Deserialize( data );
@@ -196,7 +196,7 @@ namespace Breakfloor
 		/// <summary>
 		/// Set the clothes to whatever the player is wearing
 		/// </summary>
-		public void UpdateClothes( Client cl )
+		public void UpdateClothes( IClient cl )
 		{
 			Clothing ??= new();
 			Clothing.LoadFromClient( cl );

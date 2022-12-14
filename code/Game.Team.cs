@@ -24,7 +24,7 @@ namespace Breakfloor
 		FourWay = 4
 	}
 
-	public partial class BreakfloorGame : Game
+	public partial class BreakfloorGame : GameManager
 	{
 		public static Color GetTeamColor( Team index )
 		{
@@ -45,10 +45,10 @@ namespace Breakfloor
 
 		public static int GetTeamCount( Team team )
 		{
-			if ( Client.All.Count <= 1 ) return 0;
+			if ( Game.Clients.Count <= 1 ) return 0;
 
 			int num = 0;
-			foreach ( var c in Client.All )
+			foreach ( var c in Game.Clients )
 			{
 				var pawn = (BreakfloorPlayer)c.Pawn;
 				if ( pawn.Team == team )
@@ -58,14 +58,14 @@ namespace Breakfloor
 			return num;
 		}
 
-		private void DisplayTeamJoined( Client p, Team index )
+		private void DisplayTeamJoined( IClient p, Team index )
 		{
 			var team = Enum.GetName<Team>( index );
-			BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team {team}.", $"avatar:{p.PlayerId}", isPlayerAdmin: false );
-			Log.Info( $"Client:{p} joined team {team}" );
+			BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team {team}.", $"avatar:{p.SteamId}", isPlayerAdmin: false );
+			Log.Info( $"IClient:{p} joined team {team}" );
 		}
 
-		public Team HandleTeamAssign( Client cl )
+		public Team HandleTeamAssign( IClient cl )
 		{
 			Team decidedTeam = Team.None;
 			switch ( gameRules.TeamSetup )
@@ -89,7 +89,7 @@ namespace Breakfloor
 					else
 					{
 						Log.Info( $"Joining random team:{cl}" );
-						var randomValue = Rand.Int( (int)Team.RED, (int)Team.BLUE );
+						var randomValue = Game.Random.Int( (int)Team.RED, (int)Team.BLUE );
 						DisplayTeamJoined( cl,
 							randomValue == 1 ? Team.RED : Team.BLUE );
 						decidedTeam = randomValue == 1 ? Team.RED : Team.BLUE;

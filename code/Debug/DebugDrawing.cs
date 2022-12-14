@@ -2,7 +2,7 @@
 using System.Linq;
 using Breakfloor.HammerEnts;
 using Sandbox;
-using SandboxEditor;
+using Editor;
 
 namespace Breakfloor.Debug
 {

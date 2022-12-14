@@ -25,7 +25,7 @@ partial class BreakfloorPlayer
 
 public class PlayerCorpse : ModelEntity
 {
-	public Player Player { get; set; }
+	public BreakfloorPlayer Player { get; set; }
 
 	private TimeSince TimeSinceSpawned { get; set; }
 

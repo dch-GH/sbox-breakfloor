@@ -29,7 +29,7 @@ public partial class Gun : BaseCarriable
 	[Net, Predicted]
 	public TimeSince TimeSinceSecondaryAttack { get; set; }
 
-	public override void Simulate( Client player )
+	public override void Simulate( IClient player )
 	{
 		if ( CanReload() || (Owner.IsValid && ClipAmmo <= 0 && player.GetClientData<bool>( Breakfloor.BreakfloorGame.BF_AUTO_RELOAD_KEY )) )
 		{

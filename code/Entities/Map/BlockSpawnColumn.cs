@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Sandbox;
-using SandboxEditor;
+using Editor;
 
 namespace Breakfloor
 {
@@ -35,7 +35,7 @@ namespace Breakfloor
 		[Event.Entity.PostSpawn]
 		public void PostSpawn()
 		{
-			Host.AssertServer();
+			Game.AssertServer();
 
 			var full = (int)BreakfloorGame.StandardBlockSize;
 			var blockCount = NumBlocks - 1;
