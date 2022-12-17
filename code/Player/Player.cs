@@ -5,6 +5,7 @@ using System.Linq;
 using Breakfloor.Weapons;
 using Breakfloor.UI;
 using System.Runtime.CompilerServices;
+using Breakfloor.Events;
 
 namespace Breakfloor;
 
@@ -33,6 +34,32 @@ partial class BreakfloorPlayer : AnimatedEntity
 	// between disconnects/gamemode restarts and will get applied instantly in Simualate. Needs to be overridden manually. :)
 	private bool shouldOrientView;
 	private Angles spawnViewAngles;
+
+	public Vector3 EyePosition
+	{
+		get => Transform.PointToWorld( EyeLocalPosition );
+		set => EyeLocalPosition = Transform.PointToLocal( value );
+	}
+
+	[Net, Predicted]
+	public Vector3 EyeLocalPosition { get; set; }
+
+	/// <summary>
+	/// Rotation of the entity's "eyes", i.e. rotation for the camera when this entity is used as the view entity. In local to the entity coordinates.
+	/// </summary>
+	[Net, Predicted]
+	public Rotation EyeLocalRotation { get; set; }
+
+	public Rotation EyeRotation
+	{
+		get => Transform.RotationToWorld( EyeLocalRotation );
+		set => EyeLocalRotation = Transform.RotationToLocal( value );
+	}
+
+	/// <summary>
+	/// Override the aim ray to use the player's eye position and rotation.
+	/// </summary>
+	public override Ray AimRay => new Ray( EyePosition, AimRay.Forward );
 
 	public BreakfloorPlayer()
 	{
@@ -142,7 +169,8 @@ partial class BreakfloorPlayer : AnimatedEntity
 	[ClientRpc]
 	private void RespawnClient()
 	{
-
+		EnableShadowInFirstPerson = true;
+		EnableDrawing = false;
 	}
 
 	/// <summary>
@@ -174,7 +202,6 @@ partial class BreakfloorPlayer : AnimatedEntity
 		EnableAllCollisions = false;
 		EnableDrawing = false;
 
-
 		foreach ( var child in Children.OfType<ModelEntity>() )
 		{
 			child.EnableDrawing = false;
@@ -193,18 +220,7 @@ partial class BreakfloorPlayer : AnimatedEntity
 			return;
 		}
 
-		//var controller = GetActiveController();
-		//controller?.Simulate( cl, this, GetActiveAnimator() );
-
 		Controller?.Simulate();
-
-		////
-		//// Input requested a weapon switch
-		////
-		//if ( Input.ActiveChild != null )
-		//{
-		//	ActiveChild = Input.ActiveChild;
-		//}
 
 		if ( LifeState != LifeState.Alive )
 			return;
@@ -224,6 +240,12 @@ partial class BreakfloorPlayer : AnimatedEntity
 		base.FrameSimulate( cl );
 
 		Controller?.FrameSimulate();
+
+		// Place camera
+		Camera.Position = EyePosition;
+		Camera.Rotation = ViewAngles.ToRotation();
+		Camera.FieldOfView = 90;
+
 		//Update the flashlight position on the client in framesim
 		//so the movement is nice and smooth.
 		FlashlightFrameSimulate();
@@ -308,9 +330,7 @@ partial class BreakfloorPlayer : AnimatedEntity
 	{
 		if ( IsLocalPawn )
 		{
-			//_ = new Sandbox.ScreenShake.Perlin( size: 1.8f, rotation: 0.8f );
-			DamageIndicator.Current?.Hurt();
-			Breakfloor.UI.Health.Current?.Hurt();
+			Event.Run( BFEVents.LocalPlayerHurt );
 		}
 	}
 

@@ -72,7 +72,7 @@ namespace Breakfloor
 					c.Pawn.Delete();
 					Log.Info( $"name:{c.Name}, id:{c.SteamId} kicked by admin." );
 					var kickedText = string.IsNullOrEmpty( reason ) ? "was kicked by admin." : $"was kicked by admin. Reason: {reason}";
-					BFChatbox.AddInformation( To.Everyone, $"{c.Name} ({c.SteamId}) {kickedText}", null, true );
+					// Chat.AddInformation( To.Everyone, $"{c.Name} ({c.SteamId}) {kickedText}", null, true );
 				}
 			}
 		}
@@ -98,14 +98,14 @@ namespace Breakfloor
 					if ( enabled )
 					{
 						//announce to the gagged user and to everyone
-						BFChatbox.AddInformation( To.Multiple( everyoneElse ), $"{c.Name} was gagged by an admin.", null, false );
-						BFChatbox.AddInformation( To.Single( c ), "You were gagged by an admin.", null, false );
+						// Chat.AddInformation( To.Multiple( everyoneElse ), $"{c.Name} was gagged by an admin.", null, false );
+						// Chat.AddInformation( To.Single( c ), "You were gagged by an admin.", null, false );
 					}
 					else
 					{
 						//announce to the un-gagged user and to everyone
-						BFChatbox.AddInformation( To.Multiple( everyoneElse ), $"{c.Name} was un-gagged by an admin.", null, false );
-						BFChatbox.AddInformation( To.Single( c ), "You were un-gagged by an admin. You can now chat again.", null, false );
+						// Chat.AddInformation( To.Multiple( everyoneElse ), $"{c.Name} was un-gagged by an admin.", null, false );
+						// Chat.AddInformation( To.Single( c ), "You were un-gagged by an admin. You can now chat again.", null, false );
 					}
 
 					//Logging info
@@ -120,6 +120,20 @@ namespace Breakfloor
 				}
 			}
 		}
+
+		[ConCmd.Admin( "kill" )]
+		public static void Kill()
+		{
+			var caller = ConsoleSystem.Caller;
+			if ( !Admins.Contains( caller.SteamId ) )
+				return;
+
+			if ( caller.Pawn is Player pl )
+			{
+				pl.OnKilled();
+			}
+		}
+
 
 		[ClientRpc]
 		public static void ClientLog( string message )

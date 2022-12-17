@@ -32,10 +32,10 @@ namespace Breakfloor
 
 		[Net] public bool CrouchActive { get; set; } = false;
 
-		internal HashSet<string> Events;
-		internal HashSet<string> Tags;
+		public HashSet<string> Events;
+		public HashSet<string> Tags;
 
-		[Net] public Entity Pawn { get; set; }
+		[Net] public BreakfloorPlayer Pawn { get; set; }
 
 		public IClient Client { get; set; }
 		public Vector3 Position { get; set; }
@@ -105,8 +105,7 @@ namespace Breakfloor
 
 		public void FrameSimulate()
 		{
-			var pl = Pawn as BreakfloorPlayer;
-			EyeRotation = pl.ViewAngles.ToRotation();
+			EyeRotation = Pawn.ViewAngles.ToRotation();
 		}
 
 		public void Simulate()
@@ -114,14 +113,14 @@ namespace Breakfloor
 			Events?.Clear();
 			Tags?.Clear();
 
-			var pl = Pawn as BreakfloorPlayer;
-			EyeRotation = pl.ViewAngles.ToRotation();
+			UpdateFromEntity( Pawn );
 
+			EyeRotation = Pawn.ViewAngles.ToRotation();
 			EyeLocalPosition = Vector3.Up * (EyeHeight * Pawn.Scale);
 			UpdateBBox();
 
 			EyeLocalPosition += TraceOffset;
-			EyeRotation = pl.ViewAngles.ToRotation();
+			EyeRotation = Pawn.ViewAngles.ToRotation();
 
 			RestoreGroundPos();
 
@@ -172,9 +171,9 @@ namespace Breakfloor
 			//
 			// Work out wish velocity.. just take input, rotate it to view, clamp to -1, 1
 			//
-			WishVelocity = new Vector3( pl.InputDirection.y, pl.InputDirection.x, 0 );
+			WishVelocity = new Vector3( Pawn.InputDirection.x, Pawn.InputDirection.y, 0 );
 			var inSpeed = WishVelocity.Length.Clamp( 0, 1 );
-			WishVelocity *= pl.ViewAngles.WithPitch( 0 ).ToRotation();
+			WishVelocity *= Pawn.ViewAngles.WithPitch( 0 ).ToRotation();
 
 			if ( !Swimming && !IsTouchingLadder )
 			{
@@ -250,24 +249,33 @@ namespace Breakfloor
 
 			SaveGroundPos();
 
-			//if ( Debug )
-			//{
-			//	DebugOverlay.Box( Position + TraceOffset, mins, maxs, Color.Red );
-			//	DebugOverlay.Box( Position, mins, maxs, Color.Blue );
+			Finalize( Pawn );
+		}
 
-			//	var lineOffset = 0;
-			//	if ( Game.IsServer ) lineOffset = 10;
+		public void UpdateFromEntity( BreakfloorPlayer entity )
+		{
+			Position = entity.Position;
+			Rotation = entity.Rotation;
+			Velocity = entity.Velocity;
 
-			//	DebugOverlay.ScreenText( $"        Position: {Position}", lineOffset + 0 );
-			//	DebugOverlay.ScreenText( $"        Velocity: {Velocity}", lineOffset + 1 );
-			//	DebugOverlay.ScreenText( $"    BaseVelocity: {BaseVelocity}", lineOffset + 2 );
-			//	DebugOverlay.ScreenText( $"    GroundEntity: {GroundEntity} [{GroundEntity?.Velocity}]", lineOffset + 3 );
-			//	DebugOverlay.ScreenText( $" SurfaceFriction: {SurfaceFriction}", lineOffset + 4 );
-			//	DebugOverlay.ScreenText( $"    WishVelocity: {WishVelocity}", lineOffset + 5 );
-			//	DebugOverlay.ScreenText( $"    Mins: {mins}", lineOffset + 6 );
-			//	DebugOverlay.ScreenText( $"    Maxs: {maxs}", lineOffset + 7 );
-			//}
+			EyeRotation = entity.EyeRotation;
+			EyeLocalPosition = entity.EyeLocalPosition;
 
+			BaseVelocity = entity.BaseVelocity;
+			GroundEntity = entity.GroundEntity;
+			WishVelocity = entity.Velocity;
+		}
+
+		public void Finalize( BreakfloorPlayer target )
+		{
+			target.Position = Position;
+			target.Velocity = Velocity;
+			target.Rotation = Rotation;
+			target.GroundEntity = GroundEntity;
+			target.BaseVelocity = BaseVelocity;
+
+			target.EyeLocalPosition = EyeLocalPosition;
+			target.EyeRotation = EyeRotation;
 		}
 
 		public void SetTag( string tagName )

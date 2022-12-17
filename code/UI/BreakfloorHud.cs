@@ -1,29 +1,15 @@
-﻿using Sandbox;
+using Sandbox;
 using Sandbox.UI;
 
-namespace Breakfloor.UI
+namespace Breakfloor.UI;
+
+public partial class BreakfloorHud : HudEntity<RootPanel>
 {
-	public partial class BreakfloorHud : HudEntity<RootPanel>
+	public BreakfloorHud()
 	{
-		public BreakfloorHud()
-		{
-			if ( !Game.IsClient )
-				return;
+		if ( !Game.IsClient )
+			return;
 
-			RootPanel.StyleSheet.Load( "/UI/BreakfloorHud.scss" );
 
-			RootPanel.AddChild<BFChatbox>();
-			RootPanel.AddChild<VoiceList>();
-			RootPanel.AddChild<KillFeed>();
-			RootPanel.AddChild<Scoreboard<ScoreboardEntry>>();
-			RootPanel.AddChild<Health>();
-			RootPanel.AddChild<Ammo>();
-			RootPanel.AddChild<RoundTimer>();
-			RootPanel.AddChild<Crosshair>();
-			RootPanel.AddChild<TargetID>();
-			RootPanel.AddChild<DamageIndicator>();
-			//RootPanel.AddChild<InventoryPanel>();
-		}
 	}
 }
-

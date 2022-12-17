@@ -61,7 +61,7 @@ namespace Breakfloor
 		private void DisplayTeamJoined( IClient p, Team index )
 		{
 			var team = Enum.GetName<Team>( index );
-			BFChatbox.AddInformation( To.Everyone, $"{p.Name} joined team {team}.", $"avatar:{p.SteamId}", isPlayerAdmin: false );
+			// Chat.AddInformation( To.Everyone, $"{p.Name} joined team {team}.", $"avatar:{p.SteamId}", isPlayerAdmin: false );
 			Log.Info( $"IClient:{p} joined team {team}" );
 		}
 
