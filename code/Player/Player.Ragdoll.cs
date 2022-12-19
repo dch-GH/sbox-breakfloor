@@ -36,7 +36,7 @@ public class PlayerCorpse : ModelEntity
 		PhysicsEnabled = true;
 	}
 
-	public void CopyFrom( Player player )
+	public void CopyFrom( BreakfloorPlayer player )
 	{
 		RenderColor = player.RenderColor;
 

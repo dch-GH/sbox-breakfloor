@@ -6,6 +6,7 @@ using Breakfloor.Weapons;
 using Breakfloor.UI;
 using System.Runtime.CompilerServices;
 using Breakfloor.Events;
+using System.ComponentModel.Design;
 
 namespace Breakfloor;
 
@@ -21,9 +22,10 @@ partial class BreakfloorPlayer : AnimatedEntity
 	[ClientInput] public Angles ViewAngles { get; set; }
 	public Angles OriginalViewAngles { get; private set; }
 
-
 	[Net] public Team Team { get; set; }
 	[Net] public BreakFloorBlock LastBlockStoodOn { get; private set; }
+
+	[Net] public SMG Gun { get; private set; }
 
 	public TimeSince TimeSinceDeath { get; private set; }
 	public DamageInfo LastDamage { get; private set; }
@@ -59,7 +61,7 @@ partial class BreakfloorPlayer : AnimatedEntity
 	/// <summary>
 	/// Override the aim ray to use the player's eye position and rotation.
 	/// </summary>
-	public override Ray AimRay => new Ray( EyePosition, AimRay.Forward );
+	public override Ray AimRay => new Ray( EyePosition, EyeRotation.Forward );
 
 	public BreakfloorPlayer()
 	{
@@ -73,6 +75,10 @@ partial class BreakfloorPlayer : AnimatedEntity
 		Tags.Add( "player" );
 
 		base.Spawn();
+		Gun = new SMG();
+		Gun.Owner = this;
+		Gun.Parent = this;
+
 		// TODO: find a way to make flashlights look good on other (worldview)
 		// players. Also, other player's worldview flashlight shines through geo (any map/gamemode) and onto the
 		// viewmodel. Effectively wallhacks in breakfloor when someone is looking your direction.
@@ -112,16 +118,15 @@ partial class BreakfloorPlayer : AnimatedEntity
 		Controller.Client = Client;
 		Controller.Gravity = 750.0f; //gotta get that jump height above the blocks.
 
-		EnableAllCollisions = true;
-		EnableDrawing = true;
+		EnableAllCollisions = false;
+		EnableDrawing = false;
 		EnableHideInFirstPerson = true;
+		EnableLagCompensation = true;
 		EnableShadowInFirstPerson = true;
 
 		Clothing.DressEntity( this );
 
-		//Inventory = new Inventory( this ); //this should fix the bug of not being able to swap weapons after respawning.
-		//Inventory.DeleteContents();
-		//Inventory.Add( new SMG(), true );
+		Gun.Reload();
 
 		LifeState = LifeState.Alive;
 		Health = 100;
@@ -206,11 +211,13 @@ partial class BreakfloorPlayer : AnimatedEntity
 		{
 			child.EnableDrawing = false;
 		}
+
+		Log.Info( $"{this} died." );
 	}
 
 	public override void Simulate( IClient cl )
 	{
-		if ( LifeState == LifeState.Dead )
+		if ( LifeState == LifeState.Dead || Input.Released( InputButton.Grenade ) )
 		{
 			if ( TimeSinceDeath > 2 && Game.IsServer )
 			{
@@ -221,6 +228,10 @@ partial class BreakfloorPlayer : AnimatedEntity
 		}
 
 		Controller?.Simulate();
+		SimulateAnimation( Controller );
+
+		if(Game.IsServer)
+			Gun.Simulate( Client );
 
 		if ( LifeState != LifeState.Alive )
 			return;
@@ -231,8 +242,6 @@ partial class BreakfloorPlayer : AnimatedEntity
 		}
 
 		//TickPlayerUse();
-
-		FlashlightSimulate();
 	}
 
 	public override void FrameSimulate( IClient cl )
@@ -244,7 +253,8 @@ partial class BreakfloorPlayer : AnimatedEntity
 		// Place camera
 		Camera.Position = EyePosition;
 		Camera.Rotation = ViewAngles.ToRotation();
-		Camera.FieldOfView = 90;
+		Camera.FieldOfView = Screen.CreateVerticalFieldOfView( Game.Preferences.FieldOfView );
+		Camera.FirstPersonViewer = this;
 
 		//Update the flashlight position on the client in framesim
 		//so the movement is nice and smooth.
@@ -278,6 +288,54 @@ partial class BreakfloorPlayer : AnimatedEntity
 		viewAngles.pitch = viewAngles.pitch.Clamp( -89f, 89f );
 		viewAngles.roll = 0f;
 		ViewAngles = viewAngles.Normal;
+	}
+
+	private void SimulateAnimation( BreakfloorWalkController controller )
+	{
+		if ( controller == null )
+			return;
+
+		// where should we be rotated to
+		var turnSpeed = 0.02f;
+
+		Rotation rotation;
+
+		// If we're a bot, spin us around 180 degrees.
+		if ( Client.IsBot )
+			rotation = ViewAngles.WithYaw( ViewAngles.yaw + 180f ).ToRotation();
+		else
+			rotation = ViewAngles.ToRotation();
+
+		var idealRotation = Rotation.LookAt( rotation.Forward.WithZ( 0 ), Vector3.Up );
+		Rotation = Rotation.Slerp( Rotation, idealRotation, controller.WishVelocity.Length * Time.Delta * turnSpeed );
+		Rotation = Rotation.Clamp( idealRotation, 45.0f, out var shuffle ); // lock facing to within 45 degrees of look direction
+
+		var animHelper = new CitizenAnimationHelper( this );
+
+		animHelper.WithWishVelocity( controller.WishVelocity );
+		animHelper.WithVelocity( Velocity );
+		animHelper.WithLookAt( EyePosition + EyeRotation.Forward * 100.0f, 1.0f, 1.0f, 0.5f );
+		animHelper.AimAngle = rotation;
+		animHelper.FootShuffle = shuffle;
+		animHelper.DuckLevel = MathX.Lerp( animHelper.DuckLevel, controller.HasTag( "ducked" ) ? 1 : 0, Time.Delta * 10.0f );
+		animHelper.VoiceLevel = (Game.IsClient && Client.IsValid()) ? Client.Voice.LastHeard < 0.5f ? Client.Voice.CurrentLevel : 0.0f : 0.0f;
+		animHelper.IsGrounded = GroundEntity != null;
+		animHelper.IsSitting = controller.HasTag( "sitting" );
+		animHelper.IsNoclipping = controller.HasTag( "noclip" );
+		animHelper.IsClimbing = controller.HasTag( "climbing" );
+		animHelper.IsSwimming = this.GetWaterLevel() >= 0.5f;
+		animHelper.IsWeaponLowered = false;
+
+		if ( controller.HasEvent( "jump" ) )
+			animHelper.TriggerJump();
+
+		if ( Gun is not null )
+			Gun.SimulateAnimator( animHelper );
+		else
+		{
+			animHelper.HoldType = CitizenAnimationHelper.HoldTypes.None;
+			animHelper.AimBodyWeight = 0.5f;
+		}
 	}
 
 	public override void TakeDamage( DamageInfo info )
@@ -354,7 +412,7 @@ partial class BreakfloorPlayer : AnimatedEntity
 		//	return;
 
 		//var activeChild = player.ActiveChild;
-		//if ( activeChild is BreakfloorGun weapon && weapon.IsReloading ) return; //No weapon switch while reloading
+		//if ( activeChild is Gun weapon && weapon.IsReloading ) return; //No weapon switch while reloading
 
 		//var ent = Inventory.GetSlot( i );
 		//if ( activeChild == ent )

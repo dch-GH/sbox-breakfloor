@@ -121,20 +121,6 @@ namespace Breakfloor
 			}
 		}
 
-		[ConCmd.Admin( "kill" )]
-		public static void Kill()
-		{
-			var caller = ConsoleSystem.Caller;
-			if ( !Admins.Contains( caller.SteamId ) )
-				return;
-
-			if ( caller.Pawn is Player pl )
-			{
-				pl.OnKilled();
-			}
-		}
-
-
 		[ClientRpc]
 		public static void ClientLog( string message )
 		{

@@ -1,4 +1,5 @@
-﻿using Sandbox;
+﻿using Breakfloor;
+using Sandbox;
 
 public class ViewModel : BaseViewModel
 {
@@ -60,13 +61,13 @@ public class ViewModel : BaseViewModel
 		{
 			var playerVelocity = Game.LocalPawn.Velocity;
 
-			if ( Game.LocalPawn is Player player )
+			if ( Game.LocalPawn is BreakfloorPlayer player )
 			{
-				var controller = player.GetActiveController();
-				if ( controller != null && controller.HasTag( "noclip" ) )
-				{
-					playerVelocity = Vector3.Zero;
-				}
+				//var controller = player.GetActiveController();
+				//if ( controller != null && controller.HasTag( "noclip" ) )
+				//{
+				//	playerVelocity = Vector3.Zero;
+				//}
 			}
 
 			var verticalDelta = playerVelocity.z * Time.Delta;

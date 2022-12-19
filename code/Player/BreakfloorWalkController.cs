@@ -291,6 +291,15 @@ namespace Breakfloor
 		}
 
 		/// <summary>
+		/// Returns true if we have this event
+		/// </summary>
+		public bool HasEvent( string eventName )
+		{
+			if ( Events == null ) return false;
+			return Events.Contains( eventName );
+		}
+
+		/// <summary>
 		/// </summary>
 		public bool HasTag( string tagName )
 		{

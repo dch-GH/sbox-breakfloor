@@ -16,27 +16,17 @@ public partial class BreakfloorPlayer
 		debug = !debug;
 	}
 
-	private void FlashlightSimulate()
-	{
-		if ( !FlashlightEntity.IsValid() )
-			return;
-
-		if ( Input.Pressed( InputButton.Flashlight ) )
-		{
-			FlashlightEnabled = !FlashlightEnabled;
-		}
-
-		FlashlightEntity.Enabled = FlashlightEnabled;
-	}
-
 	private void FlashlightFrameSimulate()
 	{
 		if ( FlashlightEntity != null && FlashlightEntity.IsValid() )
 		{
 			if ( Input.Pressed( InputButton.Flashlight ) )
 			{
+				FlashlightEnabled = !FlashlightEnabled;
 				PlaySound( FlashlightEntity.Enabled ? "flashlight_off" : "flashlight_on" );
 			}
+
+			FlashlightEntity.Enabled = FlashlightEnabled;
 
 			// This calculation is pretty much ripped from Source 1, minus some ladder stuff and a double check they do
 			// inside the player hull. Works great for me!

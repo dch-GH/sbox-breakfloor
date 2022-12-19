@@ -5,7 +5,7 @@ using System.Numerics;
 namespace Breakfloor.Weapons
 {
 	[Library( "weapon_smg", Title = "SMG" )]
-	partial class SMG : BreakfloorGun
+	public partial class SMG : Gun
 	{
 		public override string ViewModelPath => "models/mp5/fp_mp5.vmdl";
 

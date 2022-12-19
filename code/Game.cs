@@ -198,7 +198,7 @@ partial class BreakfloorGame : GameManager
 		// They died to a gun, how boring.
 		if ( vicPlayer.LastAttacker.Client != null )
 		{
-			var killedByText = (victimPawn.LastAttackerWeapon as BreakfloorGun)
+			var killedByText = (victimPawn.LastAttackerWeapon as Gun)
 				.GetKilledByText( vicPlayer.LastDamage );
 
 			if ( string.IsNullOrEmpty( killedByText ) )
