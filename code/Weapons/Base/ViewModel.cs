@@ -5,8 +5,9 @@ using System.IO;
 
 public class ViewModel : BaseViewModel
 {
-	[Category("Viewmodel Specific")]	
+	[Category( "Viewmodel Specific" )]
 	public Vector3 PosOffset { get; set; }
+
 	protected float SwingInfluence => 0.05f;
 	protected float ReturnSpeed => 5.0f;
 	protected float MaxOffsetLength => 10.0f;
@@ -65,13 +66,10 @@ public class ViewModel : BaseViewModel
 		{
 			var playerVelocity = Game.LocalPawn.Velocity;
 
-			if ( Game.LocalPawn is Breakfloor.Player player )
+			if ( Game.LocalPawn is Breakfloor.Player ply 
+				&& ply.Controller.HasTag( "noclip" ) )
 			{
-				//var controller = player.GetActiveController();
-				//if ( controller != null && controller.HasTag( "noclip" ) )
-				//{
-				//	playerVelocity = Vector3.Zero;
-				//}
+				playerVelocity = Vector3.Zero;
 			}
 
 			var verticalDelta = playerVelocity.z * Time.Delta;

@@ -14,10 +14,10 @@ partial class BreakfloorGame : GameManager
 	public static readonly float StandardHalfBlockSize = StandardBlockSize / 2;
 	public static readonly Vector3 StandardBlockDimensions = Vector3.One * StandardBlockSize;
 
-	[Net]
-	public RealTimeUntil RoundTimer { get; private set; } = 0f;
-	// I don't plan on tracking state any more complicated than this.
-	public bool RoundActive { get; private set; } = false;
+	[Net] public RealTimeUntil RoundTimer { get; private set; } = 0f;
+
+	// I don't plan on tracking gamestate any more complicated than this.
+	[Net] public bool RoundActive { get; private set; } = false;
 
 	private MapRules gameRules;
 
@@ -211,6 +211,6 @@ partial class BreakfloorGame : GameManager
 	[ClientRpc]
 	public void OnKilledClient( IClient killer, IClient victim, string method )
 	{
-		// KillFeed.Current.AddEntry( killer, victim, method );
+		Killfeed.Current.AddEntry( killer, victim, method );
 	}
 }

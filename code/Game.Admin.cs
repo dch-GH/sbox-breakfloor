@@ -3,6 +3,7 @@ using Sandbox;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Breakfloor
 {
@@ -27,6 +28,23 @@ namespace Breakfloor
 			}
 
 			camera.Enabled = !camera.Enabled;
+		}
+
+		[ConCmd.Server("noclip")]
+		public static void Noclip()
+		{
+			var caller = ConsoleSystem.Caller;
+
+			if ( !Admins.Contains( caller.SteamId ) )
+				return;
+
+			if ( caller.Pawn is not Player ply )
+				return;
+
+			if ( ply.Controller.GetType() != typeof( NoclipController ) )
+				ply.Controller = new NoclipController();
+			else
+				ply.Controller = new WalkController();
 		}
 
 		[ConCmd.Server( "bf_status" )]
@@ -54,7 +72,6 @@ namespace Breakfloor
 				}
 
 			}
-
 		}
 
 		[ConCmd.Server( "bf_kick" )]

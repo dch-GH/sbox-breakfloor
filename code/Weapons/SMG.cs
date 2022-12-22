@@ -11,8 +11,8 @@ namespace Breakfloor.Weapons
 
 		public override float PrimaryRate => 14.0f;
 		public override float SecondaryRate => 1.2f;
-		public override float ReloadTime => 3.4f;
-		public override int MaxClip => 30;
+		public override float ReloadTime => 3;
+		public override int MaxClip => 31;
 
 		private float gunBashRange = 52f;
 		private float gunBashDamage = 9f;
@@ -22,6 +22,7 @@ namespace Breakfloor.Weapons
 			"sprayed", "dusted", "swiss cheese'd", "dakka'd", "gunned down",
 			"smoked", "popped", "poked a hole in", "iced", "spun the block on"
 		};
+
 		private readonly string[] secondaryOptions = new string[]
 		{
 			"smacked", "bludgeoned", "beat down"
@@ -143,13 +144,14 @@ namespace Breakfloor.Weapons
 
 		public override void SimulateAnimator( CitizenAnimationHelper anim )
 		{
-			SetAnimParameter( "holdtype", 3 ); // TODO this is shit
-			SetAnimParameter( "aim_body_weight", 1.0f );
+			anim.HoldType = CitizenAnimationHelper.HoldTypes.Rifle;
+			anim.AimBodyWeight = 1.0f;
 		}
 
 		public override void CreateViewModel()
 		{
 			base.CreateViewModel();
+			(ViewModelEntity as ViewModel).PosOffset = new Vector3( 8.88f, -0.67f, -0.11f );
 		}
 
 		[ClientRpc]
@@ -158,7 +160,7 @@ namespace Breakfloor.Weapons
 			Game.AssertClient();
 
 			Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
-			Particles.Create( "particles/pistol_ejectbrass.vpcf", EffectEntity, "ejection_point" );
+			//Particles.Create( "particles/pistol_ejectbrass.vpcf", EffectEntity, "ejection_point" );
 			ViewModelEntity?.SetAnimParameter( "fire", true );
 		}
 	}

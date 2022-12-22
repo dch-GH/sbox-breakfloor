@@ -12,6 +12,9 @@ partial class Player
 
 	public override void ClientSpawn()
 	{
+		if ( !IsLocalPawn )
+			return;
+
 		FlashlightEntity = new SpotLightEntity
 		{
 			Enabled = false,
@@ -34,7 +37,10 @@ partial class Player
 	{
 		base.FrameSimulate( cl );
 
-		Controller?.FrameSimulate();
+		Controller?.FrameSimulate( cl, this );
+
+		if ( Game.IsClient )
+			Gun.ViewModelEntity.EnableDrawing = LifeState == LifeState.Alive;
 
 		// Place camera
 		Camera.Position = EyePosition;
@@ -42,9 +48,6 @@ partial class Player
 		Camera.FieldOfView = Screen.CreateVerticalFieldOfView( Game.Preferences.FieldOfView );
 		Camera.FirstPersonViewer = this;
 
-		//Update the flashlight position on the client in framesim
-		//so the movement is nice and smooth.
-		FlashlightFrameSimulate();
 	}
 
 	public override void BuildInput()
@@ -83,10 +86,9 @@ partial class Player
 	}
 
 	[ClientRpc]
-	private void RespawnClient()
+	private void ClientRespawn()
 	{
-		EnableShadowInFirstPerson = true;
-		EnableDrawing = false;
+
 	}
 
 	/// <summary>

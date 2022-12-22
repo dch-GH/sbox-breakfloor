@@ -8,12 +8,8 @@ namespace Breakfloor;
 [Title( "Player" ), Icon( "emoji_people" )]
 public partial class Player : AnimatedEntity
 {
-	[Net, Predicted]
-	public PlayerController Controller { get; set; }
-
-	[Net, Predicted] public Entity ActiveChild { get; set; }
-
-	public Angles OriginalViewAngles { get; private set; }
+	[Net, Predicted] 
+	public PawnController Controller { get; set; }
 
 	[Net] public Team Team { get; set; }
 	[Net] public BreakFloorBlock LastBlockStoodOn { get; private set; }
@@ -23,51 +19,19 @@ public partial class Player : AnimatedEntity
 	public TimeSince TimeSinceDeath { get; private set; }
 	public DamageInfo LastDamage { get; private set; }
 
-	// These are for resetting/setting the player view angles
-	// to that of their spawnpoint direction, so the player faces the correct direction on respawn.
-	// We need to use BuildInput because Input.Rotation is carried over
-	// between disconnects/gamemode restarts and will get applied instantly in Simualate. Needs to be overridden manually. :)
-	private bool shouldOrientView;
-	private Angles spawnViewAngles;
-
-	[Net, Predicted]
-	public Vector3 EyeLocalPosition { get; set; }
-
-	public Vector3 EyePosition
-	{
-		get => Transform.PointToWorld( EyeLocalPosition );
-		set => EyeLocalPosition = Transform.PointToLocal( value );
-	}
-
-	/// <summary>
-	/// Rotation of the entity's "eyes", i.e. rotation for the camera when this entity is used as the view entity. In local to the entity coordinates.
-	/// </summary>
-	[Net, Predicted]
-	public Rotation EyeLocalRotation { get; set; }
-
-	public Rotation EyeRotation
-	{
-		get => Transform.RotationToWorld( EyeLocalRotation );
-		set => EyeLocalRotation = Transform.RotationToLocal( value );
-	}
-
-	/// <summary>
-	/// Override the aim ray to use the player's eye position and rotation.
-	/// </summary>
-	public override Ray AimRay => new Ray( EyePosition, EyeRotation.Forward );
-
 	public Player() { }
 
 	public override void Spawn()
 	{
-		EnableLagCompensation = true;
-
 		Tags.Add( "player" );
 
-		base.Spawn();
+		SetModel( "models/citizen/citizen.vmdl" );
+
 		Gun = new SMG();
 		Gun.Owner = this;
-		Gun.Parent = this;
+		Gun.SetParent( this, true );
+
+		EnableLagCompensation = true;
 
 		// TODO: find a way to make flashlights look good on other (worldview)
 		// players. Also, other player's worldview flashlight shines through geo (any map/gamemode) and onto the
@@ -79,10 +43,7 @@ public partial class Player : AnimatedEntity
 	{
 		SetModel( "models/citizen/citizen.vmdl" );
 
-		Controller = new PlayerController();
-		Controller.Pawn = this;
-		Controller.Client = Client;
-		Controller.Gravity = 750.0f; //gotta get that jump height above the blocks.
+		Controller = new WalkController();
 
 		EnableAllCollisions = true;
 		EnableDrawing = true;
@@ -134,21 +95,15 @@ public partial class Player : AnimatedEntity
 		LastBlockStoodOn = null;
 
 		OrientAnglesToSpawnClient( To.Single( Client ), spawn.Transform.Rotation.Angles() );
-		RespawnClient();
 	}
 
 	public override void OnKilled()
 	{
 		TimeSinceDeath = 0;
-		base.OnKilled();
 
 		BecomeRagdollOnClient(
 			(Velocity / 2) + LastDamage.Force,
 			LastDamage.BoneIndex );
-
-		Controller = null;
-
-		//CameraMode = new SpectateRagdollCamera();
 
 		EnableAllCollisions = false;
 		EnableDrawing = false;
@@ -158,12 +113,14 @@ public partial class Player : AnimatedEntity
 			child.EnableDrawing = false;
 		}
 
+		LifeState = LifeState.Dead;
+
 		Log.Info( $"{this} died." );
 	}
 
 	public override void Simulate( IClient cl )
 	{
-		if ( LifeState == LifeState.Dead || Input.Released( InputButton.Grenade ) )
+		if ( LifeState == LifeState.Dead)
 		{
 			if ( TimeSinceDeath > 2 && Game.IsServer )
 			{
@@ -173,13 +130,10 @@ public partial class Player : AnimatedEntity
 			return;
 		}
 
-		Controller?.Simulate();
+		Controller?.Simulate(Client, this);
 		SimulateAnimation( Controller );
 
 		Gun?.Simulate( Client );
-
-		if ( LifeState != LifeState.Alive )
-			return;
 
 		if ( GroundEntity != null && GroundEntity.GetType() == typeof( BreakFloorBlock ) )
 		{
@@ -187,54 +141,6 @@ public partial class Player : AnimatedEntity
 		}
 
 		//TickPlayerUse();
-	}
-
-	private void SimulateAnimation( PlayerController controller )
-	{
-		if ( controller == null )
-			return;
-
-		// where should we be rotated to
-		var turnSpeed = 0.02f;
-
-		Rotation rotation;
-
-		// If we're a bot, spin us around 180 degrees.
-		if ( Client.IsBot )
-			rotation = ViewAngles.WithYaw( ViewAngles.yaw + 180f ).ToRotation();
-		else
-			rotation = ViewAngles.ToRotation();
-
-		var idealRotation = Rotation.LookAt( rotation.Forward.WithZ( 0 ), Vector3.Up );
-		Rotation = Rotation.Slerp( Rotation, idealRotation, controller.WishVelocity.Length * Time.Delta * turnSpeed );
-		Rotation = Rotation.Clamp( idealRotation, 45.0f, out var shuffle ); // lock facing to within 45 degrees of look direction
-
-		var animHelper = new CitizenAnimationHelper( this );
-
-		animHelper.WithWishVelocity( controller.WishVelocity );
-		animHelper.WithVelocity( Velocity );
-		animHelper.WithLookAt( EyePosition + EyeRotation.Forward * 100.0f, 1.0f, 1.0f, 0.5f );
-		animHelper.AimAngle = rotation;
-		animHelper.FootShuffle = shuffle;
-		animHelper.DuckLevel = MathX.Lerp( animHelper.DuckLevel, controller.HasTag( "ducked" ) ? 1 : 0, Time.Delta * 10.0f );
-		animHelper.VoiceLevel = (Game.IsClient && Client.IsValid()) ? Client.Voice.LastHeard < 0.5f ? Client.Voice.CurrentLevel : 0.0f : 0.0f;
-		animHelper.IsGrounded = GroundEntity != null;
-		animHelper.IsSitting = controller.HasTag( "sitting" );
-		animHelper.IsNoclipping = controller.HasTag( "noclip" );
-		animHelper.IsClimbing = controller.HasTag( "climbing" );
-		animHelper.IsSwimming = this.GetWaterLevel() >= 0.5f;
-		animHelper.IsWeaponLowered = false;
-
-		if ( controller.HasEvent( "jump" ) )
-			animHelper.TriggerJump();
-
-		if ( Gun is not null )
-			Gun.SimulateAnimator( animHelper );
-		else
-		{
-			animHelper.HoldType = CitizenAnimationHelper.HoldTypes.None;
-			animHelper.AimBodyWeight = 0.5f;
-		}
 	}
 
 	public override void TakeDamage( DamageInfo info )

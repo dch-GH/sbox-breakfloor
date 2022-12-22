@@ -70,7 +70,9 @@ public partial class Gun : AnimatedEntity
 
 	public override void ClientSpawn()
 	{
-		base.ClientSpawn();
+		if ( !IsLocalPawn )
+			return;
+
 		CreateViewModel();
 	}
 
@@ -123,7 +125,7 @@ public partial class Gun : AnimatedEntity
 	public virtual bool CanReload()
 	{
 		if ( !Owner.IsValid() || !Input.Down( InputButton.Reload ) ) return false;
-		if(ClipAmmo < MaxClip)
+		if ( ClipAmmo < MaxClip )
 			return true;
 
 		return false;
@@ -252,14 +254,7 @@ public partial class Gun : AnimatedEntity
 		Game.AssertClient();
 
 		Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
-
-		if ( IsLocalPawn )
-		{
-			//_ = new Sandbox.ScreenShake.Perlin();
-		}
-
 		ViewModelEntity?.SetAnimParameter( "fire", true );
-		//CrosshairPanel?.CreateEvent( "fire" );
 	}
 
 	/// <summary>

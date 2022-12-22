@@ -1,0 +1,54 @@
+﻿@using System;
+@using Sandbox;
+@using Sandbox.UI;
+@using Breakfloor;
+
+@namespace Breakfloor.UI
+@inherits Panel
+
+@code
+{
+    public Label Killer { get; internal set; }
+    public Label Victim { get; internal set; }
+    public Label Method { get; internal set; }
+}
+
+<root>
+	<style>
+        KillfeedEntry {
+            background-color: rgb(89, 89, 101, 0.30);
+            backdrop-filter: invert(7%);
+            border-radius: 4px;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding-right: 7px;
+            padding-left: 7px;
+            width: auto;
+            height: auto;
+            min-height: 1%;
+            opacity: 1;
+            margin-right: 12px;
+            margin-top: 2px;
+            border: 2px rgba(255,255,255, 0.03);
+            transition: transform 0.2s ease-in;
+            text-stroke: 1px rgb(50,50,50);
+            &.me
+
+        {
+            color: gold;
+            font-size: 42px;
+        }
+
+        &:intro {
+            transform: translateX(100);
+        }
+
+        &:outro {
+            opacity: 0;
+            transition: all 0.6s ease-in;
+        }
+
+        }
+	</style>
+</root>
