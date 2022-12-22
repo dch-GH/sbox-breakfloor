@@ -1,8 +1,12 @@
 ﻿using Breakfloor;
 using Sandbox;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
 
 public class ViewModel : BaseViewModel
 {
+	[Category("Viewmodel Specific")]	
+	public Vector3 PosOffset { get; set; }
 	protected float SwingInfluence => 0.05f;
 	protected float ReturnSpeed => 5.0f;
 	protected float MaxOffsetLength => 10.0f;
@@ -61,7 +65,7 @@ public class ViewModel : BaseViewModel
 		{
 			var playerVelocity = Game.LocalPawn.Velocity;
 
-			if ( Game.LocalPawn is BreakfloorPlayer player )
+			if ( Game.LocalPawn is Breakfloor.Player player )
 			{
 				//var controller = player.GetActiveController();
 				//if ( controller != null && controller.HasTag( "noclip" ) )
@@ -78,6 +82,7 @@ public class ViewModel : BaseViewModel
 
 			var offset = CalcSwingOffset( pitchDelta, yawDelta );
 			offset += CalcBobbingOffset( playerVelocity );
+			offset += PosOffset;
 
 			Position += Rotation * offset;
 		}

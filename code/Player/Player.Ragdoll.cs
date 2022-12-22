@@ -2,7 +2,7 @@
 
 namespace Breakfloor;
 
-partial class BreakfloorPlayer
+partial class Player
 {
 	public PlayerCorpse Ragdoll { get; set; }
 
@@ -25,7 +25,7 @@ partial class BreakfloorPlayer
 
 public class PlayerCorpse : ModelEntity
 {
-	public BreakfloorPlayer Player { get; set; }
+	public Player Player { get; set; }
 
 	private TimeSince TimeSinceSpawned { get; set; }
 
@@ -36,7 +36,7 @@ public class PlayerCorpse : ModelEntity
 		PhysicsEnabled = true;
 	}
 
-	public void CopyFrom( BreakfloorPlayer player )
+	public void CopyFrom( Player player )
 	{
 		RenderColor = player.RenderColor;
 

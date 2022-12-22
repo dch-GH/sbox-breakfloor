@@ -5,56 +5,57 @@ using System.Text;
 using System.Threading.Tasks;
 using Sandbox;
 using Editor;
+using Breakfloor.Events;
 
-namespace Breakfloor
+namespace Breakfloor;
+
+[HammerEntity]
+[ClassName( "bf_block" )]
+[EditorModel( "models/bf_block.vmdl", CastShadows = false )]
+[Title( "Breakfloor Block" ), Category( "Map" ), Icon( "check_box_outline_blank" ),
+	Description( "The blocks to be broken. Usually not placed manually, use a volume instead." )]
+public class BreakFloorBlock : ModelEntity
 {
-	[HammerEntity]
-	[ClassName( "bf_block" )]
-	[EditorModel( "models/bf_block.vmdl", CastShadows = false )]
-	[Title( "Breakfloor Block" ), Category( "Map" ), Icon( "check_box_outline_blank" ), 
-		Description("The blocks to be broken. Usually shouldn't be placed manually, use a volume instead.")]
-	public class BreakFloorBlock : ModelEntity
+	[Property( "WorldModel" )]
+	public string WorldModel { get; set; }
+
+	public bool Broken => LifeState == LifeState.Dead;
+
+	public override void Spawn()
 	{
-		[Property( "WorldModel" )]
-		public string WorldModel { get; set; }
+		base.Spawn();
+		Model = Model.Load( WorldModel );
 
-		public bool Broken => LifeState == LifeState.Dead;
+		Tags.Add( "solid" );
 
-		public override void Spawn()
-		{
-			base.Spawn();
-			Model = Model.Load( WorldModel );
+		PhysicsEnabled = false;
+		UsePhysicsCollision = true;
+		EnableShadowReceive = false;
 
-			Tags.Add( "solid" );
+		Reset();
+	}
 
-			PhysicsEnabled = false;
-			UsePhysicsCollision = true;
-			EnableShadowReceive = false;
+	public override void TakeDamage( DamageInfo info )
+	{
+		RenderColor = RenderColor.Darken( 0.35f );
+		base.TakeDamage( info );
+	}
 
-			Reset();
-		}
+	public override void OnKilled()
+	{
+		Sound.FromWorld( "bf_block_glassbreak", Position ).SetVolume( 0.6f );
+		EnableAllCollisions = false;
+		EnableDrawing = false;
+		LifeState = LifeState.Dead;
+	}
 
-		public override void TakeDamage( DamageInfo info )
-		{
-			RenderColor = RenderColor.Darken( 0.35f );
-			base.TakeDamage( info );
-		}
-
-		public override void OnKilled()
-		{
-			Sound.FromWorld( "bf_block_glassbreak", Position ).SetVolume( 0.6f );
-			EnableAllCollisions = false;
-			EnableDrawing = false;
-			LifeState = LifeState.Dead;
-		}
-
-		public void Reset()
-		{
-			LifeState = LifeState.Alive;
-			Health = BreakfloorGame.BlockHealthCvar;
-			EnableAllCollisions = true;
-			EnableDrawing = true;
-			RenderColor = Color.White;
-		}
+	public void Reset()
+	{
+		LifeState = LifeState.Alive;
+		Health = BreakfloorGame.BlockHealthCvar;
+		EnableAllCollisions = true;
+		EnableDrawing = true;
+		RenderColor = Color.White;
 	}
 }
+

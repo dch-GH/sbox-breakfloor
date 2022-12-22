@@ -1,0 +1,52 @@
+﻿@using System;
+@using Sandbox;
+@using Sandbox.UI;
+@using Breakfloor;
+
+@namespace Breakfloor.UI
+@inherits Panel
+
+@code
+{
+	Label value { get; set; }
+
+	public RoundTimer()
+	{
+		AddClass("round-timer");
+	}
+
+	public override void Tick()
+	{
+		base.Tick();
+
+		var span = TimeSpan.FromSeconds((BreakfloorGame.Instance.RoundTimer * 60).Clamp(0, float.MaxValue));
+		value.Text = span.ToString(@"h\:mm");
+	}
+}
+
+<root>
+	<label style="font-size: 32px;">⏱</label>
+	<label @ref="value"></label>
+	<style>
+        roundtimer {
+            // background-color: rgba(255, 255, 255, 0.082);
+            // background-color: rgba(0, 0, 0, 0.37);
+            background-image: linear-gradient(to top, rgba(0, 0, 0, 0.521), rgba(0, 0, 0, 0));
+            // backdrop-filter: blur(20px);
+            color: rgb(211, 205, 205);
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            left: 50%;
+            top: 2%;
+            border-radius: 15px;
+            width: 215px;
+            height: 80px;
+            margin-left: -107px;
+            font-family: Poppins;
+            font-weight: thin;
+            font-size: 65px;
+            text-shadow: 2px 2px 1px rgba(0,0,0,0.5);
+        }
+	</style>
+</root>

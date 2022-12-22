@@ -1,42 +1,40 @@
 ﻿using Sandbox;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Breakfloor.UI;
-using Breakfloor.Weapons;
-using Breakfloor.HammerEnts;
+using Breakfloor.Events;
 
 namespace Breakfloor;
 
 partial class BreakfloorGame : GameManager
 {
+	public static BreakfloorGame Instance { get; private set; }
+
 	public static readonly float StandardBlockSize = 64;
 	public static readonly float StandardHalfBlockSize = StandardBlockSize / 2;
 	public static readonly Vector3 StandardBlockDimensions = Vector3.One * StandardBlockSize;
 
-	public static BreakfloorGame Instance { get; private set; }
-
 	[Net]
 	public RealTimeUntil RoundTimer { get; private set; } = 0f;
+	// I don't plan on tracking state any more complicated than this.
+	public bool RoundActive { get; private set; } = false;
 
-	private bool roundTimerStarted = false;
 	private MapRules gameRules;
 
 	public BreakfloorGame()
 	{
-		//
-		// Create the HUD entity. This is always broadcast to all clients
-		// and will create the UI panels clientside. It's accessible 
-		// globally via Hud.Current, so we don't need to store it.
-		//
 		if ( Game.IsServer )
 		{
 			// This is really silly, I know. I assume we'll be able to store 
 			// at the very least a JSON/.txt file or something on the s&works addon page for secrets some day.
 			Admins = new List<long>() { 76561197998255119 };
 
-			_ = new BreakfloorHud();
-			RoundTimer = RoundTimeCvar; //so the timer can be frozen at the roundtimecvar.
+			RoundTimer = RoundTimeCvar; // So the timer can be frozen at the roundtimecvar.
+		}
+
+		if ( Game.IsClient )
+		{
+			_ = new Hud();
 		}
 
 		Instance = this;
@@ -65,7 +63,7 @@ partial class BreakfloorGame : GameManager
 		Log.Info( $"\"{cl.Name}\" has joined the game" );
 		// Chat.AddInformation( To.Everyone, $"{cl.Name} has joined", $"avatar:{cl.SteamId}", isAdmin );
 
-		var player = new BreakfloorPlayer();
+		var player = new Player();
 		cl.Pawn = player;
 		player.Team = HandleTeamAssign( cl );
 		player.UpdateClothes( cl );
@@ -76,12 +74,12 @@ partial class BreakfloorGame : GameManager
 
 		//Update the status of the round timer AFTER the joining client's
 		//team is set.
-		if ( !roundTimerStarted && (GetTeamCount( Team.RED ) >= 1 && GetTeamCount( Team.BLUE ) >= 1) )
+		if ( !RoundActive && (GetTeamCount( Team.RED ) >= 1 && GetTeamCount( Team.BLUE ) >= 1) )
 		{
 			RestartRound();
 			RoundTimer = RoundTimeCvar;
-			roundTimerStarted = true;
-			Log.Info( "Starting round!" );
+			RoundActive = true;
+			Log.Info( "Starting round." );
 		}
 	}
 
@@ -96,7 +94,7 @@ partial class BreakfloorGame : GameManager
 		await GameTask.DelayRealtimeSeconds( 2 );
 		if ( Game.Clients.Count <= 1 )
 		{
-			roundTimerStarted = false;
+			RoundActive = false;
 			RestartRound();
 		}
 
@@ -105,7 +103,7 @@ partial class BreakfloorGame : GameManager
 	[Event.Tick.Server]
 	public void ServerTick()
 	{
-		if ( roundTimerStarted )
+		if ( RoundActive )
 		{
 			if ( RoundTimer <= 0 )
 			{
@@ -127,25 +125,23 @@ partial class BreakfloorGame : GameManager
 
 	public void RestartRound()
 	{
+		Event.Run( BFEVents.Reset );
+
+		Game.WorldEntity.RemoveAllDecals();
+
 		foreach ( var block in Entity.All.OfType<BreakFloorBlock>() )
 		{
 			block.Reset();
 		}
 
-		foreach ( var e in WorldEntity.All )
-		{
-			e.RemoveAllDecals();
-		}
-
 		foreach ( var c in Game.Clients )
 		{
-			if ( c.Pawn is BreakfloorPlayer ply )
+			if ( c.Pawn is Player ply )
 			{
 				ply.Respawn();
 				c.SetInt( "kills", 0 );
 				c.SetInt( "deaths", 0 );
 			}
-
 		}
 
 		RoundTimer = RoundTimeCvar;
@@ -156,26 +152,28 @@ partial class BreakfloorGame : GameManager
 		//override the base.onkilled and tweak it instead of calling base.
 		Game.AssertServer();
 
-		var vicPlayer = (BreakfloorPlayer)victimPawn;
+		var vicPlayer = (Player)victimPawn;
 
 		if ( victimPawn.LastAttacker == null ) return;
 
-
-		if ( victimPawn.LastAttacker.GetType() == typeof( HurtVolumeEntity ) ) // First check if we died to a map hurt trigger
+		// First check if we died to a map hurt trigger
+		if ( victimPawn.LastAttacker.GetType() == typeof( HurtVolumeEntity ) )
 		{
 			var block = vicPlayer.LastBlockStoodOn;
 			if ( block != null && block.Broken )
 			{
-				if ( block.LastAttacker == vicPlayer ) //Player caused their own downfall
+				// Player caused their own downfall
+				if ( block.LastAttacker == vicPlayer )
 				{
-					var suicideText = new string[3] { "got themself killed", "played themself", "dug straight down" };
+					var suicideText = new string[3] { "died self", "played themself", "dug straight down" };
 					OnKilledClient( To.Everyone,
 						victimClient,
 						null,
 						Game.Random.FromArray<string>( suicideText ) );
 				}
-				else //Other player caused it
+				else
 				{
+					// Other player caused it
 					OnKilledClient( To.Everyone,
 						block.LastAttacker.Client,
 						victimClient,
@@ -186,7 +184,7 @@ partial class BreakfloorGame : GameManager
 				return;
 			}
 
-			//Otherwise, they just fell through a hole in the blocks and died
+			// Otherwise, they just fell through a hole in the blocks and died
 			OnKilledClient( To.Everyone,
 				victimClient,
 				null,
@@ -208,7 +206,6 @@ partial class BreakfloorGame : GameManager
 
 			OnKilledClient( To.Everyone, vicPlayer.LastAttacker.Client, victimClient, killedByText );
 		}
-
 	}
 
 	[ClientRpc]

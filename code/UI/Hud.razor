@@ -1,0 +1,18 @@
+﻿@using Sandbox;
+@using Sandbox.UI;
+
+@namespace Breakfloor.UI
+@inherits RootPanel
+
+<root>
+    <Crosshair/>
+    <RoundTimer/>
+</root>
+
+@code
+{
+    public Hud()
+    {
+        Game.RootPanel = this;
+    }
+}

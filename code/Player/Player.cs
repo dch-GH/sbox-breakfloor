@@ -1,25 +1,18 @@
-using Breakfloor.HammerEnts;
 using Sandbox;
 using System;
 using System.Linq;
 using Breakfloor.Weapons;
-using Breakfloor.UI;
-using System.Runtime.CompilerServices;
-using Breakfloor.Events;
-using System.ComponentModel.Design;
 
 namespace Breakfloor;
 
 [Title( "Player" ), Icon( "emoji_people" )]
-partial class BreakfloorPlayer : AnimatedEntity
+public partial class Player : AnimatedEntity
 {
 	[Net, Predicted]
-	public BreakfloorWalkController Controller { get; set; }
+	public PlayerController Controller { get; set; }
 
 	[Net, Predicted] public Entity ActiveChild { get; set; }
-	[ClientInput] public Vector3 InputDirection { get; protected set; }
-	[ClientInput] public Entity ActiveChildInput { get; set; }
-	[ClientInput] public Angles ViewAngles { get; set; }
+
 	public Angles OriginalViewAngles { get; private set; }
 
 	[Net] public Team Team { get; set; }
@@ -37,14 +30,14 @@ partial class BreakfloorPlayer : AnimatedEntity
 	private bool shouldOrientView;
 	private Angles spawnViewAngles;
 
+	[Net, Predicted]
+	public Vector3 EyeLocalPosition { get; set; }
+
 	public Vector3 EyePosition
 	{
 		get => Transform.PointToWorld( EyeLocalPosition );
 		set => EyeLocalPosition = Transform.PointToLocal( value );
 	}
-
-	[Net, Predicted]
-	public Vector3 EyeLocalPosition { get; set; }
 
 	/// <summary>
 	/// Rotation of the entity's "eyes", i.e. rotation for the camera when this entity is used as the view entity. In local to the entity coordinates.
@@ -63,10 +56,7 @@ partial class BreakfloorPlayer : AnimatedEntity
 	/// </summary>
 	public override Ray AimRay => new Ray( EyePosition, EyeRotation.Forward );
 
-	public BreakfloorPlayer()
-	{
-
-	}
+	public Player() { }
 
 	public override void Spawn()
 	{
@@ -85,46 +75,20 @@ partial class BreakfloorPlayer : AnimatedEntity
 		// For now, just make flashlights client-side per player only.
 	}
 
-	public override void ClientSpawn()
-	{
-		FlashlightEntity = new SpotLightEntity
-		{
-			Enabled = false,
-			DynamicShadows = true,
-			Range = 3200f,
-			Falloff = 0.3f,
-			LinearAttenuation = 0.3f,
-			Brightness = 8f,
-			Color = Color.FromBytes( 200, 200, 200, 230 ),
-			InnerConeAngle = 9,
-			OuterConeAngle = 32,
-			FogStrength = 1.0f,
-			Owner = this,
-			LightCookie = Texture.Load( "materials/effects/lightcookie.vtex" ),
-
-			// this helps with not casting the player model shadow clientside 
-			// (from the light being inside player model)
-			// no idea what to do for player puppets though, thats still fucked.
-			EnableViewmodelRendering = true
-		};
-	}
-
 	public void Respawn()
 	{
 		SetModel( "models/citizen/citizen.vmdl" );
 
-		Controller = new BreakfloorWalkController();
+		Controller = new PlayerController();
 		Controller.Pawn = this;
 		Controller.Client = Client;
 		Controller.Gravity = 750.0f; //gotta get that jump height above the blocks.
 
-		EnableAllCollisions = false;
-		EnableDrawing = false;
+		EnableAllCollisions = true;
+		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
 		EnableLagCompensation = true;
 		EnableShadowInFirstPerson = true;
-
-		Clothing.DressEntity( this );
 
 		Gun.Reload();
 
@@ -141,10 +105,13 @@ partial class BreakfloorPlayer : AnimatedEntity
 			.OrderBy( x => Guid.NewGuid() )
 			.FirstOrDefault();
 
+		// We color the clothes every respawn because they might have changed team.
+		// (There's also an NRE if you try to clothe in Spawn).
+		Clothing.DressEntity( this );
 		{
 			var teamColor = BreakfloorGame.GetTeamColor( Team );
 
-			//Paint clothes or body to our TeamIndex color.
+			// Paint clothes or body to our TeamIndex color.
 			if ( Clothing.ClothingModels.Count > 0 )
 			{
 				foreach ( var item in Clothing.ClothingModels )
@@ -168,33 +135,12 @@ partial class BreakfloorPlayer : AnimatedEntity
 
 		OrientAnglesToSpawnClient( To.Single( Client ), spawn.Transform.Rotation.Angles() );
 		RespawnClient();
-
-	}
-
-	[ClientRpc]
-	private void RespawnClient()
-	{
-		EnableShadowInFirstPerson = true;
-		EnableDrawing = false;
-	}
-
-	/// <summary>
-	/// See the overridden BuildInput method.
-	/// </summary>
-	/// <param name="ang"></param>
-	[ClientRpc]
-	private void OrientAnglesToSpawnClient( Angles ang )
-	{
-		shouldOrientView = true;
-		spawnViewAngles = ang;
 	}
 
 	public override void OnKilled()
 	{
 		TimeSinceDeath = 0;
 		base.OnKilled();
-
-		//Inventory.DeleteContents();
 
 		BecomeRagdollOnClient(
 			(Velocity / 2) + LastDamage.Force,
@@ -230,8 +176,7 @@ partial class BreakfloorPlayer : AnimatedEntity
 		Controller?.Simulate();
 		SimulateAnimation( Controller );
 
-		if(Game.IsServer)
-			Gun.Simulate( Client );
+		Gun?.Simulate( Client );
 
 		if ( LifeState != LifeState.Alive )
 			return;
@@ -244,53 +189,7 @@ partial class BreakfloorPlayer : AnimatedEntity
 		//TickPlayerUse();
 	}
 
-	public override void FrameSimulate( IClient cl )
-	{
-		base.FrameSimulate( cl );
-
-		Controller?.FrameSimulate();
-
-		// Place camera
-		Camera.Position = EyePosition;
-		Camera.Rotation = ViewAngles.ToRotation();
-		Camera.FieldOfView = Screen.CreateVerticalFieldOfView( Game.Preferences.FieldOfView );
-		Camera.FirstPersonViewer = this;
-
-		//Update the flashlight position on the client in framesim
-		//so the movement is nice and smooth.
-		FlashlightFrameSimulate();
-	}
-
-	public override void BuildInput()
-	{
-		if ( shouldOrientView )
-		{
-			ViewAngles = spawnViewAngles;
-			shouldOrientView = false;
-			return;
-		}
-
-		OriginalViewAngles = ViewAngles;
-		InputDirection = Input.AnalogMove;
-
-		if ( Input.StopProcessing )
-			return;
-
-		var look = Input.AnalogLook;
-
-		if ( ViewAngles.pitch > 90f || ViewAngles.pitch < -90f )
-		{
-			look = look.WithYaw( look.yaw * -1f );
-		}
-
-		var viewAngles = ViewAngles;
-		viewAngles += look;
-		viewAngles.pitch = viewAngles.pitch.Clamp( -89f, 89f );
-		viewAngles.roll = 0f;
-		ViewAngles = viewAngles.Normal;
-	}
-
-	private void SimulateAnimation( BreakfloorWalkController controller )
+	private void SimulateAnimation( PlayerController controller )
 	{
 		if ( controller == null )
 			return;
@@ -343,7 +242,7 @@ partial class BreakfloorPlayer : AnimatedEntity
 		if ( LifeState == LifeState.Dead )
 			return;
 
-		if ( info.Attacker != null && this.SameTeam( info.Attacker as BreakfloorPlayer ) )
+		if ( info.Attacker != null && this.SameTeam( info.Attacker as Player ) )
 		{
 			return;
 		}
@@ -362,7 +261,7 @@ partial class BreakfloorPlayer : AnimatedEntity
 			}
 		}
 
-		if ( info.Attacker is BreakfloorPlayer attacker && attacker != this )
+		if ( info.Attacker is Player attacker && attacker != this )
 		{
 			// Note - sending this only to the attacker!
 			attacker.DidDamage( To.Single( attacker ), info.Position, info.Damage, Health.LerpInverse( 100, 0 ) );
@@ -382,52 +281,4 @@ partial class BreakfloorPlayer : AnimatedEntity
 			}
 		}
 	}
-
-	[ClientRpc]
-	public void TookDamage( Vector3 pos )
-	{
-		if ( IsLocalPawn )
-		{
-			Event.Run( BFEVents.LocalPlayerHurt );
-		}
-	}
-
-	[ClientRpc]
-	public void DidDamage( Vector3 pos, float amount, float healthinv )
-	{
-		HitMarker( healthinv );
-	}
-
-	private async void HitMarker( float pitch )
-	{
-		await GameTask.Delay( 60 );
-		Sound.FromScreen( "ui.bf_hitmarker" ).SetPitch( 1 + pitch * 1 );
-	}
-
-	private void SetActiveSlot( int i )
-	{
-		//var player = Game.LocalPawn as Player;
-
-		//if ( player == null )
-		//	return;
-
-		//var activeChild = player.ActiveChild;
-		//if ( activeChild is Gun weapon && weapon.IsReloading ) return; //No weapon switch while reloading
-
-		//var ent = Inventory.GetSlot( i );
-		//if ( activeChild == ent )
-		//	return;
-
-		//if ( ent == null )
-		//	return;
-
-		//input.ActiveChild = ent;
-	}
-
-	[ClientRpc]
-	public void PlaySoundClient( string snd )
-	{
-		PlaySound( snd );
-	}
 }
-

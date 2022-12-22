@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Sandbox;
 
-namespace Breakfloor.Weapons;
+namespace Breakfloor;
 
 /// <summary>
 /// Generic skeleton for a gun.
@@ -16,6 +16,10 @@ public partial class Gun : AnimatedEntity
 
 	public virtual string ViewModelPath => default;
 	public BaseViewModel ViewModelEntity { get; protected set; }
+	public PickupTrigger PickupTrigger { get; protected set; }
+
+	[Net, Predicted]
+	public TimeSince TimeSinceDeployed { get; set; }
 
 	[Net, Predicted]
 	public TimeSince TimeSincePrimaryAttack { get; set; }
@@ -23,23 +27,18 @@ public partial class Gun : AnimatedEntity
 	[Net, Predicted]
 	public TimeSince TimeSinceSecondaryAttack { get; set; }
 
-	public virtual float ReloadTime => 3.0f;
-
-	public PickupTrigger PickupTrigger { get; protected set; }
-
 	[Net, Predicted]
 	public TimeSince TimeSinceReload { get; set; }
 
 	[Net, Predicted]
 	public bool IsReloading { get; set; }
 
-	[Net, Predicted]
-	public TimeSince TimeSinceDeployed { get; set; }
-
-	public virtual string GetKilledByText( DamageInfo dmg ) { return string.Empty; }
+	public virtual float ReloadTime => 3.0f;
 
 	[Net]
 	public int ClipAmmo { get; protected set; }
+
+	public virtual string GetKilledByText( DamageInfo dmg ) { return string.Empty; }
 
 	/// <summary>
 	/// Utility - return the entity we should be spawning particles from etc
@@ -229,32 +228,6 @@ public partial class Gun : AnimatedEntity
 
 		ViewModelEntity.SetModel( ViewModelPath );
 		ViewModelEntity.SetAnimParameter( "deploy", true );
-	}
-
-	public bool OnUse( Entity user )
-	{
-		if ( Owner != null )
-			return false;
-
-		if ( !user.IsValid() )
-			return false;
-
-		user.StartTouch( this );
-
-		return false;
-	}
-
-	public virtual bool IsUsable( Entity user )
-	{
-		//var player = user as BreakfloorPlayer;
-		//if ( Owner != null ) return false;
-
-		//if ( player.Inventory is Inventory inventory )
-		//{
-		//	return inventory.CanAdd( this );
-		//}
-
-		return true;
 	}
 
 	/// <summary>

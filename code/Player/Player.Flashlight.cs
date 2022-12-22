@@ -3,7 +3,7 @@ using Sandbox;
 
 namespace Breakfloor;
 
-public partial class BreakfloorPlayer
+partial class Player
 {
 	public SpotLightEntity FlashlightEntity { get; private set; }
 	public bool FlashlightEnabled { get; private set; }

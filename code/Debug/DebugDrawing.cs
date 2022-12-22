@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Breakfloor.HammerEnts;
 using Sandbox;
 using Editor;
 

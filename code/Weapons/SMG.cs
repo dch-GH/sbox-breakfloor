@@ -7,7 +7,7 @@ namespace Breakfloor.Weapons
 	[Library( "weapon_smg", Title = "SMG" )]
 	public partial class SMG : Gun
 	{
-		public override string ViewModelPath => "models/mp5/fp_mp5.vmdl";
+		public override string ViewModelPath => "models/mp5/fp_mp5.vmdl_c";
 
 		public override float PrimaryRate => 14.0f;
 		public override float SecondaryRate => 1.2f;
@@ -78,7 +78,7 @@ namespace Breakfloor.Weapons
 			const float damage = 8;
 
 			// Shoot the bullets
-			var spread = (Owner as Breakfloor.BreakfloorPlayer).Controller.HasTag( "ducked" )
+			var spread = (Owner as Player).Controller.HasTag( "ducked" )
 				? 0.09f
 				: 0.12f;
 
@@ -141,6 +141,17 @@ namespace Breakfloor.Weapons
 			return TimeSinceSecondaryAttack > (1 / rate);
 		}
 
+		public override void SimulateAnimator( CitizenAnimationHelper anim )
+		{
+			SetAnimParameter( "holdtype", 3 ); // TODO this is shit
+			SetAnimParameter( "aim_body_weight", 1.0f );
+		}
+
+		public override void CreateViewModel()
+		{
+			base.CreateViewModel();
+		}
+
 		[ClientRpc]
 		protected override void ShootEffects()
 		{
@@ -149,12 +160,6 @@ namespace Breakfloor.Weapons
 			Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
 			Particles.Create( "particles/pistol_ejectbrass.vpcf", EffectEntity, "ejection_point" );
 			ViewModelEntity?.SetAnimParameter( "fire", true );
-		}
-
-		public override void SimulateAnimator( CitizenAnimationHelper anim )
-		{
-			SetAnimParameter( "holdtype", 3 ); // TODO this is shit
-			SetAnimParameter( "aim_body_weight", 1.0f );
 		}
 	}
 }

@@ -5,7 +5,7 @@ using Sandbox;
 
 namespace Breakfloor
 {
-	public partial class BreakfloorWalkController : BaseNetworkable
+	public partial class PlayerController : BaseNetworkable
 	{
 		[Net] public float SprintSpeed { get; set; } = 320.0f;
 		[Net] public float WalkSpeed { get; set; } = 150.0f;
@@ -35,7 +35,7 @@ namespace Breakfloor
 		public HashSet<string> Events;
 		public HashSet<string> Tags;
 
-		[Net] public BreakfloorPlayer Pawn { get; set; }
+		[Net] public Player Pawn { get; set; }
 
 		public IClient Client { get; set; }
 		public Vector3 Position { get; set; }
@@ -252,7 +252,7 @@ namespace Breakfloor
 			Finalize( Pawn );
 		}
 
-		public void UpdateFromEntity( BreakfloorPlayer entity )
+		public void UpdateFromEntity( Player entity )
 		{
 			Position = entity.Position;
 			Rotation = entity.Rotation;
@@ -266,7 +266,7 @@ namespace Breakfloor
 			WishVelocity = entity.Velocity;
 		}
 
-		public void Finalize( BreakfloorPlayer target )
+		public void Finalize( Player target )
 		{
 			target.Position = Position;
 			target.Velocity = Velocity;
@@ -525,7 +525,7 @@ namespace Breakfloor
 
 		public virtual void CheckLadder()
 		{
-			var pl = (BreakfloorPlayer)Pawn;
+			var pl = (Player)Pawn;
 			var wishvel = new Vector3( pl.InputDirection.y, pl.InputDirection.x, 0 );
 			wishvel *= pl.ViewAngles.WithPitch( 0 ).ToRotation();
 			wishvel = wishvel.Normal;

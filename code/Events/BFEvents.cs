@@ -1,6 +1,7 @@
 using Sandbox;
 
 namespace Breakfloor.Events;
+
 public static class BFEVents
 {
 	public class BlockBreakAttribute : EventAttribute
@@ -15,5 +16,16 @@ public static class BFEVents
 	{
 		public LocalPlayerHurtEvent() : base( LocalPlayerHurt ) { }
 	}
-}
 
+	/// <summary>
+	/// When the round resets after time is up.
+	/// </summary>
+	public const string Reset = "bf.reset";
+	/// <summary>
+	/// When the round resets after time is up.
+	/// </summary>
+	public class ResetEvent : EventAttribute
+	{
+		public ResetEvent() : base( Reset ) { }
+	}
+}
