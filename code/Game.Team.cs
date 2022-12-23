@@ -42,12 +42,15 @@ partial class BreakfloorGame : GameManager
 
 	public static int GetTeamCount( Team team )
 	{
-		if ( Game.Clients.Count <= 1 ) return 0;
+		if ( Game.Clients.Count <= 0 ) return 0;
 
 		int num = 0;
 		foreach ( var c in Game.Clients )
 		{
 			var pawn = (Player)c.Pawn;
+			if ( pawn == null )
+				continue;
+
 			if ( pawn.Team == team )
 				num++;
 		}

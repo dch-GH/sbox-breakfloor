@@ -55,16 +55,20 @@ public partial class Gun : AnimatedEntity
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
 
-		PickupTrigger = new PickupTrigger
-		{
-			Parent = this,
-			Position = Position,
-			EnableTouch = true,
-			EnableAllCollisions = false,
-			EnableSelfCollisions = false
-		};
+		//PickupTrigger = new PickupTrigger
+		//{
+		//	Parent = this,
+		//	Position = Position,
+		//	EnableTouch = true,
+		//	EnableAllCollisions = false,
+		//	EnableSelfCollisions = false
+		//};
 
-		PickupTrigger.PhysicsBody.AutoSleep = false;
+		//PickupTrigger.PhysicsBody.AutoSleep = false;
+	}
+
+	public void Reset()
+	{
 		ClipAmmo = MaxClip;
 	}
 
@@ -78,8 +82,8 @@ public partial class Gun : AnimatedEntity
 
 	public override void Simulate( IClient player )
 	{
-		if ( TimeSinceDeployed < 0.6f )
-			return;
+		//if ( TimeSinceDeployed < 0.6f )
+		//	return;
 
 		if ( CanReload() || (Owner.IsValid && ClipAmmo <= 0 && player.GetClientData<bool>( Breakfloor.BreakfloorGame.BF_AUTO_RELOAD_KEY )) )
 		{

@@ -1,0 +1,29 @@
+﻿@using System;
+@using Sandbox;
+@using Sandbox.UI;
+@using Breakfloor;
+
+@namespace Breakfloor.UI
+@inherits Panel
+
+@code
+{
+	public IClient Client { get; set; }
+	public Color CachedColor { get; set; }
+
+}
+
+<root>
+	@{
+		if (Client.Pawn is not Breakfloor.Player ply)
+			return;
+
+		var color = BreakfloorGame.GetTeamColor(ply.Team);
+	}
+
+	<div class="pfp" style="background: url( avatar:@Client.SteamId ); border: 1px @color.Rgb"></div>
+	<label class="name" style="color:@(color.Rgb)">@(Client.Name)</label>
+</root>
+
+
+

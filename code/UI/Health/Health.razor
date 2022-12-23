@@ -1,0 +1,57 @@
+﻿@using Sandbox;
+@using Sandbox.UI;
+@using Breakfloor;
+
+@namespace Breakfloor.UI
+@inherits Panel
+
+@code
+{
+	protected override int BuildHash()
+	{
+		if (Game.LocalPawn is Breakfloor.Player ply)
+			return System.HashCode.Combine(ply.Health);
+
+		return 0;
+	}
+
+	public override void Tick()
+	{
+		if (sinceHurt >= 0.35f)
+			SetClass("hurt", false);
+	}
+}
+
+<root>
+	<label style="font-size: 60px; font-weight: bold; color: rgb(240, 50, 50);">+</label>
+	<label>
+		@(Game.LocalPawn.Health.FloorToInt().ToString())
+	</label>
+
+	<style>
+		Health {
+			background-color: rgba(0, 0, 0, 0.37);
+			backdrop-filter: blur(20px);
+			color: rgba(216, 208, 208, 0.952);
+			justify-content: center;
+			align-items: center;
+			position: absolute;
+			left: 2%;
+			bottom: 2%;
+			border-radius: 15px;
+			width: auto;
+			padding: 5px;
+			height: 80px;
+			font-family: Poppins;
+			font-weight: bold;
+			font-size: 50px;
+			transition: color 150ms ease-in-out;
+
+			&.hurt {
+				color: rgb(226, 65, 65);
+				transition: color 30ms ease-in-out;
+			}
+
+		}
+	</style>
+</root>

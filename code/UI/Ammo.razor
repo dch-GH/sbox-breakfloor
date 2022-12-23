@@ -1,0 +1,48 @@
+﻿@using Sandbox;
+@using Sandbox.UI;
+@using Breakfloor;
+
+@namespace Breakfloor.UI
+@inherits Panel
+
+@code
+{
+	protected override int BuildHash()
+	{
+		if (Game.LocalPawn is Breakfloor.Player ply)
+			return System.HashCode.Combine(ply.Gun.ClipAmmo);
+
+		return 0;
+	}
+}
+
+<root>
+	<label>
+		@{
+			if (Game.LocalPawn is not Breakfloor.Player ply)
+				return;
+
+			@($"{ply.Gun.ClipAmmo} / {ply.Gun.MaxClip}")
+		}
+	</label>
+
+	<style>
+		Ammo {
+			// background-color: rgba(255, 255, 255, 0.082);
+			background-color: rgba(0, 0, 0, 0.37);
+			backdrop-filter: blur(20px);
+			color: rgba(216, 208, 208, 0.952);
+			justify-content: center;
+			align-items: center;
+			position: absolute;
+			right: 2%;
+			bottom: 2%;
+			border-radius: 15px;
+			width: 140px;
+			height: 80px;
+			font-family: Poppins;
+			font-weight: bold;
+			font-size: 32px;
+		}
+	</style>
+</root>

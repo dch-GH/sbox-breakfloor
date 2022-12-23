@@ -23,7 +23,6 @@
 		@{
 			var span = TimeSpan.FromSeconds((BreakfloorGame.Instance.RoundTimer * 60).Clamp(0, float.MaxValue));
 			@(BreakfloorGame.Instance.RoundActive ? span.ToString(@"h\:mm") : "-:--")
-			;
 		}
 	</label>
 	<style>

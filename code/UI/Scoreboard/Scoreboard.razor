@@ -1,0 +1,63 @@
+﻿@using System;
+@using Sandbox;
+@using Sandbox.UI;
+@using Breakfloor;
+@using System.Collections.Generic;
+
+@namespace Breakfloor.UI
+@attribute [StyleSheet("/UI/Scoreboard/Scoreboard.scss")]
+@inherits Panel
+
+@code
+{
+	protected override int BuildHash()
+	{
+		return HashCode.Combine(BreakfloorGame.GetTeamCount(Team.BLUE) + BreakfloorGame.GetTeamCount(Team.RED));
+	}
+}
+
+<root>
+	@{
+		Log.Info("rebuilding");
+		// This isn't ideal. I may just drop the plan of
+		// allowing for more than 2 teams. And going back to using
+		// Client.GetInt() might be better for this.
+
+		List<Breakfloor.Player> TeamLeft = new();
+		List<Breakfloor.Player> TeamRight = new();
+
+		foreach (var c in Game.Clients)
+		{
+			Log.Info(c);
+			if (c.Pawn is not Breakfloor.Player ply)
+				continue;
+
+			Log.Info(ply.Team);
+			if (ply.Team == Team.BLUE)
+				TeamLeft.Add((Breakfloor.Player)c.Pawn);
+			else
+				TeamRight.Add((Breakfloor.Player)c.Pawn);
+		}
+	}
+	<inner>
+		<left>
+			@{
+				foreach (var player in TeamLeft)
+				{
+					<ScoreboardEntry Client=@player.Client>
+					</ScoreboardEntry>
+				}
+			}
+		</left>
+		<right>
+			@{
+				foreach (var player in TeamRight)
+				{
+					<ScoreboardEntry Client=@player.Client>
+					</ScoreboardEntry>
+				}
+			}
+		</right>
+
+	</inner>
+</root>

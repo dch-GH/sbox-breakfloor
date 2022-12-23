@@ -51,7 +51,10 @@ public partial class Player : AnimatedEntity
 		EnableLagCompensation = true;
 		EnableShadowInFirstPerson = true;
 
-		Gun.Reload();
+		foreach ( var child in Children.OfType<ModelEntity>() )
+			child.EnableDrawing = true;
+		
+		Gun.Reset();
 
 		LifeState = LifeState.Alive;
 		Health = 100;
@@ -116,6 +119,8 @@ public partial class Player : AnimatedEntity
 		LifeState = LifeState.Dead;
 
 		Log.Info( $"{this} died." );
+		GameManager.Current?.OnKilled( this );
+		Client?.AddInt( "deaths", 1 );
 	}
 
 	public override void Simulate( IClient cl )

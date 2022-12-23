@@ -28,7 +28,6 @@ partial class Killfeed : Panel
 			e.Killer.Style.FontColor = Color.Average( colors );
 		}
 
-
 		e.Method.Text = $"{method} ";
 
 		if ( victim != null && victim.Pawn is Player v )
