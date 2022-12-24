@@ -43,7 +43,7 @@
 			@{
 				foreach (var client in Game.Clients)
 				{
-					if(client.GetInt("team") != (int)Team.BLUE)
+					if (client.GetInt("team") != (int)Team.BLUE)
 						continue;
 
 					<ScoreboardEntry Client=@client>

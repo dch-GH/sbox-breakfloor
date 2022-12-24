@@ -8,7 +8,7 @@ namespace Breakfloor;
 [Title( "Player" ), Icon( "emoji_people" )]
 public partial class Player : AnimatedEntity
 {
-	[Net, Predicted] 
+	[Net, Predicted]
 	public PawnController Controller { get; set; }
 
 	[Net] public Team Team { get; set; }
@@ -53,7 +53,7 @@ public partial class Player : AnimatedEntity
 
 		foreach ( var child in Children.OfType<ModelEntity>() )
 			child.EnableDrawing = true;
-		
+
 		Gun.Reset();
 
 		LifeState = LifeState.Alive;
@@ -121,11 +121,22 @@ public partial class Player : AnimatedEntity
 		Log.Info( $"{this} died." );
 		GameManager.Current?.OnKilled( this );
 		Client?.AddInt( "deaths", 1 );
+
+		//
+		// Add a score to the killer
+		//
+		if ( LifeState == LifeState.Dead && LastDamage.Attacker != null )
+		{
+			if ( LastDamage.Attacker.Client != null && LastDamage.Attacker != this )
+			{
+				LastDamage.Attacker.Client.AddInt( "kills" );
+			}
+		}
 	}
 
 	public override void Simulate( IClient cl )
 	{
-		if ( LifeState == LifeState.Dead)
+		if ( LifeState == LifeState.Dead )
 		{
 			if ( TimeSinceDeath > 2 && Game.IsServer )
 			{
@@ -135,7 +146,7 @@ public partial class Player : AnimatedEntity
 			return;
 		}
 
-		Controller?.Simulate(Client, this);
+		Controller?.Simulate( Client, this );
 		SimulateAnimation( Controller );
 
 		Gun?.Simulate( Client );
@@ -160,17 +171,6 @@ public partial class Player : AnimatedEntity
 
 		LastDamage = info;
 		this.ProceduralHitReaction( info );
-
-		//
-		// Add a score to the killer
-		//
-		if ( LifeState == LifeState.Dead && info.Attacker != null )
-		{
-			if ( info.Attacker.Client != null && info.Attacker != this )
-			{
-				info.Attacker.Client.AddInt( "kills" );
-			}
-		}
 
 		if ( info.Attacker is Player attacker && attacker != this )
 		{

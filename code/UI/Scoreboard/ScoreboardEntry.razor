@@ -9,6 +9,12 @@
 @code
 {
 	public IClient Client { get; set; }
+
+	protected override int BuildHash()
+	{
+		return HashCode
+		.Combine(Client.GetInt("kills"), Client.GetInt("deaths"), Client.Name.FastHash());
+	}
 }
 
 @{
@@ -20,4 +26,13 @@
 <root style="background-image: linear-gradient(to left, @lightColor.WithAlpha(0.1f).Rgba, rgba(0, 0, 0, 0));">
 	<div class="pfp" style="background: url( avatar:@Client.SteamId ); border: 1px @color.Rgb"></div>
 	<label class="name" style="color:@(lightColor.Rgb)">@(Client.Name)</label>
+	<div class="score">
+		<div style="display: flex; flex-direction: column;">
+			<label style="font-size: 16px; align-self: center;">💀</label>
+			<label class="name" style="color:white; font-size: 32px;">@Client.GetInt("kills")</label>
+		</div>
+		<div style="display: flex; flex-direction: column; padding-left: 5px;">
+			<label style="font-size: 16px; align-self: center;">⚰</label>
+			<label class="name" style="color:white; font-size: 32px;">@Client.GetInt("deaths")</label>
+		</div>
 </root>
