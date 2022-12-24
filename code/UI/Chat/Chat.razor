@@ -6,6 +6,8 @@
 
 @namespace Sandbox
 
+@attribute [StyleSheet("/UI/Chat/Chat.scss")]
+
 <root>
     <div class="canvas" @ref=Canvas />
     <TextEntry @ref=Input onsubmit=@Submit onblur=@Close />

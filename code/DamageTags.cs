@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Sandbox;
+
 public static class DamageTags
 {
 	public static string Generic = "generic";
