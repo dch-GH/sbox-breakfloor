@@ -63,9 +63,13 @@ partial class BreakfloorGame : GameManager
 		Log.Info( $"\"{cl.Name}\" has joined the game" );
 		// Chat.AddInformation( To.Everyone, $"{cl.Name} has joined", $"avatar:{cl.SteamId}", isAdmin );
 
-		var player = new Player();
+		var player = new Breakfloor.Player();
 		cl.Pawn = player;
-		player.Team = HandleTeamAssign( cl );
+
+		var resultingTeam = HandleTeamAssign( cl );
+		player.Team = resultingTeam;
+		cl.SetValue( "team", (int)resultingTeam );
+
 		player.UpdateClothes( cl );
 		player.Respawn();
 

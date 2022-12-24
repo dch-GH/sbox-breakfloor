@@ -9,21 +9,15 @@
 @code
 {
 	public IClient Client { get; set; }
-	public Color CachedColor { get; set; }
-
 }
 
-<root>
-	@{
-		if (Client.Pawn is not Breakfloor.Player ply)
-			return;
+@{
 
-		var color = BreakfloorGame.GetTeamColor(ply.Team);
-	}
+	var color = BreakfloorGame.GetTeamColor((Team)Client.GetInt("team"));
+	var lightColor = color.WithAlpha(0.25f);
+}
 
+<root style="background-image: linear-gradient(to left, @lightColor.WithAlpha(0.1f).Rgba, rgba(0, 0, 0, 0));">
 	<div class="pfp" style="background: url( avatar:@Client.SteamId ); border: 1px @color.Rgb"></div>
-	<label class="name" style="color:@(color.Rgb)">@(Client.Name)</label>
+	<label class="name" style="color:@(lightColor.Rgb)">@(Client.Name)</label>
 </root>
-
-
-
