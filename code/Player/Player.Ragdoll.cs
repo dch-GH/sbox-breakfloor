@@ -65,7 +65,7 @@ public class PlayerCorpse : ModelEntity
 
 	public void ApplyForceToBone( Vector3 force, int forceBone )
 	{
-		PhysicsGroup.AddVelocity( force );
+		PhysicsGroup?.AddVelocity( force );
 
 		if ( forceBone >= 0 )
 		{
@@ -74,7 +74,7 @@ public class PlayerCorpse : ModelEntity
 			if ( body != null )
 				body.ApplyForce( force * 1000 );
 			else
-				PhysicsGroup.AddVelocity( force );
+				PhysicsGroup?.AddVelocity( force );
 		}
 	}
 

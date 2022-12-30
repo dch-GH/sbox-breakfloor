@@ -25,7 +25,14 @@ public partial class Player : AnimatedEntity
 	{
 		Tags.Add( "player" );
 
-		SetModel( "models/citizen/citizen.vmdl" );
+		SetModel( "models/humans/male.vmdl" );
+		var headModel = Model.Load( "models/humans/heads/adam/adam.vmdl" );
+
+		var head = new AnimatedEntity();
+		head.Model = headModel;
+		head.EnableHideInFirstPerson = true;
+		head.EnableShadowInFirstPerson = true;
+		head.SetParent( this, true);
 
 		Gun = new SMG();
 		Gun.Owner = this;
@@ -41,7 +48,7 @@ public partial class Player : AnimatedEntity
 
 	public void Respawn()
 	{
-		SetModel( "models/citizen/citizen.vmdl" );
+		SetModel( "models/humans/male.vmdl" );
 
 		Controller = new WalkController();
 
@@ -71,23 +78,23 @@ public partial class Player : AnimatedEntity
 
 		// We color the clothes every respawn because they might have changed team.
 		// (There's also an NRE if you try to clothe in Spawn).
-		Clothing.DressEntity( this );
-		{
-			var teamColor = BreakfloorGame.GetTeamColor( Team );
+		//Clothing.DressEntity( this );
+		//{
+		//	var teamColor = BreakfloorGame.GetTeamColor( Team );
 
-			// Paint clothes or body to our TeamIndex color.
-			if ( Clothing.ClothingModels.Count > 0 )
-			{
-				foreach ( var item in Clothing.ClothingModels )
-				{
-					item.RenderColor = teamColor;
-				}
-			}
-			else
-			{
-				RenderColor = teamColor;
-			}
-		}
+		//	// Paint clothes or body to our TeamIndex color.
+		//	if ( Clothing.ClothingModels.Count > 0 )
+		//	{
+		//		foreach ( var item in Clothing.ClothingModels )
+		//		{
+		//			item.RenderColor = teamColor;
+		//		}
+		//	}
+		//	else
+		//	{
+		//		RenderColor = teamColor;
+		//	}
+		//}
 
 		//Log.Info( $"Player:{IClient} has teamIndex: {teamIndex}." );
 		//Log.Info($"Spawning player {IClient} at {spawn} because it has index {spawn.Index}");
