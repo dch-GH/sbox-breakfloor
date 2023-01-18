@@ -47,6 +47,7 @@ partial class Player
 		Camera.Rotation = ViewAngles.ToRotation();
 		Camera.FieldOfView = Screen.CreateVerticalFieldOfView( Game.Preferences.FieldOfView );
 		Camera.FirstPersonViewer = this;
+		Camera.Main.SetViewModelCamera( 58 );
 
 	}
 
