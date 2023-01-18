@@ -151,7 +151,7 @@ namespace Breakfloor.Weapons
 		public override void CreateViewModel()
 		{
 			base.CreateViewModel();
-			(ViewModelEntity as ViewModel).PosOffset = new Vector3( 8.88f, -0.67f, -0.11f );
+			(ViewModelEntity as ViewModel).PosOffset = Vector3.Right * 1.8f;
 		}
 
 		[ClientRpc]
