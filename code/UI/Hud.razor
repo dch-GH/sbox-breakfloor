@@ -5,20 +5,29 @@
 @inherits RootPanel
 
 <root>
-    <Crosshair/>
-    <RoundTimer/>
-    <TargetId/>
-    <Killfeed/>
-    <Ammo/>
-    <Health/>
-    <Scoreboard/>
-    <Chat/>
+	<Crosshair />
+	<RoundTimer />
+	<TargetId />
+	<Killfeed />
+	<Ammo />
+	<Health />
+	<Scoreboard />
+	<Chat />
 </root>
+
+<style>
+	hud {
+		&.devcamera {
+			display: none;
+		}
+	}
+</style>
+
 
 @code
 {
-    public Hud()
-    {
-        Game.RootPanel = this;
-    }
+	public Hud()
+	{
+		Game.RootPanel = this;
+	}
 }
