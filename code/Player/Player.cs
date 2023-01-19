@@ -111,9 +111,11 @@ public partial class Player : AnimatedEntity
 	{
 		TimeSinceDeath = 0;
 
-		BecomeRagdollOnClient(
-			(Velocity / 2) + LastDamage.Force,
-			LastDamage.BoneIndex );
+		// No ragdoll for FP humanoid male *yet*.
+
+		//BecomeRagdollOnClient(
+		//	(Velocity / 2) + LastDamage.Force,
+		//	LastDamage.BoneIndex );
 
 		EnableAllCollisions = false;
 		EnableDrawing = false;
