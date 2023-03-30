@@ -3,14 +3,14 @@
   "Type": "game",
   "Org": "null",
   "Ident": "breakfloor",
-  "Tags": "",
+  "Tags": "pvp strategy",
   "Schema": 1,
   "HasAssets": true,
   "AssetsPath": "",
   "ResourcePaths": [],
   "HasCode": true,
   "CodePath": "/code/",
-  "RootNamespace": "Breakfloor",
+  "PackageReferences": [],
   "Metadata": {
     "MapList": [
       "null.bkf_orange",
@@ -77,6 +77,10 @@
     "ParentPackage": "",
     "GeneralExtensions": false,
     "TargettedExtensions": true,
-    "ExtensionApiVersion": 1001
+    "ExtensionApiVersion": 1001,
+    "Summary": "Intense floor breaking action! Originally made in CS:S by Tstar.",
+    "Description": "",
+    "Public": true,
+    "ReplaceTags": "pvp strategy"
   }
 }
