@@ -32,7 +32,7 @@ public partial class Player : AnimatedEntity
 		head.Model = headModel;
 		head.EnableHideInFirstPerson = true;
 		head.EnableShadowInFirstPerson = true;
-		head.SetParent( this, true);
+		head.SetParent( this, true );
 
 		Gun = new SMG();
 		Gun.Owner = this;
@@ -48,8 +48,6 @@ public partial class Player : AnimatedEntity
 
 	public void Respawn()
 	{
-		SetModel( "models/humans/male.vmdl" );
-
 		Controller = new WalkController();
 
 		EnableAllCollisions = true;
@@ -57,6 +55,7 @@ public partial class Player : AnimatedEntity
 		EnableHideInFirstPerson = true;
 		EnableLagCompensation = true;
 		EnableShadowInFirstPerson = true;
+
 
 		foreach ( var child in Children.OfType<ModelEntity>() )
 			child.EnableDrawing = true;
