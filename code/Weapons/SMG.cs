@@ -134,7 +134,7 @@ namespace Breakfloor.Weapons
 
 		public override bool CanSecondaryAttack()
 		{
-			if ( !Owner.IsValid() || !Input.Down( InputButton.SecondaryAttack ) ) return false;
+			if ( !Owner.IsValid() || !Input.Down( InputActions.SecondaryAttack ) ) return false;
 
 			var rate = SecondaryRate;
 			if ( rate <= 0 ) return true;

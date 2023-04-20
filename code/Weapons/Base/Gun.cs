@@ -128,7 +128,7 @@ public partial class Gun : AnimatedEntity
 
 	public virtual bool CanReload()
 	{
-		if ( !Owner.IsValid() || !Input.Down( InputButton.Reload ) ) return false;
+		if ( !Owner.IsValid() || !Input.Down( InputActions.Reload ) ) return false;
 		if ( ClipAmmo < MaxClip )
 			return true;
 
@@ -163,7 +163,7 @@ public partial class Gun : AnimatedEntity
 
 	public virtual bool CanPrimaryAttack()
 	{
-		if ( !Owner.IsValid() || !Input.Down( InputButton.PrimaryAttack ) ) return false;
+		if ( !Owner.IsValid() || !Input.Down( InputActions.PrimaryAttack ) ) return false;
 
 		var rate = PrimaryRate;
 		if ( rate <= 0 ) return true;
@@ -183,7 +183,7 @@ public partial class Gun : AnimatedEntity
 
 	public virtual bool CanSecondaryAttack()
 	{
-		if ( !Owner.IsValid() || !Input.Down( InputButton.SecondaryAttack ) ) return false;
+		if ( !Owner.IsValid() || !Input.Down( InputActions.SecondaryAttack ) ) return false;
 
 		var rate = SecondaryRate;
 		if ( rate <= 0 ) return true;

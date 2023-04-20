@@ -16,23 +16,28 @@ partial class Player
 		debug = !debug;
 	}
 
+	[Event.Tick.Client]
+	private void OnTick()
+	{
+		if ( FlashlightEntity == null || !FlashlightEntity.IsValid() )
+			return;
+
+		if ( Input.Released( InputActions.Flashlight ) )
+		{
+			FlashlightEnabled = !FlashlightEnabled;
+			PlaySound( FlashlightEntity.Enabled ? "flashlight_off" : "flashlight_on" );
+		}
+	}
+
 	[Event.Client.Frame]
 	private void OnFrame()
 	{
 		if ( FlashlightEntity == null || !FlashlightEntity.IsValid() )
 			return;
 
-		if ( Input.Pressed( InputButton.Flashlight ) )
-		{
-			FlashlightEnabled = !FlashlightEnabled;
-			PlaySound( FlashlightEntity.Enabled ? "flashlight_off" : "flashlight_on" );
-		}
-
 		FlashlightEntity.Enabled = FlashlightEnabled;
-
 		// This calculation is pretty much ripped from Source 1, minus some ladder stuff and a double check they do
 		// inside the player hull. Works great for me!
-
 		const float pullLerp = 0.0002f; //yeah :(
 		float pullbackCutoff = 128f; // the distance when we start pulling the flashlight behind player
 		float far = FlashlightEntity.Range; //the overall max range of the trace and spotlight
