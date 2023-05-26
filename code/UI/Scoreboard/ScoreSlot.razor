@@ -1,0 +1,43 @@
+﻿@using System;
+@using Sandbox;
+
+@namespace Breakfloor.UI
+
+<root>
+    <label class="indicator" text="@Indicator"></label>
+    <label class="amount" text="@Amount"></label>
+</root>
+
+@code {
+    public string Indicator { get; set; }
+    public string Amount { get; set; }
+
+    protected override int BuildHash()
+    {
+        // Just use time since this is only going to be running
+        // while the scoreboard is open which isn't often.
+        return HashCode.Combine(Time.Now);
+    }
+}
+
+<style>
+    ScoreSlot {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        justify-content: space-evenly;
+        color: white;
+        align-self: center;
+        align-items: center;
+
+        .indicator {
+            font-size: 19px;
+            font-weight: bold;
+            border-bottom: 1px white;
+        }
+
+        .amount {
+            font-size: 32px;
+        }
+    }
+</style>

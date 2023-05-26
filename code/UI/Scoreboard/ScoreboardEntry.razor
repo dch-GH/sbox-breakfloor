@@ -8,33 +8,60 @@
 
 @code
 {
-	public IClient Client { get; set; }
+    public IClient Client { get; set; }
 
-	protected override int BuildHash()
-	{
-		return HashCode
-		.Combine(Client.GetInt("kills"), Client.GetInt("deaths"), Client.Name.FastHash());
-	}
+    protected override int BuildHash()
+    {
+        return HashCode
+        .Combine(Time.Now);
+    }
 }
 
 @{
 
-	var color = BreakfloorGame.GetTeamColor((Team)Client.GetInt("team"));
-	var lightColor = color.WithAlpha(0.25f);
+    var color = BreakfloorGame.GetTeamColor((Team)Client.GetInt("team"));
+    var lightColor = color.WithAlpha(0.25f);
 }
 
-<root style="background-image: linear-gradient(to left, @lightColor.WithAlpha(0.1f).Rgba, rgba(0, 0, 0, 0));">
-	<div class="pfp" style="background: url( avatar:@Client.SteamId ); border: 1px @color.Rgb"></div>
-	<label class="name" style="color:@(lightColor.Rgb)">@(Client.Name)</label>
-	<div class="score">
-		<div style="display: flex; flex-direction: column;">
-			<label style="font-size: 16px; align-self: center;">💀</label>
-			<label class="name" style="color:white; font-size: 32px;">@Client.GetInt("kills")</label>
-		</div>
-		<div style="width: 10px;"></div>
-		<div style="display: flex; flex-direction: column;">
-			<label style="font-size: 16px; align-self: center;">⚰</label>
-			<label class="name" style="color:white; font-size: 32px;">@Client.GetInt("deaths")</label>
-		</div>
-	</div>
+<root>
+    <div class="pfp" style="background: url( avatar:@Client.SteamId ); border: 1px @color.Rgb"></div>
+    <label class="name" style="color:@(lightColor.Rgb)">@(Client.Name)</label>
+    <div class="score">
+        <ScoreSlot @Indicator="K" @Amount=@(Client.GetInt("kills").ToString())></ScoreSlot>
+        <div style="width: 10px;"></div>
+        <ScoreSlot @Indicator="D" @Amount=@(Client.GetInt("deaths").ToString())></ScoreSlot>
+    </div>
 </root>
+
+<style>
+    ScoreboardEntry {
+        display: flex;
+        margin: 14px;
+        flex-direction: row;
+        width: auto;
+        height: auto;
+
+        .pfp {
+            width: 63px;
+            height: 63px;
+            flex-shrink: 1;
+        }
+
+        .name {
+            font-family: Poppins;
+            font-weight: 400;
+            text-align: center;
+            align-self: center;
+            font-size: 28px;
+            margin-left: 15px;
+        }
+
+        .score {
+            display: flex;
+            flex-direction: row;
+            width: 14%;
+            margin-left: auto;
+            margin-right: 9px;
+        }
+    }
+</style>

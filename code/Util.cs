@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Sandbox;
 
 namespace Breakfloor;
@@ -67,5 +69,18 @@ public static class TraceResultExtensions
 			var ps = Particles.Create( particleName, tr.EndPosition );
 			ps.SetForward( 0, tr.Normal );
 		}
+	}
+}
+
+public static class IEnumerableExtensions
+{
+	public static int HashCombine<T>( this IEnumerable<T> e, Func<T, decimal> selector )
+	{
+		var result = 0;
+
+		foreach ( var el in e )
+			result = HashCode.Combine( result, selector.Invoke( el ) );
+
+		return result;
 	}
 }
