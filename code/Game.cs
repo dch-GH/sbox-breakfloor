@@ -72,7 +72,7 @@ partial class BreakfloorGame : GameManager
 
 		player.UpdateClothes( cl );
 		player.Respawn();
-
+		
 		// Chat.AddInformation( To.Single( cl ),
 		// 	$"Welcome to Breakfloor! You can toggle auto reloading by typing \"bf_auto_reload true\" into the console." );
 
@@ -104,7 +104,7 @@ partial class BreakfloorGame : GameManager
 
 	}
 
-	[Event.Tick.Server]
+	[GameEvent.Tick.Server]
 	public void ServerTick()
 	{
 		if ( RoundActive )

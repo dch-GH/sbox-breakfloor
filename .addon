@@ -7,17 +7,16 @@
   "Schema": 1,
   "HasAssets": true,
   "AssetsPath": "",
-  "ResourcePaths": [
-    "/styles/*"
-  ],
+  "Resources": null,
+  "MenuResources": null,
   "HasCode": true,
   "CodePath": "/code/",
   "PackageReferences": [],
   "EditorReferences": null,
   "Metadata": {
     "MapList": [
-      "null.bkf_orange",
-      "null.bkf_tstar"
+      "null.bkf_tstar",
+      "null.bkf_orange"
     ],
     "MapSelect": "Tagged",
     "MinPlayers": 1,
@@ -262,6 +261,7 @@
           "GroupName": "Other"
         }
       ]
-    }
+    },
+    "HttpAllowList": null
   }
 }

@@ -75,6 +75,7 @@ public partial class Player : AnimatedEntity
 			.OrderBy( x => Guid.NewGuid() )
 			.FirstOrDefault();
 
+
 		// We color the clothes every respawn because they might have changed team.
 		// (There's also an NRE if you try to clothe in Spawn).
 		//Clothing.DressEntity( this );
@@ -98,7 +99,7 @@ public partial class Player : AnimatedEntity
 		//Log.Info( $"Player:{IClient} has teamIndex: {teamIndex}." );
 		//Log.Info($"Spawning player {IClient} at {spawn} because it has index {spawn.Index}");
 
-		Transform = spawn.Transform;
+		Transform = spawn is null ? new Transform( new Vector3( 0, 128, 0 ), Rotation.Identity, 1 ) : spawn.Transform;
 		ResetInterpolation();
 
 		LastBlockStoodOn = null;

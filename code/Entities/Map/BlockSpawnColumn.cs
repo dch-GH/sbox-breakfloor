@@ -32,7 +32,7 @@ namespace Breakfloor
 		/// set from the volume entity's code. Need to do that in PostSpawn because Position isnt set in Spawn!
 		/// I wish it were though :)
 		/// </summary>
-		[Event.Entity.PostSpawn]
+		[GameEvent.Entity.PostSpawn]
 		public void PostSpawn()
 		{
 			Game.AssertServer();
@@ -59,7 +59,7 @@ namespace Breakfloor
 			debug = !debug;
 		}
 
-		[Event.Tick.Server]
+		[GameEvent.Tick.Server]
 		private void Tick()
 		{
 			if ( !debug ) return;

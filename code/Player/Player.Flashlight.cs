@@ -16,7 +16,7 @@ partial class Player
 		debug = !debug;
 	}
 
-	[Event.Tick.Client]
+	[GameEvent.Tick.Client]
 	private void OnTick()
 	{
 		if ( FlashlightEntity == null || !FlashlightEntity.IsValid() )
@@ -29,7 +29,7 @@ partial class Player
 		}
 	}
 
-	[Event.Client.Frame]
+	[GameEvent.Client.Frame]
 	private void OnFrame()
 	{
 		if ( FlashlightEntity == null || !FlashlightEntity.IsValid() )

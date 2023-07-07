@@ -85,7 +85,7 @@ public class PlayerCorpse : ModelEntity
 		base.Spawn();
 	}
 
-	[Event.Tick.Client]
+	[GameEvent.Tick.Client]
 	protected virtual void ClientTick()
 	{
 		if ( IsClientOnly && TimeSinceSpawned > 10f )

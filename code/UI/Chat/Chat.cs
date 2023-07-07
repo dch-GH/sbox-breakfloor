@@ -2,7 +2,7 @@ namespace Sandbox;
 
 public partial class Chat
 {
-	[ConCmd.Client( "chat_add", CanBeCalledFromServer = true )]
+	[ConCmd.Client( "bkf_chat_add", CanBeCalledFromServer = true )]
 	public static void AddChatEntry( string name, string message, string playerId = "0", bool isInfo = false )
 	{
 		Current?.AddEntry( name, message, long.Parse( playerId ), isInfo );
@@ -20,7 +20,7 @@ public partial class Chat
 		AddChatEntry( target, name, message, playerId.ToString(), isInfo );
 	}
 
-	[ConCmd.Server( "say" )]
+	[ConCmd.Server( "bkf_say" )]
 	public static void Say( string message )
 	{
 		if ( !ConsoleSystem.Caller.IsValid() ) return;

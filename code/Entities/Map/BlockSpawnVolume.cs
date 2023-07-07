@@ -59,7 +59,7 @@ namespace Breakfloor
 			debug = !debug;
 		}
 
-		[Event.Tick.Server]
+		[GameEvent.Tick.Server]
 		private void Tick()
 		{
 			if ( !debug ) return;
